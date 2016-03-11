@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -e
+
+DEF_UPLOAD_DIRNAME=upload
+#set -x
+
+SRC=$1
+USERNAME=$2
+HOST=${3:-}
+UPLOAD_DIRNAME=${4:-$DEF_UPLOAD_DIRNAME}
+
+[ "$HOST" = '' ] && HOST=$USERNAME || HOST="$USERNAME@$HOST"
+
+UPLOAD_DIRNAME=${UPLOAD_DIRNAME%/}
+UPLOAD_DIRNAME=${UPLOAD_DIRNAME#/}
+
+DST="$HOST:/home/$USERNAME/$UPLOAD_DIRNAME/$SRC"
+
+echo "scp -r $SRC $DST"
+scp -r "$SRC" "$DST"
+
+
+# Examples of using:
+#
+# 1. Common:
+# $ w_scp file_or_dir someFriend hostOfFriend downloaded
+#
+# 2. if USERNAME $2 is Host from ~/.ssh/config
+#      Host friendname
+#        Hostname 192.168.0.2
+#        User friendname
+#        ...
+# $ w_scp file_or_dir friendname
+#
+

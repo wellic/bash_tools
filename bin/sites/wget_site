@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e
+
+if [[ $# -eq 0 ]]; then
+  echo Usage: $0 site_name [level_depth]
+  echo EXAMPLE: $0 http://example/test.html 2
+  exit 1;
+else
+  SITE=$1
+  LEVEL=3
+  if [[ $# -eq 2 ]]; then
+    LEVEL=$2
+  fi;
+fi;
+
+echo Site: $SITE
+echo Depth: $LEVEL
+wget -r -k -l $LEVEL -p -E -nc $SITE
+exit 0;
+
+

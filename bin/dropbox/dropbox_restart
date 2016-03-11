@@ -1,0 +1,17 @@
+#!/bin/sh
+
+dropbox stop 
+dbus-launch dropbox start -i 
+dropbox autostart n
+exit 0
+
+#sudo dropbox stop
+#sleep 1
+#dropbox status
+#sleep 1
+#dropbox start
+#sudo chown -R $USER:$USER /home/$USER/.dropbox
+#env DBUS_SESSION_BUS_ADDRESS="" sudo dropbox start
+#sudo dropbox start 
+#sleep 10
+#sudo chown -R $USER:$USER /home/$USER/.dropbox

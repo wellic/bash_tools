@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ "$(whoami)" != "root" ]
+then
+  echo "You have to run this script as Superuser!"
+  exit 1
+fi
+
+echo before: $(date +%c) | tee /tmp/clearmem.tmp
+free -m | tee -a /tmp/clearmem.tmp
+echo | tee -a /tmp/clearmem.tmp
+
+sync 
+echo 3 | tee /proc/sys/vm/drop_caches
+
+echo after: $(date +%c) | tee -a /tmp/clearmem.tmp
+free -m | tee -a /tmp/clearmem.tmp
+echo | tee -a /tmp/clearmem.tmp
+
+echo swap | tee -a /tmp/clearmem.tmp
+/home/wellic/bin/clearswap | tee -a /tmp/clearmem.tmp
+exit 0

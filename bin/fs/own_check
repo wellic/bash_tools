@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+
+#set -e
+#set -x
+
+clear
+
+CHECK_DIR=${1:-$PWD}
+CHECK_USER=${2:-$USER}
+CHECK_GROUP=${3:-$USER}
+
+RETDIR=$(dirname $0)
+
+CHECK_DIR=${CHECK_DIR#$PWD}
+[ "$CHECK_DIR" == ''  ] && CHECK_DIR=.
+[ "$CHECK_DIR" != '/' ] && CHECK_DIR=${CHECK_DIR%/}
+
+print_checked_param() {
+  echo "Dir: $CHECK_DIR"
+  echo "User: $CHECK_USER"
+  echo "Group: $CHECK_GROUP"
+}
+
+view_bad() {
+  local cnt=$1
+  if [ $cnt -ne 0 ]; then
+    echo -e "\nWrong user or group. Check please:"
+    echo "--------------------------------------------"
+    sudo find "$CHECK_DIR" \( -not -user $CHECK_USER -or -not -group $CHECK_GROUP \) -exec stat -c "%U:%G %n" {} \;
+    echo "--------------------------------------------"
+  fi
+  return $cnt
+}
+
+own_check() {
+  local cnt=0;
+  echo -e "\nsudo find $CHECK_DIR -not -user $CHECK_USER -or -not -group $CHECK_GROUP"
+  cnt=$(sudo find "$CHECK_DIR" -not -user $CHECK_USER -or -not -group $CHECK_GROUP | wc -l )
+  echo "Found: $cnt"
+  return $cnt
+}
+
+print_finish_message() {
+  local cnt=$1
+  local T1='All'
+  local T2='Ok'
+
+  if [ $cnt -ne 0 ]; then
+    clear    
+    T1='Not all'
+    T2='Failed'
+    echo
+  else
+    echo -e "\n--------------------------------------------\n"
+  fi
+
+  echo -e "Status: $T2"
+  echo -e "\n${T1} files and dirs has correct User:Group ($CHECK_USER:$CHECK_GROUP)"
+  if [ $cnt -ne 0 ]; then
+    print_checked_param
+    view_bad $cnt
+  fi
+  echo
+}
+
+print_checked_param
+own_check
+cnt=$?
+
+print_finish_message $cnt
+
+cd "$RETDIR"
+
+exit $cnt

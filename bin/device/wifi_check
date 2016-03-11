@@ -1,0 +1,12 @@
+
+iwlist wlan0 scan | grep Frequency | sort | uniq -c | sort -n
+
+#sudo apt-get install wifi-radar
+#sudo wifi-radar
+
+#http://irbis.pp.ua/linux/ubuntumint-proverit-zanyatye-kanaly-wi-fi.html
+
+#http://uwiki.blogspot.com/2011/09/wifi-inssider.html
+#http://bolknote.ru/2011/03/15/~3143#26
+#https://toster.ru/q/15664
+#http://bemonolit.blogspot.com.es/2012/02/increase-speed-of-internet.html
