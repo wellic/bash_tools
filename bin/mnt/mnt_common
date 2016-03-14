@@ -1,0 +1,190 @@
+#!/usr/bin/env bash 
+
+  set +e
+#  set -x
+
+SHOW_DEBUG_INFO=0
+
+_trim() {
+ local s=$(echo -e "${1}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+ echo "$s"
+}
+
+_abs_path() {
+  local path=${1:-"./"}
+  local opt=${2:-"-m"}
+  local s=$(readlink $opt "$path")
+  echo "$s"
+}
+
+_parse_service_method(){
+  local SaveIFS=$IFS
+  IFS="_"
+  local -a name=($1)
+  IFS=$SaveIFS
+  echo "${name[$2]}"
+}
+
+_get_service_name(){
+  local name=$(_parse_service_method "$1" 0)
+  if [ -z "$name" ]; then 
+    echo -e "Error!!!\nCheck service name in name '$name'."
+    exit 1
+  fi
+  echo "$name"
+}
+
+_get_method_name(){
+  local name=$(_parse_service_method "$1" 1)
+  if [ "$name" != 'mnt' -a "$name" != 'umnt' -a "$name" != 'status' ]; then
+    echo -e "Error!!!\nCheck name method in name '$name'.\nAfter sign '_' must be 'mnt', 'umnt' or 'status'"
+    exit 1
+  fi
+  echo "$name"
+}
+
+_check_cfg() {
+  local cfg=$1
+  local src=$2
+  local dst=$3
+
+  if [ ! -e "$cfg" ]; then 
+    [ "$SHOW_DEBUG_INFO" != 0 ] && printf 'Create file %s\n' "$cfg"
+    echo "$src | $dst" >"$cfg"
+  fi
+
+  if [ -z "$cfg" ]; then 
+    echo -e "Error!!!\nCheck config config filename:'$cfg'"
+    exit 1
+  fi
+
+  if [ ! -e "$cfg" ]; then 
+    echo -e "Error!!!\nCannot find config file: '$cfg'"
+    exit 1
+  fi
+
+  if [ ! -s "$cfg" ]; then
+    echo -e "Error!!!\nEmpty config file: '$cfg'"
+    exit 1
+  fi
+}
+
+_mount_bind() {
+  local src=${1:-}
+  local dst=${2:-}
+  [ ! -d "$dst" ] && mkdir -p "$dst"
+  
+  [ "$SHOW_DEBUG_INFO" != 0 ] && printf 'Mount %s -> %s\n' "$src" "$dst"
+
+  local mask=$(_trim "$src on $dst")
+  local status=$(_trim $(mount | grep -F "$mask "))
+  if [ "$status" == '' ]; then
+    sudo mount --bind "$src" "$dst"
+  fi
+  mount | grep -F "$src"
+#  mount | grep "$dst"
+}
+
+_umount_bind() {
+  local src=${1:-}
+
+  [ "$SHOW_DEBUG_INFO" != 0 ] && printf 'Unmount %s\n' "$src"
+
+  if mount | grep -F -q "$src"; then 
+      sudo umount "$src"
+  fi
+}
+
+_status() {
+  local cfg=$1
+  local show_ok=${2:-1}
+  
+  local src=
+  local dst=
+  local status=
+
+  local SaveIFS=$IFS
+  while IFS='|' read -r src dst
+  do
+    src=$(_trim "$src")
+    dst=$(_trim "$dst")
+    status=$(mount | grep -F "$src")
+    if [ "$status" != '' -a "$show_ok" ]; then
+      [ "$show_ok" != '0' ] && echo -e "Mounted:\n$status"
+    else
+      echo -e "Not mounted: '$src'"
+    fi
+  done <"$cfg"
+  IFS=$SaveIFS
+}
+
+_mnt() {
+  local cfg=$1
+
+  local src=
+  local dst=
+
+  local SaveIFS=$IFS
+  while IFS='|' read -r src dst
+  do
+    src=$(_trim "$src")
+    dst=$(_trim "$dst")
+    echo -e "Try mount: '$src'"
+    if [ -e "$src" ]; then
+      _mount_bind "$src" "$dst"
+    fi
+  done <"$cfg"
+  IFS=$SaveIFS
+  _status "$cfg" 0
+}
+
+_umnt() {
+  local cfg=$1
+
+  local src=
+  local dst=
+
+  local SaveIFS=$IFS
+  while IFS='|' read -r src dst
+  do
+    src=$(_trim "$src")
+    echo -e "Try umount: '$src'"
+    if [ -e "$src" ]; then
+      _umount_bind "$src" 1
+    fi
+  done <"$cfg"
+  IFS=$SaveIFS
+  _status "$cfg" 1
+}
+
+
+##################################################
+
+start_mnt_common() {
+#  clear
+#  set -e
+#  set -x
+
+  local SERVICE_METHOD=$1
+  local CFG_DIR=$2
+  local SRC_DIR=$3
+  local DST_DIR=$4
+
+  SHOW_DEBUG_INFO=${5:-$SHOW_DEBUG_INFO}
+
+  SERVICE_NAME=$(_get_service_name $SERVICE_METHOD)
+  METHOD_NAME=$(_get_method_name $SERVICE_METHOD)
+  CFG_FILE="$CFG_DIR/$SERVICE_NAME.cfg"
+
+  echo "Service name: $SERVICE_NAME"
+  echo "Method  name: $METHOD_NAME"
+  echo "SRC dir: $SRC_DIR"
+  echo "DST dir: $DST_DIR"
+  echo "CFG File: $CFG_FILE"
+  echo 
+
+  _check_cfg "$CFG_FILE" "$SRC_DIR" "$DST_DIR"
+  _${METHOD_NAME} "$CFG_FILE"
+}
+
+

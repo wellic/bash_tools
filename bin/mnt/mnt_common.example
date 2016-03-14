@@ -1,0 +1,53 @@
+Example:
+
+1) Create mount some 'service' folder:
+
+    $ cd "{somepath}/service/.."
+    $ touch service_mnt
+    $ chmod +x service_mnt
+
+2) Edit file 'service_mnt':
+
+    #!/usr/bin/env bash
+    set -e
+    MNT_COMMON=$(which mnt_common)
+    if [ -z "$MNT_COMMON" ]; then
+      echo -e "Error!!!\nCannot found 'mnt_common' program."
+      exit 1
+    fi
+    source "$MNT_COMMON"
+
+    #set -x
+    SHOW_DEBUG=0
+    SERVICE_METHOD=$(basename "$0")
+    SERVICE_NAME=$(_get_service_name $SERVICE_METHOD)
+
+    SRC_DIR="./service/src"
+    SRC_DIR=$(_abs_path "$SRC_DIR")
+
+    DST_DIR="../plugin/lib"
+    DST_DIR=$(_abs_path "$DST_DIR")
+
+    CFG_DIR="."
+    CFG_DIR=$(_abs_path "$CFG_DIR")
+
+    start_mnt_common "$SERVICE_METHOD" "$CFG_DIR" "$SRC_DIR" "$DST_DIR" $SHOW_DEBUG
+
+3) Create umount and status program for 'service' folder:
+
+    $ cp service_mnt service_umnt
+    $ cp service_mnt service_status
+
+4) Mount 'service's source folder:
+
+    $ ./service_mnt
+    
+5) Unmount 'service's source folder:
+
+    $ ./service_umnt
+
+6) Check status mounted 'service' source folder:
+
+    $ ./service_status
+
+    
