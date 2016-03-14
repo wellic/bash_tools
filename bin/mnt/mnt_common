@@ -90,8 +90,10 @@ _umount_bind() {
 
   [ "$SHOW_DEBUG_INFO" != 0 ] && printf 'Unmount %s\n' "$src"
 
-  if mount | grep -F -q "$src"; then 
-      sudo umount "$src"
+  local mask=$(_trim "$src on")
+  local status=$(_trim $(mount | grep -F "$mask "))
+  if [ "$status" != '' ]; then
+    sudo umount "$src"
   fi
 }
 
@@ -148,7 +150,8 @@ _umnt() {
   while IFS='|' read -r src dst
   do
     src=$(_trim "$src")
-    echo -e "Try umount: '$src'"
+    dst=$(_trim "$dst")
+    echo -e "Try umount:\n$src on $dst"
     if [ -e "$src" ]; then
       _umount_bind "$src" 1
     fi
