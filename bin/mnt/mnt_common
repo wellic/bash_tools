@@ -36,8 +36,12 @@ _get_service_name(){
 
 _get_method_name(){
   local name=$(_parse_service_method "$1" 1)
-  if [ "$name" != 'mnt' -a "$name" != 'umnt' -a "$name" != 'status' ]; then
-    echo -e "Error!!!\nCheck name method in name '$name'.\nAfter sign '_' must be 'mnt', 'umnt' or 'status'"
+  if [ "$name" != 'mnt'  \
+    -a "$name" != 'umnt' \
+    -a "$name" != 'ln'   \
+    -a "$name" != 'uln'  \
+    -a "$name" != 'status' ]; then
+    echo -e "Error!!!\nCheck name method in name '$name'.\nAfter sign '_' must be 'mnt, umnt, ln, uln, status'"
     exit 1
   fi
   echo "$name"
@@ -47,10 +51,16 @@ _check_cfg() {
   local cfg=$1
   local src=$2
   local dst=$3
+  local expandPath=${4:-0}
 
   if [ ! -e "$cfg" ]; then 
     [ "$SHOW_DEBUG_INFO" != 0 ] && printf 'Create file %s\n' "$cfg"
-    echo "$src | $dst" >"$cfg"
+    if [ "$src" = '' -o "$dst" = '' ]; then
+      echo "Warning!!!Check source and destination. One of then is empty path"
+      touch "$cfg"
+    else
+      echo "$src | $dst" >"$cfg"
+    fi
   fi
 
   if [ -z "$cfg" ]; then 
@@ -69,6 +79,20 @@ _check_cfg() {
   fi
 }
 
+_check_comment_src_dst() {
+  local src=$1
+  local dst=$2
+
+  if [ ! $( echo "$src" | sed -r '/^\s*#/d') \
+    -o ! $( echo "$dst" | sed -r '/^\s*#/d') ] ; 
+  then
+    echo -e "Skip processing:\nSRC: $src\nDST:$dst"
+    return 1
+  fi 
+  echo -e "Try processing:\nSRC: $src\nDST:$dst"
+  return 0
+}
+
 _mount_bind() {
   local src=${1:-}
   local dst=${2:-}
@@ -79,6 +103,7 @@ _mount_bind() {
   local mask=$(_trim "$src on $dst")
   local status=$(_trim $(mount | grep -F "$mask "))
   if [ "$status" == '' ]; then
+    [ "$SHOW_DEBUG_INFO" != 0 ] && echo "sudo mount --bind '$src' '$dst'"
     sudo mount --bind "$src" "$dst"
   fi
   mount | grep -F "$src"
@@ -110,11 +135,15 @@ _status() {
   do
     src=$(_trim "$src")
     dst=$(_trim "$dst")
+    
+    _check_comment_src_dst "$src" "$dst"
+    [ $? -ne 0 ] && continue
+
     status=$(mount | grep -F "$src")
     if [ "$status" != '' -a "$show_ok" ]; then
       [ "$show_ok" != '0' ] && echo -e "Mounted:\n$status"
     else
-      echo -e "Not mounted: '$src'"
+      echo -e "Unmounted:\n'$src'"
     fi
   done <"$cfg"
   IFS=$SaveIFS
@@ -131,6 +160,10 @@ _mnt() {
   do
     src=$(_trim "$src")
     dst=$(_trim "$dst")
+    
+    _check_comment_src_dst "$src" "$dst"
+    [ $? -ne 0 ] && continue
+
     echo -e "Try mount: '$src'"
     if [ -e "$src" ]; then
       _mount_bind "$src" "$dst"
@@ -151,6 +184,10 @@ _umnt() {
   do
     src=$(_trim "$src")
     dst=$(_trim "$dst")
+    
+    _check_comment_src_dst "$src" "$dst"
+    [ $? -ne 0 ] && continue
+
     echo -e "Try umount:\n$src on $dst"
     if [ -e "$src" ]; then
       _umount_bind "$src" 1
@@ -161,15 +198,84 @@ _umnt() {
 }
 
 
+_ln() {
+  local cfg=$1
+
+  local src=
+  local dst=
+
+  local SaveIFS=$IFS
+  while IFS='|' read -r src dst
+  do
+    src=$(_trim "$src")
+    dst=$(_trim "$dst")
+    
+    _check_comment_src_dst "$src" "$dst"
+    [ $? -ne 0 ] && continue
+
+    if [ "$src" != '' -a "$dst" != '' ]; then
+      echo -e "Try create link\nSrc: $src\nDst: $dst"
+      if [ -e "$dst" ]; then
+        local dst_path=$(_abs_path "$dst")
+        echo -e "Warning!!!\nLink already exists"
+      else
+        [ "$SHOW_DEBUG_INFO" != 0 ] && echo -e "ln -s '$src' '$dst'"
+        ln -s "$src" "$dst"
+      fi
+      echo
+    fi
+  done <"$cfg"
+  IFS=$SaveIFS
+}
+
+_uln() {
+  local cfg=$1
+
+  local src=
+  local dst=
+  local status=
+  
+  local SaveIFS=$IFS
+  while IFS='|' read -r src dst
+  do
+    src=$(_trim "$src")
+    dst=$(_trim "$dst")
+    
+    _check_comment_src_dst "$src" "$dst"
+    [ $? -ne 0 ] && continue
+
+    if [ "$src" != '' -a "$dst" != '' -a -e "$dst" ]; then
+      local dst_path=$(_abs_path "$dst")
+      echo -e "Try remove link\nLink: $dst\nTo: $dst_path"
+      if [ -h "$dst" ]; then
+        [ "$SHOW_DEBUG_INFO" != 0 ] && echo -e "rm '$dst'"
+        rm "$dst"
+      else
+        echo -e "Warning!!!\nIt is not link. Check mannually."
+      fi
+      echo
+    fi
+  done <"$cfg"
+  IFS=$SaveIFS
+}
+
+
 ##################################################
 
 start_mnt_common() {
+
 #  clear
 #  set -e
 #  set -x
 
+  [ $# -lt 2 ] && return 0
+
+  if [ "$SHOW_DEBUG_INFO" != 0 ]; then 
+    set -x
+  fi
+  
   local SERVICE_METHOD=$1
-  local CFG_DIR=$2
+  local CFG_DIR=${2:-.}
   local SRC_DIR=$3
   local DST_DIR=$4
 
@@ -178,6 +284,10 @@ start_mnt_common() {
   SERVICE_NAME=$(_get_service_name $SERVICE_METHOD)
   METHOD_NAME=$(_get_method_name $SERVICE_METHOD)
   CFG_FILE="$CFG_DIR/$SERVICE_NAME.cfg"
+  
+# if [ "$METHOD_NAME" = 'ln' ]; then
+    SRC_DIR=$(_abs_path "$SRC_DIR")
+#  fi
 
   echo "Service name: $SERVICE_NAME"
   echo "Method  name: $METHOD_NAME"
@@ -188,6 +298,50 @@ start_mnt_common() {
 
   _check_cfg "$CFG_FILE" "$SRC_DIR" "$DST_DIR"
   _${METHOD_NAME} "$CFG_FILE"
+
 }
 
+get_script() {
+  echo '#!/usr/bin/env bash
 
+####################################
+###     Set correct directory    ###
+####################################
+CFG_DIR="."
+SRC_DIR="./src"
+DST_DIR="./dst"
+
+####################################
+### Do not edit code the  bellow ###
+####################################
+#set -x
+SHOW_DEBUG=0
+MNT_COMMON=$(which mnt_common)
+if [ -z "$MNT_COMMON" ]; then
+  echo -e "Error!!!\nCheck path to mnt_common program."
+  exit 1
+fi
+
+source "$MNT_COMMON"
+
+SERVICE_METHOD=$(basename "$0")
+SERVICE_NAME=$(_get_service_name $SERVICE_METHOD)
+SRC_DIR=$(_abs_path "$SRC_DIR")
+DST_DIR=$(_abs_path "$DST_DIR")
+#CFG_DIR=$(_abs_path "$CFG_DIR")
+start_mnt_common "$SERVICE_METHOD" "$CFG_DIR" "$SRC_DIR" "$DST_DIR" $SHOW_DEBUG
+'
+}
+
+_main() {
+  local p1=$(_trim "$1")
+  if [ "$p1" = '-h' -o "$p1" = '--help' ]; then
+      get_script  
+  else
+    start_mnt_common $@
+  fi
+}
+
+if [ ! -z "$0" ]; then 
+  _main $@
+fi

@@ -1,4 +1,34 @@
+Available mode:
+
+Link mode:
+  - service_ln   : create links
+  - service_uln  : remove links
+Mount mode:
+  - service_mnt     : on mount dirs
+  - service_umnt    : off mount dirs
+  - service_status  : view status mount dirs
+
 Example:
+
+Mount as symbolic link:
+
+1) Generate link plugin to src dir
+    $ mnt_common plugin_ln . ./plugin somepath/to/src 
+
+2) Will be create configurationn file plugin.cfg with text:
+
+  {full_current_path}/plugin | somepath/to/src 
+
+3) You may add ather links for multiple link
+
+  path1/src | somepath/to/src1 
+#  path2/src | somepath/to/src2 
+  path3/src | somepath/to/src3 
+
+4) unlink using congig plugin.cfg
+    $ mnt_common plugin_uln .
+
+Mount as device:
 
 1) Create mount some 'service' folder:
 
@@ -6,32 +36,9 @@ Example:
     $ touch service_mnt
     $ chmod +x service_mnt
 
-2) Edit file 'service_mnt':
-
-    #!/usr/bin/env bash
-    set -e
-    MNT_COMMON=$(which mnt_common)
-    if [ -z "$MNT_COMMON" ]; then
-      echo -e "Error!!!\nCannot found 'mnt_common' program."
-      exit 1
-    fi
-    source "$MNT_COMMON"
-
-    #set -x
-    SHOW_DEBUG=0
-    SERVICE_METHOD=$(basename "$0")
-    SERVICE_NAME=$(_get_service_name $SERVICE_METHOD)
-
-    SRC_DIR="./service/src"
-    SRC_DIR=$(_abs_path "$SRC_DIR")
-
-    DST_DIR="../plugin/lib"
-    DST_DIR=$(_abs_path "$DST_DIR")
-
-    CFG_DIR="."
-    CFG_DIR=$(_abs_path "$CFG_DIR")
-
-    start_mnt_common "$SERVICE_METHOD" "$CFG_DIR" "$SRC_DIR" "$DST_DIR" $SHOW_DEBUG
+2) Create and edit  startup file Edit file 'service_mnt':
+    
+    $ mnt_commmon -h > service_mnt
 
 3) Create umount and status program for 'service' folder:
 
@@ -49,5 +56,3 @@ Example:
 6) Check status mounted 'service' source folder:
 
     $ ./service_status
-
-    
