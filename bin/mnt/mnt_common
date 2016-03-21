@@ -83,13 +83,14 @@ _check_comment_src_dst() {
   local src=$1
   local dst=$2
 
-  if [ ! $( echo "$src" | sed -r '/^\s*#/d') \
-    -o ! $( echo "$dst" | sed -r '/^\s*#/d') ] ; 
+
+  if ! [ $( echo "$src" | sed -r '/^\s*#/d') -o $( echo "$dst" | sed -r '/^\s*#/d') ]; 
   then
-    echo -e "Skip processing:\nSRC: $src\nDST:$dst"
+    echo -e "Skip processing paths from config:\nSRC: $src\nDST: $dst"
+    echo
     return 1
   fi 
-  echo -e "Try processing:\nSRC: $src\nDST:$dst"
+  echo -e "Try processing paths from config:\nSRC: $src\nDST: $dst"
   return 0
 }
 
