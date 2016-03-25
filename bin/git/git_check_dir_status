@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+RETDIR=$PWD
+
+echo "Return to startup dir:\ncd '$PWD'"
+
+CHECK_DIR=${1:-.}
+CHECK_DIR=$(readlink -m "$CHECK_DIR")
+
+f=
+for f in $(find "$CHECK_DIR" -type d -name .git); do 
+  cd "$f/../" 
+  status=$(git status -s)
+  [ "$status" != '' ] && echo ""
+  echo 'cd "'`pwd`'"'
+  if [ "$status" != '' ]; then
+#    echo '==============='
+    echo '= Uncommitted ='
+#    echo -e 'vvvvvvvvvvvvvvv\n'
+    git status -s
+#    echo -e '\n^^^^^^^^^^^^^^^'
+  fi
+#  [ "$status" != '' ] && echo ""
+  cd "$CHECK_DIR"
+done
+
+cd "$RETDIR"
+
+echo -e "\nReturn to startup dir:\ncd '$PWD'"
+
