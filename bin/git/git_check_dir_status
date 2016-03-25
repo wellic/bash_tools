@@ -18,6 +18,7 @@ for f in $(find "$CHECK_DIR" -type d -name .git); do
     echo '= Uncommitted ='
 #    echo -e 'vvvvvvvvvvvvvvv\n'
     git status -s
+    echo
 #    echo -e '\n^^^^^^^^^^^^^^^'
   fi
 #  [ "$status" != '' ] && echo ""
