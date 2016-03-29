@@ -2,30 +2,31 @@
 
 RETDIR=$PWD
 
-echo "Return to startup dir:\ncd '$PWD'"
-
 CHECK_DIR=${1:-.}
 CHECK_DIR=$(readlink -m "$CHECK_DIR")
 
-f=
+declare f
+clear
+echo
+CNT=0
+UCNT=0
 for f in $(find "$CHECK_DIR" -type d -name .git); do 
+  CNT=$(( $CNT+1 ))
   cd "$f/../" 
   status=$(git status -s)
   [ "$status" != '' ] && echo ""
   echo 'cd "'`pwd`'"'
   if [ "$status" != '' ]; then
-#    echo '==============='
+    UCNT=$(( $UCNT+1 ))
     echo '= Uncommitted ='
-#    echo -e 'vvvvvvvvvvvvvvv\n'
     git status -s
     echo
-#    echo -e '\n^^^^^^^^^^^^^^^'
   fi
-#  [ "$status" != '' ] && echo ""
   cd "$CHECK_DIR"
 done
 
 cd "$RETDIR"
 
-echo -e "\nReturn to startup dir:\ncd '$PWD'"
+s=$(printf "%-40s" "*")
+echo -e "\n${s// /*}\nFound git directories: $CNT\nUncommited: $UCNT\nFor return to startup dir do:\ncd '$PWD'\n${s// /*}"
 
