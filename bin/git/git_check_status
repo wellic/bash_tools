@@ -6,7 +6,6 @@ CHECK_DIR=${1:-.}
 CHECK_DIR=$(readlink -m "$CHECK_DIR")
 
 declare f
-clear
 echo
 CNT=0
 UCNT=0
