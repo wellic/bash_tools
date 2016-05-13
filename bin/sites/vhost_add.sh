@@ -1,6 +1,5 @@
 #!/bin/bash
 
-clear
 
 set -e
 #set -x

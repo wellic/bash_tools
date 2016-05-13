@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#set -x 
+
+SERV=${1:-}
+DB_USER=${2:-}
+DB_PASS=${3:-}
+DB_NAME=${4:-}
+DB_HOST=${5:-'127.0.0.1'}
+
+[ -z "$SERV" -o -z "$DB_NAME" ] && exit 1
+
+ssh $SERV "mysqldump --force --opt -h $DB_HOST -u$DB_USER -p$DB_PASS --databases $DB_NAME"
