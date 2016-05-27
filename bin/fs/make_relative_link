@@ -56,8 +56,8 @@ _get_relative_path()
 
 	[ "$common_part" == "/" ] && result="$result/"
 	forward_part="${targetPath#$common_part}"
-	[ -n "$result" -a -n "$forward_part" ] && echo "$result$forward_part"
-	[ -n "$forward_part" ]                 && echo "${forward_part:1}"
+	if [ -n "$result" -a -n "$forward_part" ]; then echo "$result$forward_part"; return 0; fi
+	if [ -n "$forward_part" ]; then echo "${forward_part:1}"; return 0; fi
 	echo "$result"
 }
 
@@ -86,15 +86,15 @@ _main() {
   local fileSrc=""
   local fileDst=""
 
-  if [ "$typeSrc" == "$TYPE_FILE" ]; then
+#  if [ "$typeSrc" == "$TYPE_FILE" ]; then
     pathSrc=$(dirname  "$fullSrc")
     pathDst=$(dirname  "$fullDst")
     fileSrc='/'$(basename "$fullSrc")
     fileDst='/'$(basename "$fullDst")
-  else
-    pathSrc=${fullSrc%/}
-    pathDst=${fullDst%/}
-  fi
+#  else
+#    pathSrc=${fullSrc%/}
+#    pathDst=${fullDst%/}
+#  fi
   [ "$pathDst" == '' ] && fileDst=${fileDst#/}
 
   local relPath=$(_get_relative_path "$pathDst" "$pathSrc")
