@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+#set -x
+pwd
+
+[ -z "$1" ] && exit 1
+grep --color=always -n -RP "\b$1\b" *
+
+echo ------------------
+
+[ -z "$2" ] && exit 1
+grep -lRP "\b$1\b" * | xargs sed -re "s/\b$1\b/$2/g" -i
+
+grep --color=always -n -RP "\b$2\b" *

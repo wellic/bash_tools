@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 set -e
 #set -x
 
@@ -125,8 +124,7 @@ _add() {
   local l_new_host=${2:-$new_host}
   local l_new_ip=${3:-$new_ip}
   grep -q -w -F "$l_new_host" "$hosts_file" \
-    && ( print_all_hosts; \
-         print_if_exists_host $l_new_host '-wF'; \
+    && ( print_if_exists_host $l_new_host '-wF'; \
          echo_info "The host '$l_new_host' already exists" 0 1 $c_warn ) \
     || ( sudo sh -c "echo ${l_new_ip} ${l_new_host} >> $hosts_file"; \
          print_added_host $l_new_host )

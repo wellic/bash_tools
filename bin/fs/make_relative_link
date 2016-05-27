@@ -1,0 +1,114 @@
+#!/bin/bash
+
+set -u 
+set -e 
+#set -x
+
+TYPE_FILE=0
+TYPE_DIR=1
+
+PARAM_INFO=-i
+PARAM_VERBOSE=-v
+
+
+_printHelp() {
+local prg=$(basename $0)
+cat <<HELP
+
+Create relative link
+
+Usage: $prg src dst [$PARAM_INFO|$PARAM_VERBOSE]
+
+Options:
+  $PARAM_INFO : show only info without create link
+  $PARAM_VERBOSE : print details when create link
+
+HELP
+}
+
+_setFullSrc() {
+  if ! fullSrc=$(readlink -e "$src") ; then
+    echo -e "Error!!! Cannot find source:\n$src\n"
+    exit 1
+  fi
+}
+
+_setFullDst() {
+  if fullDst=$(readlink -e "$dst"); then
+    echo -e "Error!!! Destination already exists.\n Dst: $dst"
+    [ "$dst" != "$fullDst" ] && echo -e "Link: $fullDst"
+    exit 1
+  fi
+  fullDst=$(readlink -m "$dst")
+}
+
+_get_relative_path()
+{
+	local sourcePath=${1:-.}
+	local targetPath=${2:-.}
+	local common_part="$sourcePath"
+	local forward_part=""
+	local result=""
+	while [ "${targetPath#$common_part}" == "${targetPath}" ]; do
+		common_part="$(dirname $common_part)"
+		[ -z "$result" ] && result=".." || result="../$result"
+	done
+
+	[ "$common_part" == "/" ] && result="$result/"
+	forward_part="${targetPath#$common_part}"
+	[ -n "$result" -a -n "$forward_part" ] && echo "$result$forward_part"
+	[ -n "$forward_part" ]                 && echo "${forward_part:1}"
+	echo "$result"
+}
+
+_printInfo() {
+  if [ "$opt" == "$PARAM_INFO" -o "$opt" == "$PARAM_VERBOSE" ] ; then
+  cat <<INFO
+
+src:     $src
+dst:     $dst
+srcFull: $pathSrc$fileSrc
+dstFull: $pathDst$fileDst
+relPath: $relPath
+cmd:     ln -s "$relPath$fileSrc" "$pathDst$fileDst"
+
+INFO
+  fi
+}
+
+_main() {
+ _setFullSrc
+ _setFullDst
+ [ -d "$fullSrc" ] && typeSrc=$TYPE_DIR || typeSrc=$TYPE_FILE
+
+  local pathSrc=""
+  local pathDst=""
+  local fileSrc=""
+  local fileDst=""
+
+  if [ "$typeSrc" == "$TYPE_FILE" ]; then
+    pathSrc=$(dirname  "$fullSrc")
+    pathDst=$(dirname  "$fullDst")
+    fileSrc='/'$(basename "$fullSrc")
+    fileDst='/'$(basename "$fullDst")
+  else
+    pathSrc=${fullSrc%/}
+    pathDst=${fullDst%/}
+  fi
+  [ "$pathDst" == '' ] && fileDst=${fileDst#/}
+
+  local relPath=$(_get_relative_path "$pathDst" "$pathSrc")
+  [ "$relPath" == '' ] && fileSrc=${fileSrc#/}
+
+  _printInfo
+  [ "$opt" == "$PARAM_INFO" ] && return $?
+  ln -s "$relPath$fileSrc" "$pathDst$fileDst"
+}
+
+#----------------------
+
+if [ $# -lt 2 ] ; then _printHelp; exit 1; fi
+src=$1
+dst=$2
+opt=${3:-}
+_main
