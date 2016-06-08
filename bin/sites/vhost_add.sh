@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -u
 #set -x
 
 suffix=".local"
@@ -20,6 +21,7 @@ c_cmd='\033[1;32m'
 c_clr='\033[0m'
 
 print_help(){
+  echo
   echo -e "${c_err}Usage: ${0##*/} [parameter]
 Parameters:
   -h              : Help
@@ -69,6 +71,16 @@ exit_if_error() {
   fi
 }
 
+get_host() {
+  local l_host=${1:-$new_host}
+  local exact=${2:-1}
+  if [ "$exact" == '1' ]; then 
+    grep -E "\\s$l_new_host(\\s|\$)" "$hosts_file"
+  else
+    grep -wF "$l_new_host" "$hosts_file"
+  fi
+}
+
 print_all_hosts() {
   local FOUND
   echo_info 'All hosts' 1 0 $c_inf
@@ -77,77 +89,64 @@ print_all_hosts() {
   else
     FOUND=$( cat "$hosts_file" | grep -P "${suffix}\b" )
   fi
-  echo_info "$FOUND" 0 1 $c_cmd
+  echo_info "$FOUND" 0 0 $c_cmd
 }
 
-print_current_host() {
+print_similar_hosts() {
   local l_new_host=${1:-$new_host}
-  local l_grep_arg=${2:-'-F'}
-  local FOUND
-  grep -q $l_grep_arg "$l_new_host" "$hosts_file" \
-    && ( \
-#      echo_info "Host:" 1 0 $c_warn;
-      FOUND=$(grep $l_grep_arg -B 0 -A 0 "$l_new_host" "$hosts_file"); \
-      echo_info "$FOUND" 0 1 $c_inf )\
-    || :
-}
+  local l_show_exact=${2:-0}
 
-print_if_exists_host() {
-  local l_new_host=${1:-$new_host}
-  local l_grep_arg=${2:-'-E'}
-  grep -q $l_grep_arg "$l_new_host" "$hosts_file" \
-    && ( \
-      echo_info "Similar '$l_new_host' hosts exist" 1 0 $c_warn;
-      print_current_host "$l_new_host" $l_grep_arg) \
-    ||  echo_info "Hosts has not contain '$l_new_host'\n" 1 0 $c_warn;
-}
-
-print_not_exists_host() {
-  local l_new_host=${1:-$new_host}
-  print_all_hosts
-  grep -q -F -w "$l_new_host" "$hosts_file" || echo_info "The host '$l_new_host' not exists" 1 1 $c_err  && :
-}
-
-print_added_host() {
-  local l_new_host=${1:-$new_host}
-  echo_info "The host '$l_new_host' was added" 1 0 $c_warn
-  print_current_host "$l_new_host" '-F'
-  print_if_exists_host "$l_new_host" '-E'
-}
-
-print_removed_host() {
-  local l_new_host=${1:-$new_host}
-  echo_info "The host '$l_new_host' was removed" 1 1 $c_warn
+  local l_similars_host=$(get_host "$l_new_host" "$l_show_exact")
+  if [ -n "$l_similars_host" ] ; then
+    if [ "$l_show_exact" == '1' ] ; then 
+      echo_info "Existing host:" 1 0 $c_warn 
+    else
+      echo_info "Similar '$l_new_host' hosts exist:" 1 0 $c_warn 
+    fi
+    echo_info "$l_similars_host" 0 0 $c_inf
+  else
+    echo_info "Cannot find hosts similar '$l_new_host'\n" 1 0 $c_warn
+  fi
 }
 
 _add() {
   local l_new_host=${2:-$new_host}
   local l_new_ip=${3:-$new_ip}
-  grep -q -w -F "$l_new_host" "$hosts_file" \
-    && ( print_if_exists_host $l_new_host '-wF'; \
-         echo_info "The host '$l_new_host' already exists" 0 1 $c_warn ) \
-    || ( sudo sh -c "echo ${l_new_ip} ${l_new_host} >> $hosts_file"; \
-         print_added_host $l_new_host )
+
+  local l_exists_host=$(get_host "$l_new_host" 1)
+  if [ -n "$l_exists_host" ]; then
+    echo_info "The host '$l_new_host' already exists" 1 0 $c_warn
+  else
+    sudo sh -c "echo ${l_new_ip} ${l_new_host} >> $hosts_file" || exit 1
+    echo_info "The host '$l_new_host' was added" 1 0 $c_warn
+  fi
+  print_similar_hosts "$l_new_host" 1
 }
 
 _remove() {
   local l_new_host=${2:-$new_host}
-  grep -q -F -w "$l_new_host" "$hosts_file" \
-    && ( sudo sed -r -i "/\b${l_new_host}\b/d" ${hosts_file}; print_removed_host $l_new_host ) \
-    || print_not_exists_host $l_new_host
+
+  local l_exists_host=$(get_host "$l_new_host" 1)
+  if [ -n "$l_exists_host" ]; then
+    print_similar_hosts "$l_new_host" 1
+    sudo sed -r -i "/\s${l_new_host}(\s|$)/d" ${hosts_file}
+    echo_info "The host '$l_new_host' was removed" 1 0 $c_warn
+  else
+    print_similar_hosts "$l_new_host" 0
+    echo_info "The host '$l_new_host' not exists" 1 0 $c_err
+  fi
 }
 
 _list() {
   local l_new_host=${2:-$new_host}
-  print_all_hosts
-  print_if_exists_host "$l_new_host" '-F'
+  print_similar_hosts "$l_new_host" 0
 }
 
 proces_input_params() {
   while getopts ":hlLad" opt; do
     case $opt in
       l)
-        [ $# -gt 1 ] && suffix=
+        [ $# -gt 1 ] && suffix= 
         _list $*
         ;;
       a)
@@ -159,16 +158,21 @@ proces_input_params() {
         ;;
       h|*)
         suffix=
-        _list
+        print_all_hosts
+#        _list
         print_help
-        exit 1
+        exit 0
         ;;
     esac
   done
   shift $(( OPTIND - 1 ))
 }
 
-if [[ $# -eq 0 ]]; then
+if [ $# -eq 0 ]; then
+  proces_input_params -h
+fi
+
+if [ ${1:0:1} != '-' ]; then
   proces_input_params -h
 fi
 

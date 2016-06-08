@@ -107,7 +107,7 @@ _main() {
 
 #----------------------
 
-if [ $# -lt 2 ] ; then _printHelp; exit 1; fi
+if [ $# -lt 2 ] ; then _printHelp; exit 0; fi
 src=$1
 dst=$2
 opt=${3:-}

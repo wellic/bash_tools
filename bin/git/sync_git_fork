@@ -1,0 +1,39 @@
+set -e
+#set -x
+set -u
+
+
+MASTER=master
+
+ORIGIN=$1
+UPSTREAM=$2
+
+SYNC_DIR=$(s=${ORIGIN##*/}; echo "${s%.*}")
+
+git clone "$ORIGIN" "$SYNC_DIR"
+cd "$SYNC_DIR"
+
+# Add the remote, call it "upstream":
+
+git remote add --track $MASTER upstream $UPSTREAM
+
+# Fetch all the branches of that remote into remote-tracking branches,
+# such as upstream/master:
+
+git fetch upstream
+
+# Make sure that you're on your master branch:
+
+git checkout $MASTER
+
+# Rewrite your master branch so that any commits of yours that
+# aren't already in upstream/master are replayed on top of that
+# other branch:
+
+#git rebase upstream/$MASTER
+
+git merge upstream/$MASTER
+
+git last
+
+echo "git push -f origin"

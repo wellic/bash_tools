@@ -10,6 +10,7 @@ export PATH=$PATH:$HOME/bin/fs
 export PATH=$PATH:$HOME/bin/mem
 export PATH=$PATH:$HOME/bin/mnt
 export PATH=$PATH:$HOME/bin/ssh
+export PATH=$PATH:$HOME/bin/net
 export PATH=$PATH:$HOME/bin/sites
 
 #Or copy all files to common dir 'bin'
