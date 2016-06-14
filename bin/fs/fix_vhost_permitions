@@ -1,0 +1,252 @@
+#!/usr/bin/env bash
+
+set -u
+#set -e
+#set -x
+#set -v
+
+TEST_MODE=1
+
+DIR_MAIN=""
+USER_MAIN=""
+USER_INNER=""
+GROUP_MAIN=""
+GROUP_INNER=""
+PERM_DIR_MAIN=""
+PERM_DIR_INNER=""
+PERM_FILE_INNER=""
+
+SCRIPT_NAME=$(basename "$0")
+RET_DIR="$PWD"
+EXISTS_PARAM=""
+
+DEF_USER_MAIN=username
+DEF_GROUP_MAIN=psaserv
+DEF_PERM_DIR_MAIN=755
+
+DEF_USER_INNER=www-data
+DEF_GROUP_INNER=psacln
+DEF_PERM_DIR_INNER=755
+DEF_PERM_FILE_INNER=644
+
+#############################################
+
+_print_help_and_exit() {
+local status=${1:-0}
+cat<<HELP
+Usage:
+  # $SCRIPT_NAME -M main_folder [options]
+Options:
+  -h            : show this help
+  -n            : dry run, show only commands (by default)
+Folder:
+  -M foldername : set the path to main folder (required) 
+                  example: -M /var/www/vhost/testrun
+Owner:
+  -U username   : set  username for owner main folder 
+                  example: -U username
+  -G groupname  : set groupname for owner main folder 
+                  example: -G psaserv
+  -u username   : set  username for inner files and folders of main folder 
+                  example: -u www-data
+  -g groupname  : set groupname for inner files and folders of main folder 
+                  example: -g psacln
+Permitions:
+  -D perm       : set permission for main folder   
+                  example: -D 755 -D a=rx,u+w
+  -d perm       : set permission for inner folders 
+                  example: -d 755 -d u=rwx,g=rx,o-w
+  -f perm       : set permission for inner files 
+                  example: -f 644 -f a=r,u+w
+Engine:
+  -a            : apply command and set necessary attributes
+
+Examples:
+1) Setup folder for web using
+   $SCRIPT_NAME -d $DEF_PERM_DIR_INNER -f $DEF_PERM_FILE_INNER -u $DEF_USER_INNER -M . -U $DEF_USER_MAIN
+2) Full setup folder
+   $SCRIPT_NAME -D $DEF_PERM_DIR_MAIN -d $DEF_PERM_DIR_INNER -f $DEF_PERM_FILE_INNER -g $DEF_GROUP_INNER -u $DEF_USER_INNER -G $DEF_GROUP_MAIN -M . -U $DEF_USER_MAIN
+HELP
+
+exit $status
+}
+
+_checkargs() {
+  [[ ! $OPTARG =~ ^- ]] && return 0
+  echo "Error!!! Unknow argument '$OPTARG' for option $opt!"
+  exit 1
+}
+
+_exists_user() {
+  local user_exists=$(id -u "$1" > /dev/null 2>&1; echo $?)
+  return $user_exists
+}
+
+_exists_group() {
+  [ -z "$1" ] && return 1
+  local group_exists=$(grep -q "$1" /etc/group > /dev/null 2>&1; echo $?)
+  return $group_exists
+}
+
+_check_DIR() {
+  local d=${1:-}
+  if [ -z "$d" ] ; then
+    echo "Error!!! Main folder can not be empty"
+    exit 1
+  fi
+  d=$(readlink -m "$d")
+  if [ ! -d "$d" ] ; then
+    echo "Error!!! Folder '$d' not exists"
+    exit 1
+  fi
+  if [ "$d/" == '/' ] ; then
+    echo "Error!!! Main folder '$d/' can not be root folder"
+    exit 1
+  fi
+  echo "$d"
+}
+
+_check_USER_NAME() {
+  local u=${1:-}
+  [ -z "$u" ] && return 0
+  if ! _exists_user "$u" ; then
+    echo -e "Error!!! Check exists username: '$u'"
+    exit 1
+  fi
+  echo "$u"
+}
+
+_check_GROUP_NAME() {
+  local g=${1:-}
+  [ -z "$g" ] && return 0
+  if ! _exists_group "$g" ; then
+    echo -e "Error!!! Check exists group name: '$g'"
+    exit 1
+  fi
+  echo "$g"
+}
+
+_check_PERM() {
+  local p=${1:-}
+  [ -z "$p" ] && return 0
+  if [[ $p =~ ^[0-7]{3}$ ]] || [[ $p =~ ^([ugoa]+[-=+][rwx]+,?)+$ ]] ; then
+    echo "$p"
+    return 0
+  fi
+  echo -e "Error!!! Check correct permission: '$p'"
+  exit 1
+}
+
+_check_TEST_MODE() {
+  local t=${1:-}
+  [ -z "$t" -o "$t" = 1 ] && t=1 || t=0
+  echo "$t"
+}
+
+_fix() {
+
+  if [ -n "$USER_INNER" ] ; then
+    EXISTS_PARAM=1
+    cat <<CMD_USER_INNER
+find "$DIR_MAIN/" -exec chown "$USER_INNER" "{}" \;
+CMD_USER_INNER
+    [ "$TEST_MODE" != 1 ] && find "$DIR_MAIN/" -exec chown "$USER_INNER" "{}" \;
+  fi
+
+  if [ -n "$GROUP_INNER" ] ; then
+    EXISTS_PARAM=1
+    cat <<CMD_GROUP_INNER
+find "$DIR_MAIN/" -exec chgrp "$GROUP_INNER" "{}" \;
+CMD_GROUP_INNER
+    [ "$TEST_MODE" != 1 ] && find "$DIR_MAIN/" -exec chgrp "$GROUP_INNER" "{}" \;
+  fi
+
+  if [ -n "$PERM_DIR_INNER" ] ; then
+    EXISTS_PARAM=1
+    cat <<CMD_PERM_DIR_INNER
+find "$DIR_MAIN/" -type d -exec chmod "$PERM_DIR_INNER" "{}" \;
+CMD_PERM_DIR_INNER
+    [ "$TEST_MODE" != 1 ] && find "$DIR_MAIN/" -type d -exec chmod "$PERM_DIR_INNER" "{}" \;
+  fi
+
+  if [ -n "$PERM_FILE_INNER" ] ; then
+    EXISTS_PARAM=1
+    cat <<CMD_PERM_FILE_INNER
+find "$DIR_MAIN/" -type f -exec chmod "$PERM_FILE_INNER" "{}" \;
+CMD_PERM_FILE_INNER
+    [ "$TEST_MODE" != 1 ] && find "$DIR_MAIN/" -type f -exec chmod "$PERM_FILE_INNER" "{}" \;
+  fi
+
+  if [ -n "$USER_MAIN" ] ; then
+    EXISTS_PARAM=1
+    cat <<CMD_USER_MAIN
+chown "$USER_MAIN" "$DIR_MAIN"
+CMD_USER_MAIN
+    [ "$TEST_MODE" != 1 ] && chown "$USER_MAIN" "$DIR_MAIN"
+  fi
+
+  if [ -n "$GROUP_MAIN" ] ; then
+    EXISTS_PARAM=1
+    cat <<CMD_GROUP_MAIN
+chgrp "$GROUP_MAIN" "$DIR_MAIN"
+CMD_GROUP_MAIN
+    [ "$TEST_MODE" != 1 ] && chgrp "$GROUP_MAIN" "$DIR_MAIN"
+  fi
+
+
+  if [ -n "$PERM_DIR_MAIN" ] ; then
+    EXISTS_PARAM=1
+    cat <<CMD_PERM_DIR_MAIN
+chmod "$PERM_DIR_MAIN" "$DIR_MAIN"
+CMD_PERM_DIR_MAIN
+    [ "$TEST_MODE" != 1 ] && chmod "$PERM_DIR_MAIN" "$DIR_MAIN"
+  fi
+}
+
+_exit_if_error() {
+  status=$1
+  [ "$status" = '0' ] && return 0
+  mess=$2
+  echo "$mess"
+  exit $status
+}
+
+#####################################################
+
+echo
+[[ -z $* ]] && _print_help_and_exit 0
+
+while getopts ":M:U:G:D:u:g:d:f:anh" opt; do
+  case $opt in
+    M) _checkargs; DIR_MAIN="$OPTARG" ;;
+    U) _checkargs; USER_MAIN="$OPTARG" ;;
+    G) _checkargs; GROUP_MAIN="$OPTARG" ;;
+    u) _checkargs; USER_INNER="$OPTARG" ;;
+    g) _checkargs; GROUP_INNER="$OPTARG" ;;
+    D) _checkargs; PERM_DIR_MAIN="$OPTARG" ;;
+    d) _checkargs; PERM_DIR_INNER="$OPTARG" ;;
+    f) _checkargs; PERM_FILE_INNER="$OPTARG" ;;
+    a) TEST_MODE=0 ;;
+    n) TEST_MODE=1 ;;
+    h) _print_help_and_exit 0 ;;
+    *)
+      echo "Error!!! Unknown option '$opt'"
+      _print_help_and_exit 1
+    ;;
+  esac
+done
+
+       DIR_MAIN=$(_check_DIR        "$DIR_MAIN")        ; _exit_if_error $? "$DIR_MAIN"    
+      USER_MAIN=$(_check_USER_NAME  "$USER_MAIN")       ; _exit_if_error $? "$USER_MAIN"
+     USER_INNER=$(_check_USER_NAME  "$USER_INNER")      ; _exit_if_error $? "$USER_INNER"
+     GROUP_MAIN=$(_check_GROUP_NAME "$GROUP_MAIN")      ; _exit_if_error $? "$GROUP_MAIN"
+    GROUP_INNER=$(_check_GROUP_NAME "$GROUP_INNER")     ; _exit_if_error $? "$GROUP_INNER"
+  PERM_DIR_MAIN=$(_check_PERM       "$PERM_DIR_MAIN")   ; _exit_if_error $? "$PERM_DIR_MAIN"
+ PERM_DIR_INNER=$(_check_PERM       "$PERM_DIR_INNER")  ; _exit_if_error $? "$PERM_DIR_INNER"
+PERM_FILE_INNER=$(_check_PERM       "$PERM_FILE_INNER") ; _exit_if_error $? "$PERM_FILE_INNER"
+      TEST_MODE=$(_check_TEST_MODE  "$TEST_MODE")       ; _exit_if_error $? "$TEST_MODE"
+
+_fix
+echo
+[ -z "$EXISTS_PARAM" ] && _print_help_and_exit 0
+cd "$RET_DIR"
