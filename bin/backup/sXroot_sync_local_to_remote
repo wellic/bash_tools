@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+
+set -u
+#set -x
+
+#set -v
+SCRIPT_NAME=$(basename -- "$0")
+
+SERV=${SCRIPT_NAME%%_*}
+HOME_DIR=/root
+
+###################################
+_print_help_and_exit() {
+  local status=${1:-0}
+  cat<<HELP
+Usage:
+   $SCRIPT_NAME [-a [-r]] 
+Options:
+  -h            : show this help
+  -a            : do sync
+  -d            : add option --delete for sync
+  -r            : reverse sync
+HELP
+  exit $status
+}
+
+_checkargs() {
+  [[ ! $OPTARG =~ ^- ]] && return 0
+  echo "Error!!! Unknow argument '$OPTARG' for option $opt!"
+  exit 1
+}
+
+_exit_if_error() {
+  status=$1
+  [ "$status" = '0' ] && return 0
+  mess=$2
+  echo "$mess"
+  exit $status
+}
+
+_sync() {
+
+  [ "$O_DRY_RUN" == 1 ] && OPT+=' --dry-run'
+  [ "$O_DELETE" == 1 ]  && OPT+=' --delete'
+  
+
+  while read FILE_NAME; do
+    FILE_NAME=$(echo "$FILE_NAME" | sed -r -e 's/^\s*//g' -e 's/\s*$//g' -e '/^#/d' );
+    [ "$FILE_NAME" = '' ] && continue
+    
+    CMD="rsync $OPT " 
+    [ "$O_REVERSE" -eq 0 ] && DIRECTION="'.$HOME_DIR/$FILE_NAME' '$SERV:$HOME_DIR/$FILE_NAME'" || DIRECTION="'$SERV:$HOME_DIR/$FILE_NAME' '.$HOME_DIR/$FILE_NAME'" 
+    echo
+    cat <<CMD
+--------------------------------------------------------------------------------
+$CMD $DIRECTION
+--------------------------------------------------------------------------------
+CMD
+    eval "$CMD $DIRECTION"
+
+  done <"files"
+
+  [ "$O_DRY_RUN" == 1 ] && cat <<END || :
+
+--------------------------------------------------------------------------------
+  '!!! DRY RUN !!!'
+--------------------------------------------------------------------------------
+END
+
+}
+
+#--------------
+#> - показывает что файл был передан (синхронизирован).
+#f - показывает что это файл.
+#d - директория
+#s - показывает изменение размера.
+#t - показывает изменение штампа времени.
+#o -  изменение владельца
+#g - изменение группы.
+
+#OPT="-rizhOLWP"
+
+OPT="-rizhOLPs"
+declare -i O_DRY_RUN=1
+declare -i O_REVERSE=0
+declare -i O_DELETE=0
+
+#[[ -z $* ]] && _print_help_and_exit 0
+
+while getopts ":ardh" opt; do
+  case $opt in
+#    M) _checkargs; DIR_MAIN="$OPTARG" ;;
+    a) O_DRY_RUN=0 ;;
+    d) O_DELETE=1 ;;
+    r) O_REVERSE=1 ;;
+    h) _print_help_and_exit 0 ;;
+    *)
+      echo "Error!!! Unknown option '$opt'"
+      _print_help_and_exit 1
+    ;;
+  esac
+done
+
+_sync
+
+
+#-i, --itemize-changes
+#        Requests a simple itemized list of the changes that are being made to each file, including attribute changes. This is exactly the same as specifying --out-format='%i %n%L'. If you repeat
+#        the option, unchanged files will also be output, but only if the receiving rsync is at least version 2.6.7 (you can use -vv with older versions of rsync, but that also turns on the output of
+#        other verbose messages).
+#
+#        The "%i" escape has a cryptic output that is 11 letters long.
+#        The general format is like the string YXcstpoguax, where Y is replaced by the type of update being done, X is replaced by the
+#        file-type, and the other letters represent attributes that may be output if they are being modified.
+#
+# (1)    The update types that replace the Y are as follows:
+#          < means that a file is being transferred to the remote host (sent).
+#          > means that a file is being transferred to the local host (received).
+#          c means that a local change/creation is occurring for the item (such as the creation of a directory or the changing of a symlink, etc.).
+#          h means that the item is a hard link to another item (requires --hard-links).
+#          . means that the item is not being updated (though it might have attributes that are being modified).
+#          * means that the rest of the itemized-output area contains a message (e.g. "deleting").
+#
+# (2)    The file-types that replace the X are: 
+#          f for a file 
+#          d for a directory
+#          L for a symlink
+#          D for a device
+#          S for a special file (e.g. named sockets and fifos).
+#
+#        The other letters in the string above are the actual letters that will be output if the associated attribute for the item is being updated or a "." for no change.  
+#        Three exceptions to this are: 
+#          (1) a newly created item replaces each letter with a "+", 
+#          (2) an identical item replaces the dots with spaces, and 
+#          (3) an unknown attribute replaces each letter with a "?" (this can happen when talking to an older rsync).
+#
+# (3-11) The attribute that is associated with each letter is as follows:
+#          c means either that a regular file has a different checksum (requires --checksum) or that a symlink, device, or special file has a changed value. Note that if you are sending files
+#            to an rsync prior to 3.0.1, this change flag will be present only for checksum-differing regular files.
+#          s means the size of a regular file is different and will be updated by the file transfer.
+#          t means the modification time is different and is being updated to the sender’s value (requires --times). An alternate value of T means that the modification time will be set to the
+#            transfer time, which happens when a file/symlink/device is updated without --times and when a symlink is changed and the receiver can’t set its time. (Note: when using an rsync 3.0.0
+#            client, you might see the s flag combined with t instead of the proper T flag for this time-setting failure.)
+#          p means the permissions are different and are being updated to the sender’s value (requires --perms).
+#          o means the owner is different and is being updated to the sender’s value (requires --owner and super-user privileges).
+#          g means the group is different and is being updated to the sender’s value (requires --group and the authority to set the group).
+#          u slot is reserved for future use.
+#          a means that the ACL information changed.
+#          x means that the extended attribute information changed.
+#
+#        One other output is possible: when deleting files, the "%i" will output the string "*deleting" for each item that is being removed (assuming that you are talking to a recent enough rsync
+#        that it logs deletions instead of outputting them as a verbose message).
+#

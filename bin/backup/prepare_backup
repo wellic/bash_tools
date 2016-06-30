@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+set -u
+#set -x
+
+HOME_DIR="$HOME"
+
+DIR_BACKUP_ROOT="$HOME_DIR/_prepare_backup_"
+DIR_BACKUP="$HOME_DIR/clouds/_mail/Backup"
+
+CURDIR=$1
+FILENAME=$2
+
+FILE_LST="$DIR_BACKUP_ROOT/src.lst"
+BACKUP_LST="$DIR_BACKUP_ROOT/backup.lst"
+SCRIPT_BACKUP="$DIR_BACKUP_ROOT/_backup_list"
+
+[ -d "$DIR_BACKUP_ROOT" ] ||  mkdir -p "$DIR_BACKUP_ROOT"
+
+create_script_backup_list() {
+  [ -e "$SCRIPT_BACKUP" ] && return 0
+
+  cat <<SCRIPT2 >"$SCRIPT_BACKUP"
+#!/usr/bin/env bash
+
+set -u
+
+OPT="-rizhLOPs -n"
+
+DIR_BACKUP='$DIR_BACKUP'
+HOME_DIR='$HOME_DIR'
+FILE_LST='$FILE_LST'
+BACKUP_LST='$BACKUP_LST'
+
+while read FILE_NAME; do
+#  FILE_NAME=\$(echo "\$FILE_NAME" | sed -r -e 's/^\s*//g' -e 's/\s*$//g' -e '/^#/d' );
+  FILE_NAME=\$(echo "\$FILE_NAME" | sed -r -e 's/^\s*//g' -e 's/\s*$//g' );
+  [ "\$FILE_NAME" = '' ] && continue
+  printf "%s\\n" "\$FILE_NAME"
+done < "\$FILE_LST" > "\$BACKUP_LST"
+
+sort -u "\$BACKUP_LST" > "\$BACKUP_LST.tmp"
+mv  "\$BACKUP_LST.tmp" "\$BACKUP_LST"
+
+CMD="rsync \$OPT --files-from='\$BACKUP_LST' '\$HOME_DIR/' '\$DIR_BACKUP/'"
+cat <<CMD
+--------------------------------------------------------------------------------
+\$CMD
+--------------------------------------------------------------------------------
+CMD
+  eval "\$CMD"
+
+SCRIPT2
+  chmod +x "$SCRIPT_BACKUP"
+}
+
+#################
+create_script_backup_list
+
+FULL_FILENAME="$CURDIR/$FILENAME"
+printf "%s\n" "${FULL_FILENAME#${HOME_DIR}/*}" >>$FILE_LST
+
