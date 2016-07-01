@@ -1,21 +1,45 @@
 #!/usr/bin/env bash
 
+# add to mc.mnu
+#
+#1 prepare_backup
+#  for i in %s; do
+#    echo "prepare_backup '%d' '$i'"
+#    prepare_backup "%d" "$i"
+#  done
+#
+
 set -u
 #set -x
 
-HOME_DIR="$HOME"
-
-DIR_BACKUP_ROOT="$HOME_DIR/_prepare_backup_"
-DIR_BACKUP="$HOME_DIR/clouds/_mail/Backup"
-
-CURDIR=$1
+FILEDIR=$1
 FILENAME=$2
+FULLFILENAME="${FILEDIR%/}/$FILENAME"
 
-FILE_LST="$DIR_BACKUP_ROOT/src.lst"
-BACKUP_LST="$DIR_BACKUP_ROOT/backup.lst"
-SCRIPT_BACKUP="$DIR_BACKUP_ROOT/_backup_list"
+HOME_DIR="$HOME"
+PATH_PREPARE="_prepare_backup_"
+PATH_BACKUP="clouds/_mail/Backup"
+FILENAME_LST_SRC="src.lst"
+FILENAME_LST_BACKUP="backup.lst"
+SET_USER="$USER"
+SET_GROUP="$USER"
 
-[ -d "$DIR_BACKUP_ROOT" ] ||  mkdir -p "$DIR_BACKUP_ROOT"
+HOME_DIR="${HOME_DIR%/}"
+
+PATH_PREPARE="${PATH_PREPARE%/}"
+PATH_PREPARE="${PATH_PREPARE#/}"
+DIR_PREPARE="$HOME_DIR/$PATH_PREPARE"
+
+PATH_BACKUP="${PATH_BACKUP%/}"
+PATH_BACKUP="${PATH_BACKUP#/}"
+DIR_BACKUP="$HOME_DIR/$PATH_BACKUP"
+
+LST_SRC="$DIR_PREPARE/$FILENAME_LST_SRC"
+LST_BACKUP="$DIR_PREPARE/$FILENAME_LST_BACKUP"
+
+SCRIPT_BACKUP="$DIR_PREPARE/_backup_list"
+
+[ -d "$DIR_PREPARE" ] ||  mkdir -p "$DIR_PREPARE"
 
 create_script_backup_list() {
   [ -e "$SCRIPT_BACKUP" ] && return 0
@@ -25,30 +49,94 @@ create_script_backup_list() {
 
 set -u
 
-OPT="-rizhLOPs -n"
+HOME_DIR="$HOME_DIR"
+PATH_PREPARE="$PATH_PREPARE"
+PATH_BACKUP="$PATH_BACKUP"
+FILENAME_LST_SRC="$FILENAME_LST_SRC"
+FILENAME_LST_BACKUP="$FILENAME_LST_BACKUP"
+FILENAME_ARC='allfiles'
 
-DIR_BACKUP='$DIR_BACKUP'
-HOME_DIR='$HOME_DIR'
-FILE_LST='$FILE_LST'
-BACKUP_LST='$BACKUP_LST'
+HOME_DIR="\${HOME_DIR%/}"
 
-while read FILE_NAME; do
-#  FILE_NAME=\$(echo "\$FILE_NAME" | sed -r -e 's/^\s*//g' -e 's/\s*$//g' -e '/^#/d' );
-  FILE_NAME=\$(echo "\$FILE_NAME" | sed -r -e 's/^\s*//g' -e 's/\s*$//g' );
-  [ "\$FILE_NAME" = '' ] && continue
-  printf "%s\\n" "\$FILE_NAME"
-done < "\$FILE_LST" > "\$BACKUP_LST"
+PATH_PREPARE="\${PATH_PREPARE%/}"
+PATH_PREPARE="\${PATH_PREPARE#/}"
+DIR_PREPARE="\$HOME_DIR/\$PATH_PREPARE"
 
-sort -u "\$BACKUP_LST" > "\$BACKUP_LST.tmp"
-mv  "\$BACKUP_LST.tmp" "\$BACKUP_LST"
+PATH_BACKUP="\${PATH_BACKUP%/}"
+PATH_BACKUP="\${PATH_BACKUP#/}"
+DIR_BACKUP="\$HOME_DIR/\$PATH_BACKUP"
 
-CMD="rsync \$OPT --files-from='\$BACKUP_LST' '\$HOME_DIR/' '\$DIR_BACKUP/'"
+LST_SRC="\$DIR_PREPARE/\$FILENAME_LST_SRC"
+LST_BACKUP="\$DIR_PREPARE/\$FILENAME_LST_BACKUP"
+
+SET_USER='$SET_USER'
+#SET_GROUP='wellic'
+#OPT="-irzhLOPs"
+OPT="-iarLvzh --no-o --no-p"
+
+declare -i O_DRY_RUN=1
+declare -i O_DELETE=0
+
+_print_help_and_exit() {
+  SCRIPTNAME="\$(basename "\$0")"
+
+  local status=\${1:-0}
+  cat<<HELP
+Usage:
+   \$SCRIPTNAME [options] 
+Options:
+  -h            : show this help
+  -a            : do normal sync (off dry-run)
+  -d            : add option --delete for sync
+HELP
+  exit \$status
+}
+
+while getopts ":adh" opt; do
+  case \$opt in
+    a) O_DRY_RUN=0 ;;
+    d) O_DELETE=1 ;;
+    h) _print_help_and_exit 0 ;;
+    *)
+      echo "Error!!! Unknown option '\$opt'"
+      _print_help_and_exit 1
+    ;;
+  esac
+done
+
+[ "\$O_DRY_RUN" == 1 ] && OPT+=' --dry-run'
+[ "\$O_DELETE" == 1 ]  && OPT+=' --delete'
+
+while read f; do
+  f=\$(echo "\$f" | sed -r -e 's/^\s*//g' -e 's/\s*$//g' );
+  [ "\$f" = '' ] && continue
+  printf "%s\\n" "\$f"
+done < "\$LST_SRC" > "\$LST_BACKUP"
+
+sort -Vu "\$LST_BACKUP" -o "\$LST_BACKUP.tmp"
+mv  "\$LST_BACKUP.tmp" "\$LST_BACKUP"
+
+CMD="sudo rsync \$OPT --files-from=\"\$LST_BACKUP\" / \"\$DIR_BACKUP/\""
+[ "\$O_DRY_RUN" = 0 ] && CMD+="; sudo chown -R \$SET_USER \"\$DIR_BACKUP/\" "
+eval "\$CMD"
 cat <<CMD
+
 --------------------------------------------------------------------------------
 \$CMD
+
+Tar (save symbolic link):
+sudo tar -cvpzf "\$DIR_BACKUP/\${FILENAME_ARC}.tar.gz"  -T "\$LST_BACKUP"
+sudo tar -cvpJf "\$DIR_BACKUP/\${FILENAME_ARC}.tar.xz"  -T "\$LST_BACKUP"
+sudo tar -cvpjf "\$DIR_BACKUP/\${FILENAME_ARC}.tar.bz2" -T "\$LST_BACKUP"
+
+Tar (dereference s-links):
+sudo tar -hcvpzf "\$DIR_BACKUP/\${FILENAME_ARC}_deref.tar.gz"  -T "\$LST_BACKUP"
+sudo tar -hcvpJf "\$DIR_BACKUP/\${FILENAME_ARC}_deref.tar.xz"  -T "\$LST_BACKUP"
+sudo tar -hcvpjf "\$DIR_BACKUP/\${FILENAME_ARC}_deref.tar.bz2" -T "\$LST_BACKUP"
+
+cd "\$DIR_BACKUP/"
 --------------------------------------------------------------------------------
 CMD
-  eval "\$CMD"
 
 SCRIPT2
   chmod +x "$SCRIPT_BACKUP"
@@ -57,6 +145,5 @@ SCRIPT2
 #################
 create_script_backup_list
 
-FULL_FILENAME="$CURDIR/$FILENAME"
-printf "%s\n" "${FULL_FILENAME#${HOME_DIR}/*}" >>$FILE_LST
+printf "%s\n" "$FULLFILENAME" >>$LST_SRC
 
