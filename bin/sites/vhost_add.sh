@@ -117,7 +117,9 @@ _add() {
   if [ -n "$l_exists_host" ]; then
     echo_info "The host '$l_new_host' already exists" 1 0 $c_warn
   else
+    sudo sed -i -e '$a\' $hosts_file || sudo sh -c "echo >> $hosts_file"
     sudo sh -c "echo ${l_new_ip} ${l_new_host} >> $hosts_file" || exit 1
+
     echo_info "The host '$l_new_host' was added" 1 0 $c_warn
   fi
   print_similar_hosts "$l_new_host" 1
