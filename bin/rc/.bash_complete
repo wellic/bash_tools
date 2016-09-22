@@ -1,0 +1,20 @@
+
+complete -W "$(echo `cat ~/.ssh/config | grep -iE '^(Host|HostName) ' | awk '{print $2}'`)" ssh
+#HEADS=$(echo `cdadm; __git_heads | awk '{print $1}'`)
+HEADS=$(echo ` __git_heads | awk '{print $1}'`)
+complete -W "$HEADS" go gst gb makepatch gl
+
+
+#complete -F _my_branches go
+
+#_my_branches()
+#{
+#    local cur prev opts
+#    COMPREPLY=()
+#    cur="${COMP_WORDS[COMP_CWORD]}"
+#    prev="${COMP_WORDS[COMP_CWORD-1]}"
+#    opts=$(__git_heads);
+#    opts="--help --verbose --version"
+#
+#    COMPREPLY=($(compgen -W "${opts}"));
+#}

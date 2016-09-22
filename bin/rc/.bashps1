@@ -1,0 +1,239 @@
+[ -f /etc/bash_completion.d/git-prompt ] && source /etc/bash_completion.d/git-prompt
+[ -f /etc/bash_completion.d/git ]        && source /etc/bash_completion.d/git
+
+alias c='clear'
+
+_ADD_PROMT_COMMAND_ERROR_INFO_=1
+_ADD_PROMT_COMMAND_JOBS_INFO_=1
+_ADD_PROMT_COMMAND_CMDNUM_INFO_=0
+
+debian_chroot=
+color_prompt=
+force_color_prompt=
+
+# set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
+  debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+  xterm-color) color_prompt=yes;;
+esac
+
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+  if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+  # We have color support; assume it's compliant with Ecma-48
+  # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+  # a case would tend to support setf rather than setaf.)
+    color_prompt=yes
+  else
+    color_prompt=
+  fi
+fi
+
+# https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
+# http://ithaca.arpinum.org/2013/01/02/git-prompt.html
+
+export GIT_PS1_SHOWDIRTYSTATE=1
+export GIT_PS1_SHOWSTASHSTATE=1
+export GIT_PS1_SHOWUNTRACKEDFILES=1
+# Explicitly unset color (default anyhow). Use 1 to set it.
+export GIT_PS1_SHOWCOLORHINTS=1
+export GIT_PS1_DESCRIBE_STYLE="branch"
+export GIT_PS1_SHOWUPSTREAM="auto verbose name git"
+export GIT_PS1_HIDE_IF_PWD_IGNORED=
+
+jobscount() {
+   local stopped=$(jobs -sp | wc -l)
+   local running=$(jobs -rp | wc -l)
+   ((running+stopped)) && echo -n "${running} running, ${stopped} stopped"
+# || echo -n "0r/0s"
+}
+
+
+__prompt_command() {
+  local __CReset='\e[0m' # Text Reset
+# Обычные цвета
+  local  Black='\e[0;30m'       # Black
+  local    Red='\e[0;31m'       # Red
+  local  Green='\e[0;32m'       # Green
+  local Yellow='\e[0;33m'       # Yellow
+  local   Blue='\e[0;34m'       # Blue
+  local Purple='\e[0;35m'       # Purple
+  local   Cyan='\e[0;36m'       # Cyan
+  local  White='\e[0;37m'       # White
+# Жирные
+  local  BBlack='\e[1;30m'      # Black
+  local    BRed='\e[1;31m'      # Red
+  local  BGreen='\e[1;32m'      # Green
+  local BYellow='\e[1;33m'      # Yellow
+  local   BBlue='\e[1;34m'      # Blue
+  local BPurple='\e[1;35m'      # Purple
+  local   BCyan='\e[1;36m'      # Cyan
+  local  BWhite='\e[1;37m'      # White
+# Темные
+  local  DBlack='\e[2;30m'      # Black
+  local    DRed='\e[2;31m'      # Red
+  local  DGreen='\e[2;32m'      # Green
+  local DYellow='\e[2;33m'      # Yellow
+  local   DBlue='\e[2;34m'      # Blue
+  local DPurple='\e[2;35m'      # Purple
+  local   DCyan='\e[2;36m'      # Cyan
+  local  DWhite='\e[2;37m'      # White
+# Высоко Интенсивные
+  local  IBlack='\e[0;90m'      # Black
+  local    IRed='\e[0;91m'      # Red
+  local  IGreen='\e[0;92m'      # Green
+  local IYellow='\e[0;93m'      # Yellow
+  local   IBlue='\e[0;94m'      # Blue
+  local IPurple='\e[0;95m'      # Purple
+  local   ICyan='\e[0;96m'      # Cyan
+  local  IWhite='\e[0;97m'      # White
+# Жирные Высоко Интенсивные
+  local  BIBlack='\e[1;90m'     # Black
+  local    BIRed='\e[1;91m'     # Red
+  local  BIGreen='\e[1;92m'     # Green
+  local BIYellow='\e[1;93m'     # Yellow
+  local   BIBlue='\e[1;94m'     # Blue
+  local BIPurple='\e[1;95m'     # Purple
+  local   BICyan='\e[1;96m'     # Cyan
+  local  BIWhite='\e[1;97m'     # White
+
+  echo $'\e[?2004l'
+  PS1=''
+  if [ "$color_prompt" = yes ]; then
+    [ "$_ADD_PROMT_COMMAND_ERROR_INFO_" == '1' ] && PS1+='$(err=$?;cmd=$((\!-1));[ $err != '0' ] && echo "'${IRed}'$cmd: Exit code=$err. View command: (history | grep -P \"^\\s*$cmd\\s\")'"\n${__CReset}"'")'
+    [ "$_ADD_PROMT_COMMAND_JOBS_INFO_" == '1'  ] && PS1+='$([ \j -ne 0 ] && echo "'"${IPurple}"'Some jobs (\j) in background: $(jobscount).'"\n${__CReset}"'")'
+    [ "$_ADD_PROMT_COMMAND_CMDNUM_INFO_" == '1' ] && PS1+="${Yellow}\!:${__CReset} "
+    PS1+="${Cyan}\t${__CReset} ${IBlue}\u@\h${__CReset} ${Green}"'$(pwd)'"${__CReset} "
+    PS1+="${BIYellow}"'$(__git_ps1 "[%s]")'"${__CReset}\n"
+    PS1+='\$ '
+  else
+    [ "$_ADD_PROMT_COMMAND_INFO_" == '1' ] && PS1+='\! \t '
+    PS1+='\t ${debian_chroot:+($debian_chroot)}\u@\h:\w\${`pwd`}\n>'
+  fi
+
+  # If this is an xterm set the title to user@host:dir
+  case "$TERM" in
+    xterm*|rxvt*)
+      PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+    *)
+    ;;
+  esac
+#  PS1+=$'\e[?2004l'
+}
+
+#export -f __prompt_command
+#https://www.digitalocean.com/community/tutorials/how-to-use-bash-history-commands-and-expansions-on-a-linux-vps
+export PROMPT_COMMAND="__prompt_command"
+
+#export GIT_PS1_SHOWDIRTYSTATE=1
+#if [ "$color_prompt" = yes ]; then
+#    PS1='\[\e[02;36m\]\t\[\e[0m\] ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]$(pwd) \e[1;33m\e[40m$(__git_ps1 "[%s]")\e[0m\n$ '
+#else
+#    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\${`pwd`}\n>'
+#fi
+#unset color_prompt force_color_prompt
+
+
+############################
+
+#https://wiki.archlinux.org/index.php/Color_Bash_Prompt_(%D0%A0%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9)
+# Показать сообщение нужным цветом и оттенком
+# COLOR={0..7}
+#  0-Black(Grey), 1-Red, 2-Green, 3-Brown/Orange(Yellow), 4-Blue,  5-Purple, 6-Cyan, 7-Light Gray(White)
+# BRIGHT={0|1|2|4|7|9}
+#  0(normal), 1(light), 2(dark), 4(underline), 7(invert) 9(cross)
+
+# Сброс
+#  local   __CReset='\e[0m'          # Text Reset
+
+# Обычные цвета
+#  local  Black='\e[0;30m'       # Black
+#  local    Red='\e[0;31m'       # Red
+#  local  Green='\e[0;32m'       # Green
+#  local Yellow='\e[0;33m'       # Yellow
+#  local   Blue='\e[0;34m'       # Blue
+#  local Purple='\e[0;35m'       # Purple
+#  local   Cyan='\e[0;36m'       # Cyan
+#  local  White='\e[0;37m'       # White
+
+# Жирные
+#  local  BBlack='\e[1;30m'      # Black
+#  local    BRed='\e[1;31m'      # Red
+#  local  BGreen='\e[1;32m'      # Green
+#  local BYellow='\e[1;33m'      # Yellow
+#  local   BBlue='\e[1;34m'      # Blue
+#  local BPurple='\e[1;35m'      # Purple
+#  local   BCyan='\e[1;36m'      # Cyan
+#  local  BWhite='\e[1;37m'      # White
+
+# Темные
+#  local  DBlack='\e[2;30m'      # Black
+#  local    DRed='\e[2;31m'      # Red
+#  local  DGreen='\e[2;32m'      # Green
+#  local DYellow='\e[2;33m'      # Yellow
+#  local   DBlue='\e[2;34m'      # Blue
+#  local DPurple='\e[2;35m'      # Purple
+#  local   DCyan='\e[2;36m'      # Cyan
+#  local  DWhite='\e[2;37m'      # White
+
+# Подчёркнутые
+#  local  UBlack='\e[4;30m'      # Black
+#  local    URed='\e[4;31m'      # Red
+#  local  UGreen='\e[4;32m'      # Green
+#  local UYellow='\e[4;33m'      # Yellow
+#  local   UBlue='\e[4;34m'      # Blue
+#  local UPurple='\e[4;35m'      # Purple
+#  local   UCyan='\e[4;36m'      # Cyan
+#  local  UWhite='\e[4;37m'      # White
+
+# Фоновые
+#  local  On_Black='\e[40m'      # Black
+#  local    On_Red='\e[41m'      # Red
+#  local  On_Green='\e[42m'      # Green
+#  local On_Yellow='\e[43m'      # Yellow
+#  local   On_Blue='\e[44m'      # Blue
+#  local On_Purple='\e[45m'      # Purple
+#  local   On_Cyan='\e[46m'      # Cyan
+#  local  On_White='\e[47m'      # White
+
+# Высоко Интенсивные
+#  local  IBlack='\e[0;90m'      # Black
+#  local    IRed='\e[0;91m'      # Red
+#  local  IGreen='\e[0;92m'      # Green
+#  local IYellow='\e[0;93m'      # Yellow
+#  local   IBlue='\e[0;94m'      # Blue
+#  local IPurple='\e[0;95m'      # Purple
+#  local   ICyan='\e[0;96m'      # Cyan
+#  local  IWhite='\e[0;97m'      # White
+
+# Жирные Высоко Интенсивные
+#  local  BIBlack='\e[1;90m'     # Black
+#  local    BIRed='\e[1;91m'     # Red
+#  local  BIGreen='\e[1;92m'     # Green
+#  local BIYellow='\e[1;93m'     # Yellow
+#  local   BIBlue='\e[1;94m'     # Blue
+#  local BIPurple='\e[1;95m'     # Purple
+#  local   BICyan='\e[1;96m'     # Cyan
+#  local  BIWhite='\e[1;97m'     # White
+
+# Высоко Интенсивные фоновые
+#  local  OnIBlack='\e[0;100m'   # Black
+#  local    OnIRed='\e[0;101m'   # Red
+#  local  OnIGreen='\e[0;102m'   # Green
+#  local OnIYellow='\e[0;103m'   # Yellow
+#  local   OnIBlue='\e[0;104m'   # Blue
+#  local OnIPurple='\e[0;105m'   # Purple
+#  local   OnICyan='\e[0;106m'   # Cyan
+#  local  OnIWhite='\e[0;107m'   # White
+
+#  local FancyX='\342\234\227'
+#  local Checkmark='\342\234\223'

@@ -1,0 +1,18 @@
+alias w_CBR='git cbr'
+
+############ git aliases ################
+alias gst='git status '
+alias ga='git add '
+alias gb='git branch '
+alias gc='git commit'
+alias gd='git diff'
+alias gd0='git diff -U0'
+alias go='git checkout '
+alias gk='gitk --all&'
+alias gx='gitx --all&'
+
+alias gl='git last'
+alias gsh='git show'
+
+alias gti='git '
+
