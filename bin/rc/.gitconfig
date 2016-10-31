@@ -98,6 +98,7 @@
     data = short
 [gui]
     spellingdictionary = en_GB
+	encoding = utf-8
 [merge]
     tool = kdiff3
     guitool = kdiff3

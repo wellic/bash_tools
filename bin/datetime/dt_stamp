@@ -1,0 +1,6 @@
+#!/bin/bash
+
+sep=${1:-}
+fd=${2:-'%Y%m%d'}
+
+date +"${fd}${sep}%H%M%S"
