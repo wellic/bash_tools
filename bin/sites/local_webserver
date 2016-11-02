@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cat <<EOF
+------------------------------
+US
+More options:
+ python3 -m http.server --help
+------------------------------
+
+EOF
+
+python3 -m http.server $@
