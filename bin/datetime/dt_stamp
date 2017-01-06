@@ -1,6 +1,9 @@
 #!/bin/bash
 
 sep=${1:-}
-fd=${2:-'%Y%m%d'}
+p1=${2:-'%Y%m%d'}
+p2=${3:-'%H%M%S'}
 
-date +"${fd}${sep}%H%M%S"
+d="${p1}${sep}${p2}"
+
+date +"${d}" | sed 's/^ //g' | sed 's/ $//g'

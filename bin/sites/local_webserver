@@ -5,6 +5,9 @@ cat <<EOF
 US
 More options:
  python3 -m http.server --help
+
+Start in browser:
+ http://vsavchenko.cpcs:8000
 ------------------------------
 
 EOF

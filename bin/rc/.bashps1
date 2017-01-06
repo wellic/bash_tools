@@ -7,6 +7,7 @@ _ADD_PROMT_COMMAND_ERROR_INFO_=1
 _ADD_PROMT_COMMAND_JOBS_INFO_=1
 _ADD_PROMT_COMMAND_CMDNUM_INFO_=0
 
+
 debian_chroot=
 color_prompt=
 force_color_prompt=
