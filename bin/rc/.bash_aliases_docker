@@ -1,3 +1,4 @@
+
 #docker aliases
 
 alias composer='    [ -d ~/.composer ] || mkdir ~/.composer; docker run -it --rm -u $(id -u):$(id -g) -v $(pwd):/app -w /app -v ~/.composer:/composer composer/composer'
@@ -69,3 +70,10 @@ dclear_images() {
 dclear_stop_all_containers() {
   docker ps -q | xargs docker stop
 }
+
+
+#https://github.com/docker/docker/blob/master/contrib/completion/bash/docker
+#https://raw.githubusercontent.com/docker/docker/master/contrib/completion/bash/docker
+#sudo -i curl -L https://raw.githubusercontent.com/docker/docker/master/contrib/completion/bash/docker -o /etc/bash_completion.d/docker
+#https://docs.docker.com/compose/completion/
+#sudo -i curl -L https://raw.githubusercontent.com/docker/compose/$(docker-compose version --short)/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -u
+#set -x
+#set -v
+
+pn=$(basename "$0")
+if [ $# -lt 1 ]; then
+    cat <<HELP
+    $pn src_root filename
+HELP
+    exit 1
+fi
+src_root=$(readlink -m "$1")
+fn=${2#/}
+fulldst="$src_root/$fn"
+
+if [ ! -e "$fulldst" ]; then
+    echo "check exists"
+    echo "$fulldst"
+    exit 1
+fi
+
+if [ -d "fulldst" ]; then
+    dstdir=$fn
+else
+    dstdir=$(dirname "$fn")
+fi
+
+echo $dstdir
+[ -e "$dstdir" ] || mkdir -p $dstdir
+
+cmd="cp -RT $fulldst $fn"
+echo $cmd
+eval "$cmd"
+
