@@ -5,8 +5,19 @@ alias c='clear'
 
 _ADD_PROMT_COMMAND_ERROR_INFO_=1
 _ADD_PROMT_COMMAND_JOBS_INFO_=1
-_ADD_PROMT_COMMAND_CMDNUM_INFO_=1
+_ADD_PROMT_COMMAND_CMDNUM_INFO_=0
 
+#Add custom message
+_m() {
+    CUSTOM_MESSAGE="$*"
+    CUSTOM_MESSAGE="${CUSTOM_MESSAGE#"${CUSTOM_MESSAGE%%[![:space:]]*}"}"
+    CUSTOM_MESSAGE="${CUSTOM_MESSAGE%"${CUSTOM_MESSAGE##*[![:space:]]}"}"
+}
+
+#toggle display count cmd
+_toggle_cmd_num() {
+ [ "$_ADD_PROMT_COMMAND_CMDNUM_INFO_" = '1' ] && _ADD_PROMT_COMMAND_CMDNUM_INFO_=0 || _ADD_PROMT_COMMAND_CMDNUM_INFO_=1
+}
 
 debian_chroot=
 color_prompt=
@@ -123,21 +134,22 @@ __prompt_command() {
   echo $'\e[?2004l'
 
   #python Virtual Env
-  local venv
-  [ "$VIRTUAL_ENV" != '' -a "$(basename \"$VIRTUAL_ENV\")" != '""' ] && venv="[`basename \"$VIRTUAL_ENV\"`] "
+  local mess_prefix
+  [ "$VIRTUAL_ENV" != '' -a "$(basename \"$VIRTUAL_ENV\")" != '""' ] && mess_prefix="[`basename \"$VIRTUAL_ENV\"`] "
+  [ "$CUSTOM_MESSAGE" != '' ] && mess_prefix+="${CUSTOM_MESSAGE} "
 
   PS1=''
   if [ "$color_prompt" = yes ]; then
     [ "$_ADD_PROMT_COMMAND_ERROR_INFO_" == '1' ] && PS1+='$(err=$?;cmd=$((\!-1));[ $err != '0' ] && echo "'${IRed}'$cmd: Exit code=$err. View command: (history | grep -P \"^\\s*$cmd\\s\")'"\n${__CReset}"'")'
     [ "$_ADD_PROMT_COMMAND_JOBS_INFO_" == '1'  ] && PS1+='$([ \j -ne 0 ] && echo "'"${IPurple}"'Some jobs (\j) in background: $(jobscount).'"\n${__CReset}"'")'
-    PS1+="${DGreen}${venv}${__CReset}"
+    PS1+="${DGreen}${mess_prefix}${__CReset}"
     [ "$_ADD_PROMT_COMMAND_CMDNUM_INFO_" == '1' ] && PS1+="${Yellow}\!:${__CReset} "
     PS1+="${Cyan}\t${__CReset} ${IBlue}\u@\h${__CReset} ${Green}"'$(pwd)'"${__CReset} "
     PS1+="${BIYellow}"'$(__hg_ps1)$(__git_ps1 "[%s]")'"${__CReset}\n"
     PS1+='\$ '
   else
     [ "$_ADD_PROMT_COMMAND_INFO_" == '1' ] && PS1+='\! \t '
-    PS1+='${venv}\t ${debian_chroot:+($debian_chroot)}\u@\h:\w\${`pwd`}\n>'
+    PS1+='${mess_prefix}\t ${debian_chroot:+($debian_chroot)}\u@\h:\w\${`pwd`}\n>'
   fi
 
   # If this is an xterm set the title to user@host:dir
