@@ -124,4 +124,11 @@ fi
 export EDITOR=/usr/bin/mcedit
 export PATH="$PATH:$HOME/bin:$HOME/Soft/netbeans-8.2/bin"
 
+wttr()
+{
+    # change Paris to your default location
+#    local L="${LANG%_*}"
+#    L=${2:-ru}
+    curl -H "Accept-Language: ${2:-ru}" wttr.in/"${1:-Sumy}?m$3"
+}
 
