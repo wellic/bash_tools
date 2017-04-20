@@ -134,8 +134,20 @@ __prompt_command() {
   echo $'\e[?2004l'
 
   #python Virtual Env
-  local venv
-  [ "$VIRTUAL_ENV" != '' -a "$(basename \"$VIRTUAL_ENV\")" != '""' ] && venv="[`basename \"$VIRTUAL_ENV\"`] "
+  local venv=''
+  local cnt=0
+  if [ "$VIRTUAL_ENV" != '' -a "$(basename \"$VIRTUAL_ENV\")" != '""' ]; then 
+    venv+=" `basename \"$VIRTUAL_ENV\"`"
+    cnt=$((cnt + 1))
+  fi
+  if [ "$CONDA_PREFIX" != '' -a "$(basename \"$CONDA_PREFIX\")" != '""' ]; then
+    venv+=" `basename \"$CONDA_PREFIX\"`"
+    cnt=$((cnt + 1))
+  fi
+  [ $cnt -le 1 ] && venv_color="$DGreen" || venv_color="$BIRed"
+  venv="${venv#"${venv%%[![:space:]]*}"}"
+  venv="${venv%"${venv##*[![:space:]]}"}"
+  [ -n "$venv" ] && venv="[${venv}] "
 
   local mess_prefix
   [ "$CUSTOM_MESSAGE" != '' ] && mess_prefix="${CUSTOM_MESSAGE} "
@@ -144,7 +156,7 @@ __prompt_command() {
   if [ "$color_prompt" = yes ]; then
     [ "$_ADD_PROMT_COMMAND_ERROR_INFO_" == '1' ] && PS1+='$(err=$?;cmd=$((\!-1));[ $err != '0' ] && echo "'${IRed}'$cmd: Exit code=$err. View command: (history | grep -P \"^\\s*$cmd\\s\")'"\n${__CReset}"'")'
     [ "$_ADD_PROMT_COMMAND_JOBS_INFO_" == '1'  ] && PS1+='$([ \j -ne 0 ] && echo "'"${IPurple}"'Some jobs (\j) in background: $(jobscount).'"\n${__CReset}"'")'
-    PS1+="${DGreen}${venv}${__CReset}"
+    PS1+="${venv_color}${venv}${__CReset}"
     PS1+="${IYellow}${mess_prefix}${__CReset}"
     [ "$_ADD_PROMT_COMMAND_CMDNUM_INFO_" == '1' ] && PS1+="${Yellow}\!:${__CReset} "
     PS1+="${Cyan}\t${__CReset} ${IBlue}\u@\h${__CReset} ${Green}"'$(pwd)'"${__CReset} "
