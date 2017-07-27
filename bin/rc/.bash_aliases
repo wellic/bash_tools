@@ -8,6 +8,7 @@ fi
 
 ######################################################
 
+alias apip=/home/yournick/anaconda3/bin/pip
 alias fix_term='printf "\e[?2004l"'
 
 alias logout='mate-session-save --logout'

@@ -1,14 +1,15 @@
 
 #docker aliases
 
-alias composer='    [ -d ~/.composer ] || mkdir ~/.composer; docker run -it --rm -u $(id -u):$(id -g) -v $(pwd):/app -w /app -v ~/.composer:/composer composer/composer'
-alias composer_ssh='[ -d ~/.composer ] || mkdir ~/.composer; docker run -it --rm -u $(id -u):$(id -g) -v $(pwd):/app -w /app -v ~/.composer:/composer -v ~/.ssh:/root/.ssh composer/composer'
-alias node='        docker run -it --rm -p 8080:8080 -p 3000:3000 -u $(id -u):$(id -g) -v $(pwd):/app -w /app node node'
-alias npm='         docker run -it --rm -p 8080:8080 -p 3000:3000 -u $(id -u):$(id -g) -v $(pwd):/app -w /app node npm'
-alias php-cs-fixer='docker run -it --rm -u $(id -u):$(id -g) -v $(pwd):/app -w /app ludofleury/php-cs-fixer'
-alias phpspec='     docker run -it --rm -u $(id -u):$(id -g) -v $(pwd):/app -w /app phpspec/phpspec'
-alias php='         docker run -it --rm -u $(id -u):$(id -g) -v $(pwd):/app -w /app php:5.6 php'
+alias php-cs-fixer='docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" ludofleury/php-cs-fixer'
+alias phpspec='     docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" phpspec/phpspec'
+alias php='         docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" php:5.6 php'
 
+alias composer='    [ -d ~/.composer ] || mkdir ~/.composer; docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" -v "$PWD/.composer":/composer composer/composer'
+alias composer_ssh='[ -d ~/.composer ] || mkdir ~/.composer; docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" -v "$PWD/.composer":/composer -v ~/.ssh:/root/.ssh composer/composer'
+
+alias node='docker run -it --rm -p 8080:8080 -p 3000:3000 -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" -e "PATH=$PATH:$PWD/node_modules/bin" node node'
+alias  npm='docker run -it --rm -p 8080:8080 -p 3000:3000 -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" -e "PATH=$PATH:$PWD/node_modules/bin" node npm'
 
 alias did='docker ps -l -q'
 

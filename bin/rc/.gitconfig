@@ -29,15 +29,15 @@
 
 #  Main source 1
     l-src1         = origin
-    l-src1-rbranch = master
+    l-src1-rmaster = master
 
 #  Additional source 2
     l-src2         = origin
-    l-src2-rbranch = master
+    l-src2-rmaster = master
 
 #  MCF prev branches names and repo
     l-prev-master               = master
-    l-prev-src1-rbranch         = master
+    l-prev-src1-rmaster         = master
     l-prev-src1                 = origin
     l-prev-fix                  = _fix
     l-prev-cfg                  = _cfg
@@ -531,10 +531,10 @@ l-remove-all-local-branch = "!f(){ \
  git l-echo-l1 \"$CMD $force $showlog\" && \
  git l-echo-l2 \"$CMD 1:\"                       && git w-reset 0 0 && \
  src1=$(git l-mcf-param-get l-src1) && \
- rbranch=$(git l-mcf-param-get l-src1-rbranch) && \
+ rbranch=$(git l-mcf-param-get l-src1-rmaster) && \
  if ! git l-check-exists-branch $src1/$rbranch ; then\
     src1=$(git l-mcf-param-get l-src1         --global) && \
-    rbranch=$(git l-mcf-param-get l-src1-rbranch --global); \
+    rbranch=$(git l-mcf-param-get l-src1-rmaster --global); \
  fi && \
  git l-cmd-checkout '' $src1/$rbranch && \
  if [ \"$force\" = '-f' ]; then mode=-D; else mode=-d; fi && \
@@ -647,9 +647,9 @@ l-cmd-merge = "!f(){ \
 #    $cfg = l-cfg - имя ветки конфигурации cfg в схеме MCF
 #    $master = l-master - имя основной ветки master в схеме MCF
 #    $src1 = l-src1 -  имя основного источника
-#    $src1_rbranch = l-src1-rbranch - имя удаленной (remote) ветки в основном источнике
+#    $src1_rbranch = l-src1-rmaster - имя удаленной (remote) ветки в основном источнике
 #    $src2 = l-src2 - имя вспомогательного источника
-#    $src2_rbranch = l-src2-rbranch - имя удаленной (remote) ветки вспомогательного источника
+#    $src2_rbranch = l-src2-rmaster - имя удаленной (remote) ветки вспомогательного источника
 #    $showlog = show - показывать или не показывать (hide|off) log после выполнения команды
 #    $rebuild_base = on - делать(on) или не ltkfnm(off) после выполнения команды переустановку базовых веток
 #    $method = rebase - метод (rebase|merge), который использовать при получении новых изменений с удаленных (remote) источников
@@ -824,7 +824,7 @@ mcf-load-fix-from-repo = "!f(){ \
  quite=$(git l-quite) && \
  master=${1:-$(git l-mcf-param-get l-master)} && \
  src1=${2:-$(git l-mcf-param-get l-src1)} && \
- src1_rbranch=${3:-$(git l-mcf-param-get l-src1-rbranch)} && \
+ src1_rbranch=${3:-$(git l-mcf-param-get l-src1-rmaster)} && \
  method=${4:-rebase} && \
  showlog=${5:-on} && \
  git l-echo-l1 \"$CMD $master $src1 $src1_rbranch $method $showlog\" && \
@@ -855,9 +855,9 @@ mcf-update-common = "!f(){ \
  cfg=${2:-$(git l-mcf-param-get l-cfg)} && \
  master=${3:-$(git l-mcf-param-get l-master)} && \
  src1=${4:-$(git l-mcf-param-get l-src1)} && \
- src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rbranch)} && \
+ src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rmaster)} && \
  src2=${6:-$(git l-mcf-param-get l-src2)} && \
- src2_rbranch=${7:-$(git l-mcf-param-get l-src2-rbranch)} && \
+ src2_rbranch=${7:-$(git l-mcf-param-get l-src2-rmaster)} && \
  rebuild_base=${8:-on} && \
  showlog=${9:-on} && \
  git l-echo-l1 \"$CMD $fix $cfg $master $src1 $src1_rbranch $src2 $src2_rbranch $rebuild_base $showlog\" && \
@@ -889,12 +889,12 @@ mcf-update2 = "!f(){ \
  CMD='w-update2' && \
  quite=$(git l-quite) && \
  src2=${1:-$(git l-mcf-param-get l-src2)} && \
- src2_rbranch=${2:-$(git l-mcf-param-get l-src2-rbranch)} && \
+ src2_rbranch=${2:-$(git l-mcf-param-get l-src2-rmaster)} && \
  fix=${3:-$(git l-mcf-param-get l-fix)} && \
  cfg=${4:-$(git l-mcf-param-get l-cfg)} && \
  master=${5:-$(git l-mcf-param-get l-master)} && \
  src1=${6:-$(git l-mcf-param-get l-src1)} && \
- src1_rbranch=${7:-$(git l-mcf-param-get l-src1-rbranch)} && \
+ src1_rbranch=${7:-$(git l-mcf-param-get l-src1-rmaster)} && \
  rebuild_base=${8:-on} && \
  showlog=${9:-on} && \
  git l-echo-l1 \"$CMD $src2 $src2_rbranch $fix $cfg $master $src1 $src1_rbranch $rebuild_base $showlog\" && \
@@ -916,7 +916,7 @@ mcf-update = "!f(){ \
  cfg=${2:-$(git l-mcf-param-get l-cfg)} && \
  master=${3:-$(git l-mcf-param-get l-master)} && \
  src1=${4:-$(git l-mcf-param-get l-src1)} && \
- src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rbranch)} && \
+ src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rmaster)} && \
  rebuild_base=${6:-on} && \
  showlog=${7:-on} && \
  src2=$src1 && \
@@ -940,9 +940,9 @@ mcf-upload-common = "!f(){ \
  cfg=${2:-$(git l-mcf-param-get l-cfg)} && \
  master=${3:-$(git l-mcf-param-get l-master)} && \
  src1=${4:-$(git l-mcf-param-get l-src1)} && \
- src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rbranch)} && \
+ src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rmaster)} && \
  src2=${6:-$(git l-mcf-param-get l-src2)} && \
- src2_rbranch=${7:-$(git l-mcf-param-get l-src2-rbranch)} && \
+ src2_rbranch=${7:-$(git l-mcf-param-get l-src2-rmaster)} && \
  showlog=${8:-on} && \
  do_backup=$(git l-mcf-param-get l-backup-cfg) && \
  git l-echo-l1 \"$CMD $fix $cfg $master $src1 $src1_rbranch $src2 $src2_rbranch $showlog\" && \
@@ -977,12 +977,12 @@ mcf-upload2 = "!f(){ \
  CMD='w-upload2' && \
  quite=$(git l-quite) && \
  src2=${1:-$(git l-mcf-param-get l-src2)} && \
- src2_rbranch=${2:-$(git l-mcf-param-get l-src2-rbranch)} && \
+ src2_rbranch=${2:-$(git l-mcf-param-get l-src2-rmaster)} && \
  fix=${3:-$(git l-mcf-param-get l-fix)} && \
  cfg=${4:-$(git l-mcf-param-get l-cfg)} && \
  master=${5:-$(git l-mcf-param-get l-master)} && \
  src1=${6:-$(git l-mcf-param-get l-src1)} && \
- src1_rbranch=${7:-$(git l-mcf-param-get l-src1-rbranch)} && \
+ src1_rbranch=${7:-$(git l-mcf-param-get l-src1-rmaster)} && \
  showlog=${8:-on} && \
  git l-echo-l1 \"$CMD $fix $cfg $master $src1 $src1_rbranch $src2 $src2_rbranch $showlog\" && \
  git l-echo-l2 \"$CMD 1:\" && git w-upload-common $fix $cfg $master $src1 $src1_rbranch $src2 $src2_rbranch $showlog \
@@ -1003,7 +1003,7 @@ mcf-upload = "!f(){ \
  cfg=${2:-$(git l-mcf-param-get l-cfg)} && \
  master=${3:-$(git l-mcf-param-get l-master)} && \
  src1=${4:-$(git l-mcf-param-get l-src1)} && \
- src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rbranch)} && \
+ src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rmaster)} && \
  showlog=${6:-on} && \
  src2=$src1 && \
  src2_rbranch=$src1_rbranch && \
@@ -1034,9 +1034,9 @@ mcf-update-extcmd = "!f(){ \
  cfg=${2:-$(git l-mcf-param-get l-cfg)} && \
  master=${3:-$(git l-mcf-param-get l-master)} && \
  src1=${4:-$(git l-mcf-param-get l-src1)} && \
- src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rbranch)} && \
+ src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rmaster)} && \
  src2=${6:-$(git l-mcf-param-get l-src2)} && \
- src2_rbranch=${7:-$(git l-mcf-param-get l-src2-rbranch)} && \
+ src2_rbranch=${7:-$(git l-mcf-param-get l-src2-rmaster)} && \
  showlog=${8:-on} \
 ;};f"
 
@@ -1066,9 +1066,9 @@ mcf-upload-extcmd = "!f(){ \
  cfg=${2:-$(git l-mcf-param-get l-cfg)} && \
  master=${3:-$(git l-mcf-param-get l-master)} && \
  src1=${4:-$(git l-mcf-param-get l-src1)} && \
- src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rbranch)} && \
+ src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rmaster)} && \
  src2=${6:-$(git l-mcf-param-get l-src2)} && \
- src2_rbranch=${7:-$(git l-mcf-param-get l-src2-rbranch)} && \
+ src2_rbranch=${7:-$(git l-mcf-param-get l-src2-rmaster)} && \
  showlog=${8:-on} \
 ;};f"
 
@@ -1107,7 +1107,7 @@ mcf-send-fix = "!f(){ \
  cfg=${2:-$(git l-mcf-param-get l-cfg)} && \
  master=${3:-$(git l-mcf-param-get l-master)} && \
  src1=${4:-$(git l-mcf-param-get l-src1)} && \
- src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rbranch)} && \
+ src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rmaster)} && \
  showlog=${6:-on} && \
  git l-echo-l1 \"$CMD $fix $cfg $master $src1 $src1_rbranch $showlog\" && \
  rev=$(git l-rev $master) && \
@@ -1132,9 +1132,9 @@ mcf-repair-conflict-master = "!f(){ \
  cfg=${2:-$(git l-mcf-param-get l-cfg)} && \
  master=${3:-$(git l-mcf-param-get l-master)} && \
  src1=${4:-$(git l-mcf-param-get l-src1)} && \
- src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rbranch)} && \
+ src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rmaster)} && \
  src2=${6:-$(git l-mcf-param-get l-src2)} && \
- src2_rbranch=${7:-$(git l-mcf-param-get l-src2-rbranch)} && \
+ src2_rbranch=${7:-$(git l-mcf-param-get l-src2-rmaster)} && \
  rebuild_base=${8:-on} && \
  showlog=${9:-on} && \
  git l-echo-l1 \"$CMD $fix $cfg $master $src1 $src1_rbranch $src2 $src2_rbranch $showlog\" && \
@@ -1156,9 +1156,9 @@ mcf-repair-conflict-cfg = "!f(){ \
  cfg=${2:-$(git l-mcf-param-get l-cfg)} && \
  master=${3:-$(git l-mcf-param-get l-master)} && \
  src1=${4:-$(git l-mcf-param-get l-src1)} && \
- src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rbranch)} && \
+ src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rmaster)} && \
  src2=${6:-$(git l-mcf-param-get l-src2)} && \
- src2_rbranch=${7:-$(git l-mcf-param-get l-src2-rbranch)} && \
+ src2_rbranch=${7:-$(git l-mcf-param-get l-src2-rmaster)} && \
  rebuild_base=${8:-on} && \
  showlog=${9:-on} && \
  git l-echo-l1 \"$CMD $fix $cfg $master $src1 $src1_rbranch $src2 $src2_rbranch $showlog\" && \
@@ -1179,9 +1179,9 @@ mcf-repair-conflict-fix = "!f(){ \
  cfg=${2:-$(git l-mcf-param-get l-cfg)} && \
  master=${3:-$(git l-mcf-param-get l-master)} && \
  src1=${4:-$(git l-mcf-param-get l-src1)} && \
- src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rbranch)} && \
+ src1_rbranch=${5:-$(git l-mcf-param-get l-src1-rmaster)} && \
  src2=${6:-$(git l-mcf-param-get l-src2)} && \
- src2_rbranch=${7:-$(git l-mcf-param-get l-src2-rbranch)} && \
+ src2_rbranch=${7:-$(git l-mcf-param-get l-src2-rmaster)} && \
  rebuild_base=${8:-on} && \
  showlog=${9:-on} && \
  git l-echo-l1 \"$CMD $fix $cfg $master $src1 $src1_rbranch $src2 $src2_rbranch $showlog\" && \
@@ -1235,7 +1235,7 @@ w-mcf-param-set = "!f(){ \
  newvalue=$(git l-mcf-param-get \"$param\") && \
  git l-echo \"Old: $param = $oldvalue\" 4 1 && \
  git l-echo \"New: $param = $newvalue\" 2 0 && \
- git w-list-mcf-param \
+ git w-mcf-param-list \
 ;};f"
 
 # w-mcf-param-del $name [ $showlog ]
@@ -1251,15 +1251,15 @@ w-mcf-param-del = "!f(){ \
  newvalue=$(git l-mcf-param-get \"$param\") && \
  git l-echo \"Old: $param = $oldvalue\" 4 1 && \
  git l-echo \"New: $param = $newvalue\" 2 0 && \
- git w-list-mcf-param \
+ git w-mcf-param-list \
 ;};f"
 
-# w-list-mcf-param
+# w-mcf-param-list
 #  Показывает значения всех l-* параметров для текущего проекта.
-w-list-mcf-param = "! git mcf-list-mcf-param "
+w-mcf-param-list = "! git mcf-list-mcf-param "
 mcf-list-mcf-param = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
- CMD='w-list-mcf-param' && \
+ CMD='w-mcf-param-list' && \
  type=${1:-} && \
  git l-echo \"Current exists parameters:\" 5 0 && \
  if [ \"$type\" != '--local' ]; then git l-echo \"Global:\" 6 0 && git l-mcf-param-list --global; fi && \
@@ -1280,7 +1280,7 @@ l-mcf-param-get = "!f(){ \
  name=$(git l-mcf-param-fix-name \"$param\") && \
  if [ \"$name\" = '' ]; then \
     git l-echo-err \"$CMD\nError!!!\nCheck name of the parameter '$param'.\"; \
-    git w-list-mcf-param; \
+    git w-mcf-param-list; \
     exit 1; \
  fi && \
  value=$(git config $typevar \"mcf.$name\"); \
@@ -1322,7 +1322,7 @@ l-mcf-param-del = "!f(){ \
  param=${1:-''} && \
  if [ \"$param\" = '' ]; then \
     git l-echo-err \"$CMD Error!!!\nParameter name cannot be empty.\"; \
-    git w-list-mcf-param; \
+    git w-mcf-param-list; \
     exit 1; \
  fi && \
  ( t=$(git config --local mcf.$param) && git config --local --unset mcf.$param || : ) && \
@@ -1389,11 +1389,11 @@ CMD='l-mcf-param-set-typeid' && git l-echo-l2 $CMD && \
  cfg=${3:-$(         git l-mcf-param-get ${typeid}cfg          1)} && \
  master=${4:-$(      git l-mcf-param-get ${typeid}master       1)} && \
  src1=${5:-$(        git l-mcf-param-get ${typeid}src1         1)} && \
- src1_rbranch=${6:-$(git l-mcf-param-get ${typeid}src1-rbranch 1)} && \
+ src1_rbranch=${6:-$(git l-mcf-param-get ${typeid}src1-rmaster 1)} && \
  git l-echo-l2 \"$CMD 1:\" && git l-mcf-param-set ${typeid}master       \"$master\"  && \
  git l-echo-l2 \"$CMD 2:\" && git l-mcf-param-set ${typeid}fix          \"$fix\"     && \
  git l-echo-l2 \"$CMD 3:\" && git l-mcf-param-set ${typeid}cfg          \"$cfg\"     && \
- git l-echo-l2 \"$CMD 4:\" && git l-mcf-param-set ${typeid}src1-rbranch \"$rbranch\" && \
+ git l-echo-l2 \"$CMD 4:\" && git l-mcf-param-set ${typeid}src1-rmaster \"$rbranch\" && \
  git l-echo-l2 \"$CMD 5:\" && git l-mcf-param-set ${typeid}src1         \"$src1\" \
 ;};f"
 
@@ -1406,7 +1406,7 @@ l-mcf-param-del-typeid = "!f(){ \
  git l-echo-l2 \"$CMD 2:\" && git l-mcf-param-del \"${typeid}cfg\"       && \
  git l-echo-l2 \"$CMD 3:\" && git l-mcf-param-del \"${typeid}master\"    && \
  git l-echo-l2 \"$CMD 4:\" && git l-mcf-param-del \"${typeid}src1\"      && \
- git l-echo-l2 \"$CMD 5:\" && git l-mcf-param-del \"${typeid}src1-rbranch\" \
+ git l-echo-l2 \"$CMD 5:\" && git l-mcf-param-del \"${typeid}src1-rmaster\" \
 ;};f"
 
 l-mcf-param-init = "!f(){ \
@@ -1434,7 +1434,7 @@ l-mcf-param-new-master = "!f(){ \
  cfg=${3:-$(         git l-mcf-param-get ${typeid}cfg          1)} && \
  master=${4:-$(      git l-mcf-param-get ${typeid}master       1)} && \
  src1=${5:-$(        git l-mcf-param-get ${typeid}src1         1)} && \
- src1_rbranch=${6:-$(git l-mcf-param-get ${typeid}src1-rbranch 1)} && \
+ src1_rbranch=${6:-$(git l-mcf-param-get ${typeid}src1-rmaster 1)} && \
  git l-echo-l2 \"$CMD 1: '$fix' '$cfg' '$master' '$src1' '$src1_rbranch'\" && \
  git l-echo-l2 \"$CMD 2: \" && git l-mcf-param-init \"$fix\" \"$cfg\" \"$master\" \"$src1\" \"$src1_rbranch\"\
 ;};f"
@@ -1493,7 +1493,7 @@ mcf-hf = "!f(){ \
  fi && \
  git l-echo-l2 \"$CMD 9:\"                                                          && git w-rebuild-base $fix_hf $cfg_hf $master_hf off && \
  if [ $(git l-check-is-on $showlog) != 'on' ]; then return 0; fi && \
- git w-list-mcf-param --local && \
+ git w-mcf-param-list --local && \
  git l-showlog $showlog \
 ;};f"
 
@@ -1534,12 +1534,12 @@ mcf-hf-reset = "!f(){ \
  showlog=${2:-on} && \
  git l-echo-l1 \"$CMD $do_rb $showlog\" && \
  src1_prev=$(git l-mcf-param-get         l-prev-src1         1 --local) && \
- src1_rbranch_prev=$(git l-mcf-param-get l-prev-src1-rbranch 1 --local) && \
+ src1_rbranch_prev=$(git l-mcf-param-get l-prev-src1-rmaster 1 --local) && \
  master_prev=$(git l-mcf-param-get       l-prev-master       1 --local) && \
  cfg_prev=$(git l-mcf-param-get          l-prev-cfg          1 --local) && \
  fix_prev=$(git l-mcf-param-get          l-prev-fix          1 --local) && \
  if [ \"$src1_prev\" != '' ];         then git l-mcf-param-set l-src1         \"$src1_prev\"         --local && git w-mcf-param-del l-prev-src1         '--local'; fi && \
- if [ \"$src1_rbranch_prev\" != '' ]; then git l-mcf-param-set l-src1-rbranch \"$src1_rbranch_prev\" --local && git w-mcf-param-del l-prev-src1-rbranch '--local'; fi && \
+ if [ \"$src1_rbranch_prev\" != '' ]; then git l-mcf-param-set l-src1-rmaster \"$src1_rbranch_prev\" --local && git w-mcf-param-del l-prev-src1-rmaster '--local'; fi && \
  if [ \"$master_prev\"       != '' ]; then git l-mcf-param-set l-master       \"$master_prev\"       --local && git w-mcf-param-del l-prev-master       '--local'; fi && \
  if [ \"$cfg_prev\"          != '' ]; then git l-mcf-param-set l-cfg          \"$cfg_prev\"          --local && git w-mcf-param-del l-prev-cfg          '--local'; fi && \
  if [ \"$fix_prev\"          != '' ]; then git l-mcf-param-set l-fix          \"$fix_prev\"          --local && git w-mcf-param-del l-prev-fix          '--local'; fi && \
@@ -1555,7 +1555,7 @@ mcf-hf-reset = "!f(){ \
     fi; \
  fi && \
  if [ $(git l-check-is-on $showlog) != 'on' ]; then return 0; fi && \
- git w-list-mcf-param --local && \
+ git w-mcf-param-list --local && \
  git br-info && \
  git l-showlog $showlog \
 ;};f"
@@ -1582,9 +1582,9 @@ mcf-hf-update = "!f(){ \
  cfg=$(git l-mcf-param-get l-cfg) && \
  master=$(git l-mcf-param-get l-master) && \
  src1=$(git l-mcf-param-get l-src1) && \
- src1_rbranch=$(git l-mcf-param-get l-src1-rbranch ) && \
+ src1_rbranch=$(git l-mcf-param-get l-src1-rmaster ) && \
  src2=$(git l-mcf-param-get l-src2 ) && \
- src2_rbranch=$(git l-mcf-param-get l-src2-rbranch) && \
+ src2_rbranch=$(git l-mcf-param-get l-src2-rmaster) && \
  git l-echo-l2 \"$CMD 2:\"                                      && git w-update $fix $cfg $master $src1 $src1_rbranch $src2 $src2_rbranch on off && \
  if git l-check-exists-branch $master_hf; then \
     git l-echo-l2 \"$CMD 3:\"                                   && git l-cmd-checkout '' $master_hf && \
@@ -1649,22 +1649,22 @@ l-hotfix-setprev = "!f(){ \
  master=$(git l-mcf-param-get l-master) && \
  cfg=$(git l-mcf-param-get l-cfg) && \
  fix=$(git l-mcf-param-get l-fix) && \
- src1_rbranch=$(git l-mcf-param-get l-src1-rbranch) && \
+ src1_rbranch=$(git l-mcf-param-get l-src1-rmaster) && \
  src1=$(git l-mcf-param-get l-src1) && \
  git l-mcf-param-set l-master       \"$master_new\"       --local && \
  git l-mcf-param-set l-cfg          \"$cfg_new\"          --local && \
  git l-mcf-param-set l-fix          \"$fix_new\"          --local && \
- git l-mcf-param-set l-src1-rbranch \"$src1_rbranch_new\" --local && \
+ git l-mcf-param-set l-src1-rmaster \"$src1_rbranch_new\" --local && \
  git l-mcf-param-set l-src1         \"$src1_new\"         --local && \
  master_prev=$(git l-mcf-param-get l-prev-master             1 --local) && \
  cfg_prev=$(git l-mcf-param-get l-prev-cfg                   1 --local) && \
  fix_prev=$(git l-mcf-param-get l-prev-fix                   1 --local) && \
- src1_rbranch_prev=$(git l-mcf-param-get l-prev-src1-rbranch 1 --local) && \
+ src1_rbranch_prev=$(git l-mcf-param-get l-prev-src1-rmaster 1 --local) && \
  src1_prev=$(git l-mcf-param-get l-prev-src1                 1 --local) && \
  if [ \"$master_prev\"       = '' ]; then git l-mcf-param-set l-prev-master       \"$master\"       '--local'; fi && \
  if [ \"$cfg_prev\"          = '' ]; then git l-mcf-param-set l-prev-cfg          \"$cfg\"          '--local'; fi && \
  if [ \"$fix_prev\"          = '' ]; then git l-mcf-param-set l-prev-fix          \"$fix\"          '--local'; fi && \
- if [ \"$src1_rbranch_prev\" = '' ]; then git l-mcf-param-set l-prev-src1-rbranch \"$src1_rbranch\" '--local'; fi \
+ if [ \"$src1_rbranch_prev\" = '' ]; then git l-mcf-param-set l-prev-src1-rmaster \"$src1_rbranch\" '--local'; fi \
  if [ \"$src1_prev\"         = '' ]; then git l-mcf-param-set l-prev-src1         \"$src1\"         '--local'; fi \
 ;};f"
 
@@ -1702,7 +1702,7 @@ w-flow-setup = "!f(){ \
  git l-echo-l2 \"$CMD 5:\"       && git l-flow-setup-dev $dev $master $src1 off && \
  git l-echo-l2 \"$CMD 6:\"       && git l-flow-setup-feature $feature $dev $src1 off && \
  if [ $(git l-check-is-on $showlog) != 'on' ]; then return 0; fi && \
- git l-echo-l2 \"$CMD 7:\"       && git w-list-mcf-param --local && \
+ git l-echo-l2 \"$CMD 7:\"       && git w-mcf-param-list --local && \
  git l-echo \"Check branches upstream:\" 5 0 && \
  git l-echo-l2 \"$CMD 8:\"       && git br-info $master $dev $feature \
 ;};f"
@@ -1738,7 +1738,7 @@ l-flow-setup-master = "!f(){ \
     git l-echo-l2 \"$CMD 4:\"                                             && git l-cmd-checkout-b '' $master $rbranch; \
  fi && \
  if [ $(git l-check-is-on $showlog) != 'on' ]; then return 0; fi && \
- git l-echo-l2 \"$CMD 5:\"                                                && git w-list-mcf-param --local && \
+ git l-echo-l2 \"$CMD 5:\"                                                && git w-mcf-param-list --local && \
  git l-echo \"Check branches upstream:\" 5 0 && \
  git l-echo-l2 \"$CMD 6:\"                                                && git br-info $master \
 ;};f"
@@ -1777,7 +1777,7 @@ l-flow-setup-dev = "!f(){ \
  git l-echo-l2 \"$CMD 7:\"                                                && git l-new-master-cbr off && \
  git l-echo-l2 \"$CMD 8:\"                                                && git l-rebuild-base-lite off && \
  if [ $(git l-check-is-on $showlog) != 'on' ]; then return 0; fi && \
- git l-echo-l2 \"$CMD 9:\"                                                && git w-list-mcf-param --local && \
+ git l-echo-l2 \"$CMD 9:\"                                                && git w-mcf-param-list --local && \
  git l-echo \"Check branches upstream:\" 5 0 && \
  git l-echo-l2 \"$CMD 10:\"                                               && git br-info $dev\
 ;};f"
@@ -1815,7 +1815,7 @@ l-flow-setup-feature = "!f(){ \
  fi && \
  git l-echo-l2 \"$CMD 7:\"                                             && git l-rebuild-base-lite off; \
  if [ $(git l-check-is-on $showlog) != 'on' ]; then return 0; fi && \
- git l-echo-l2 \"$CMD 8:\"                                             && git w-list-mcf-param --local && \
+ git l-echo-l2 \"$CMD 8:\"                                             && git w-mcf-param-list --local && \
  git l-echo \"Check branches and upstream:\" 5 0 && \
  git l-echo-l2 \"$CMD 9:\"                                             && git br-info $master\
 ;};f"
@@ -1871,7 +1871,7 @@ l-fix-all-old-names = "!f(){ \
  git l-fix-old-param l-prev-fix fix _fix && \
  git l-fix-old-param l-prev-cfg cfg _cfg && \
  git branch && \
- git w-list-mcf-param\
+ git w-mcf-param-list\
 ;};f"
 
 ###################
