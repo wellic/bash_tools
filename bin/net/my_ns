@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+#set -x
+set -u
+
+INTERFACE=${1:-}
+
+PROG_MY_IP=my_ip
+
+[ -e 'my_ip' ] && MY_IP="./$PROG_MY_IP" || MY_IP=`which my_ip`
+
+"$MY_IP" "$INTERFACE" | nslookup | grep 'name =' | sed -re 's/^.* //g; s/\.$//g'

@@ -1422,21 +1422,29 @@ l-mcf-param-init = "!f(){ \
  git l-echo-l2 \"$CMD 3:\" && git l-mcf-param-set-typeid $(git l-mcf-param-get-typeid 'prev') \"$fix\" \"$cfg\" \"$master\" \"$src1\" \"$src_rbranch\" \
 ;};f"
 
-# l-new-master $master [$src1 $src1_rbranch]
+# w-new-master [$master [l-src1_rmaster]]
 #  Устанавливает новое значение $master для параметров l-master и l-src1_rbranch.
 #  Установка происходит в локальном конфиге.
-l-mcf-param-new-master = "!f(){ \
+w-new-master = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
- CMD='l-new-master' && git l-echo-l1 $CMD && \
+ CMD='w-new-master' && git l-echo-l1 $CMD && \
  quite=$(git l-quite) && \
- typeid=$(git l-mcf-param-get-typeid 'prev') && \
- fix=${2:-$(         git l-mcf-param-get ${typeid}fix          1)} && \
- cfg=${3:-$(         git l-mcf-param-get ${typeid}cfg          1)} && \
- master=${4:-$(      git l-mcf-param-get ${typeid}master       1)} && \
- src1=${5:-$(        git l-mcf-param-get ${typeid}src1         1)} && \
- src1_rbranch=${6:-$(git l-mcf-param-get ${typeid}src1-rmaster 1)} && \
- git l-echo-l2 \"$CMD 1: '$fix' '$cfg' '$master' '$src1' '$src1_rbranch'\" && \
- git l-echo-l2 \"$CMD 2: \" && git l-mcf-param-init \"$fix\" \"$cfg\" \"$master\" \"$src1\" \"$src1_rbranch\"\
+ new_master=$1 && \
+ new_rmaster=$2 && \
+ showlog=${3:-on} && \
+ git l-echo-l2 \"$CMD 1: '$new_master' '$new_rmaster'\" && \
+ if [ -z \"$new_master\" ]; then\
+     git l-echo-lc \"$CMD 2:\" \"git l-mcf-param-del l-master\"                 && git l-mcf-param-del l-master ; \
+ else \
+     git l-echo-lc \"$CMD 3:\" \"git l-mcf-param-set l-master \"$new_master\"\" && git l-mcf-param-set l-master \"$new_master\"; \
+ fi; \
+ if [ -z \"$new_rmaster\" ]; then\
+     git l-echo-lc \"$CMD 4:\" \"git l-mcf-param-del l-src1-rmaster\"                  && git l-mcf-param-del l-src1-rmaster ; \
+ else \
+     git l-echo-lc \"$CMD 5:\" \"git l-mcf-param-set l-src1-rmaster \"$new_rmaster\"\" && git l-mcf-param-set l-src1-rmaster \"$new_rmaster\"; \
+ fi; \
+ if [ $(git l-check-is-on $showlog) != 'on' ]; then return 0; fi && \
+ git w-mcf-param-list\
 ;};f"
 
 ################################################################################

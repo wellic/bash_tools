@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+#set -x
+set -u
+
+HOST_PORT=${1:-}
+HOST_NAME=${2:-localhost}
+
+IMAGE_NAME=portainer/portainer
+CONTAINER_NAME=portainer_monitor
+
+_is_container_up() {\
+    docker ps | grep -iP  "\bup\b.*\b$CONTAINER_NAME\b"
+    return $?
+}
+
+_is_container_exists() {\
+    docker ps -a | grep -iP  "\b$CONTAINER_NAME\b"
+    return $?
+}
+
+_stop() {
+    local status=1
+    if _is_container_up; then 
+        docker stop $CONTAINER_NAME
+        status=$?
+    fi
+    return $status
+}
+
+if [ "$HOST_PORT" = 'stop' ]; then
+    _stop
+    exit 0
+fi
+
+
+if [ "$HOST_PORT" = 'update' ]; then
+    _stop && docker rm $CONTAINER_NAME
+    docker pull $IMAGE_NAME
+    exit 0
+fi
+
+#RESTART=no
+RESTART=always
+
+DEFAULT_PORT=55555
+DEFAULT_HOST=localhost
+
+DOCKER_SOCK=/var/run/docker.sock
+
+
+HOST_PORT=${HOST_PORT:-$DEFAULT_PORT}
+HOST_NAME=${2:-localhost}
+
+if _is_container_exists; then 
+    if ! _is_container_up; then 
+        docker restart $CONTAINER_NAME
+    fi
+else
+  docker run -d --name=$CONTAINER_NAME -p ${HOST_PORT:-9000}:9000 -v $DOCKER_SOCK:$DOCKER_SOCK "$IMAGE_NAME"
+fi
+
+echo '-----------------------------------------------'
+echo "http://localhost:$HOST_PORT"
+echo '-----------------------------------------------'
+

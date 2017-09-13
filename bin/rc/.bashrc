@@ -134,8 +134,8 @@ wttr()
 
 
 # added by Anaconda3 4.4.0 installer
-export PATH="/home/yournick/anaconda3/bin:$PATH"
-source "$HOME/.rvm/scripts/rvm"
+#export PATH="/home/yournick/anaconda3/bin:$PATH"
 
+source "$HOME/.rvm/scripts/rvm"
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
 export PATH="$PATH:$HOME/.rvm/bin"

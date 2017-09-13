@@ -1,5 +1,24 @@
 #!/bin/bash
 
+CREATED_FAVICON=0
+
+if [ "$1" = 'f' ]; then
+    favicon=AAABAAEAEBAQAAAAAAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA/4QAAHBQLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIiAiIAAAAAIhIiEiAAAAIhISEhIgAAIhICEgISIAAhIAISACEgACEgAhIAISAAISACEgAhIAAhIAISACEgACEgAhIAISAAISACEgAhIAAiIAIiACIgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAPEfAADgDwAAwAcAAIRDAACMYwAAjGMAAIxjAACMYwAAjGMAAIxjAACMYwAA//8AAP//AAD//wAA
+    echo "$favicon" | base64 --decode > favicon.ico
+    CREATED_FAVICON=1
+    shift
+fi
+
+trap _ctrl_c INT
+
+_ctrl_c() {
+    echo -e "\n********************"
+    echo -e "** Trapped CTRL-C **"
+    echo -e "**   Please wait  **"
+    echo -e "********************\n"
+    [ "$CREATED_FAVICON" = 1 ] && rm favicon.ico
+}
+
 cat <<EOF
 ------------------------------
 US

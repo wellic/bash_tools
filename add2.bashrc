@@ -4,6 +4,7 @@ export PATH=$PATH:$HOME/bin
 #Add necessary tools set
 export PATH=$PATH:$HOME/bin/git
 export PATH=$PATH:$HOME/bin/db
+export PATH=$PATH:$HOME/bin/docker
 export PATH=$PATH:$HOME/bin/device
 export PATH=$PATH:$HOME/bin/dropbox
 export PATH=$PATH:$HOME/bin/fs
