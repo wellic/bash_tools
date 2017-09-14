@@ -2,7 +2,10 @@
 
 CREATED_FAVICON=0
 
-if [ "$1" = 'f' ]; then
+PORT=${1:-8000}
+shift
+
+if [ ! -e "favicon.ico" ]; then
     favicon=AAABAAEAEBAQAAAAAAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA/4QAAHBQLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIiAiIAAAAAIhIiEiAAAAIhISEhIgAAIhICEgISIAAhIAISACEgACEgAhIAISAAISACEgAhIAAhIAISACEgACEgAhIAISAAISACEgAhIAAiIAIiACIgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAPEfAADgDwAAwAcAAIRDAACMYwAAjGMAAIxjAACMYwAAjGMAAIxjAACMYwAA//8AAP//AAD//wAA
     echo "$favicon" | base64 --decode > favicon.ico
     CREATED_FAVICON=1
@@ -19,6 +22,11 @@ _ctrl_c() {
     [ "$CREATED_FAVICON" = 1 ] && rm favicon.ico
 }
 
+NS1_1=$(`which my_ip` lo)
+NS1_2=$(`which my_ip` lo)
+NS2_1=$(`which my_ip`)
+NS2_2=$(`which my_ns`)
+
 cat <<EOF
 ------------------------------
 US
@@ -26,9 +34,12 @@ More options:
  python3 -m http.server --help
 
 Start in browser:
- http://vsavchenko.cpcs:8000
+ http://$NS1_1:$PORT
+ http://$NS1_2:$PORT
+ http://$NS2_1:$PORT
+ http://$NS2_2:$PORT
 ------------------------------
 
 EOF
 
-python3 -m http.server $@
+python3 -m http.server $PORT $@
