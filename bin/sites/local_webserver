@@ -23,7 +23,7 @@ _ctrl_c() {
 }
 
 NS1_1=$(`which my_ip` lo)
-NS1_2=$(`which my_ip` lo)
+NS1_2=$(`which my_ns` lo)
 NS2_1=$(`which my_ip`)
 NS2_2=$(`which my_ns`)
 
