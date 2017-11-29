@@ -2,7 +2,7 @@
 
 CREATED_FAVICON=0
 
-PORT=${1:-8000}
+PORT=${1:-8585}
 shift
 
 if [ ! -e "favicon.ico" ]; then

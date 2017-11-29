@@ -157,13 +157,17 @@ visual = !LANG=C gitk --all &
 # show history and log
 sshow = "! f() { git --no-pager show --no-notes --stat --pretty=format:\"%C(yellow)%ad %C(green)%h%C(cyan)%d%Creset | %s %C(black bold)[%an]%Creset\"  --date=short --decorate $@ && echo  ; }; f"
 hist  = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%C(cyan)%d%Creset | %s %C(black bold)[%an]%Creset\"  --graph --date=short --decorate $@ && echo ; }; f"
+hist1 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%C(cyan)%d%Creset | %s %C(black bold)[%an]%Creset\"  --date=short $@ && echo  ; }; f"
 hist2 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %C(black bold)[%an]%Creset\"            --graph --date=short --decorate $@ && echo ; }; f"
 hist3 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %C(cyan)%d %C(black bold)[%an]%Creset\" --graph --date=short --decorate $@ && echo  ; }; f"
 hist4 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %Creset\" --graph --date=short --decorate $@ && echo  ; }; f"
 hist5 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %Creset\"         --date=short            $@ && echo  ; }; f"
-last  = "! git hist  -20 $* "
-last2 = "! git hist2 -20 $* "
-last3 = "! git hist3 -20 $* "
+last  = "! git hist  --all -20 $* "
+last-short = "! git hist1 --all -20 $* "
+last2 = "! git hist2 --all -20 $* "
+last3 = "! git hist3 --all -20 $* "
+last4 = "! git hist4 --all -20 $* "
+last5 = "! git hist5 --all -20 $* "
 
 #
 # User info
@@ -285,6 +289,7 @@ ignored = "!git ls-files -v | grep ^[a-z]"
 # check merged
 merged   = branch --merged
 unmerged = branch --no-merged
+merged-clear = "! git branch --merged | grep -vP '^[*]' | xargs git branch -d"
 
 # different list and logs
 ls = ls-files
@@ -1880,6 +1885,21 @@ l-fix-all-old-names = "!f(){ \
  git l-fix-old-param l-prev-cfg cfg _cfg && \
  git branch && \
  git w-mcf-param-list\
+;};f"
+
+
+w-master-pull = "!f(){ \
+ [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
+ CMD='w-master-pull' && \
+ quite=$(git l-quite) && \
+ master=${1:-$(git l-mcf-param-get l-master)} && \
+ src1=${2:-$(git l-mcf-param-get l-src1)} && \
+ src1_rbranch=${3:-$(git l-mcf-param-get l-src1-rmaster)} && \
+ cbr=$(git cbr); \
+ git l-echo-l2 \"$CMD 1:\"; git l-echo-l0 \"git checkout $master \";                  git checkout $master; \
+ git l-echo-l2 \"$CMD 2:\"; git l-echo-l0 \"git pull --rebase $src1 $src1_rbranch \"; git pull --rebase $src1 $src1_rbranch; \
+ git l-echo-l2 \"$CMD 3:\"; git l-echo-l0 \"git checkout $cbr \";                     git checkout $cbr; \
+ git l-echo-l2 \"$CMD 4:\"; git l-echo-l0 \"git last-short\";                         git last-short \
 ;};f"
 
 ###################
