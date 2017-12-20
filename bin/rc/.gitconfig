@@ -538,8 +538,8 @@ l-remove-all-local-branch = "!f(){ \
  src1=$(git l-mcf-param-get l-src1) && \
  rbranch=$(git l-mcf-param-get l-src1-rmaster) && \
  if ! git l-check-exists-branch $src1/$rbranch ; then\
-    src1=$(git l-mcf-param-get l-src1         --global) && \
-    rbranch=$(git l-mcf-param-get l-src1-rmaster --global); \
+    src1=$(git l-mcf-param-get l-src1  ''     --global) && \
+    rbranch=$(git l-mcf-param-get l-src1-rmaster '' --global); \
  fi && \
  git l-cmd-checkout '' $src1/$rbranch && \
  if [ \"$force\" = '-f' ]; then mode=-D; else mode=-d; fi && \
@@ -1434,8 +1434,8 @@ w-new-master = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
  CMD='w-new-master' && git l-echo-l1 $CMD && \
  quite=$(git l-quite) && \
- new_master=$1 && \
- new_rmaster=$2 && \
+ new_master=${1:-$(git l-mcf-param-get l-master '' --global)} && \
+ new_rmaster=${2:-$new_master} && \
  showlog=${3:-on} && \
  git l-echo-l2 \"$CMD 1: '$new_master' '$new_rmaster'\" && \
  if [ -z \"$new_master\" ]; then\
@@ -1897,9 +1897,11 @@ w-master-pull = "!f(){ \
  src1_rbranch=${3:-$(git l-mcf-param-get l-src1-rmaster)} && \
  cbr=$(git cbr); \
  git l-echo-l2 \"$CMD 1:\"; git l-echo-l0 \"git checkout $master \";                  git checkout $master; \
- git l-echo-l2 \"$CMD 2:\"; git l-echo-l0 \"git pull --rebase $src1 $src1_rbranch \"; git pull --rebase $src1 $src1_rbranch; \
- git l-echo-l2 \"$CMD 3:\"; git l-echo-l0 \"git checkout $cbr \";                     git checkout $cbr; \
- git l-echo-l2 \"$CMD 4:\"; git l-echo-l0 \"git last-short\";                         git last-short \
+ git l-echo-l2 \"$CMD 3:\"; git l-echo-l0 \"git remote prune $src1 \";                git remote prune $src1; \
+ git l-echo-l2 \"$CMD 2:\"; git l-echo-l0 \"git fetch -pt $src1 \";                   git fetch -pt $src1; \
+ git l-echo-l2 \"$CMD 4:\"; git l-echo-l0 \"git rebase $src1/$src1_rbranch \";        git rebase $src1/$src1_rbranch; \
+ git l-echo-l2 \"$CMD 5:\"; git l-echo-l0 \"git checkout $cbr \";                     git checkout $cbr; \
+ git l-echo-l2 \"$CMD 6:\"; git l-echo-l0 \"git last-short\";                         git last-short \
 ;};f"
 
 ###################
