@@ -144,7 +144,7 @@ ch = cherry-pick
 unstage = reset HEAD
 
 #tags
-sync-tags = !git tag -l | xargs git tag -d && git fetch -t
+sync-tags = !git tag -l | xargs git tag -d && git fetch -pt
 
 # diff
 df = diff
@@ -405,6 +405,13 @@ l-showlog = "!f(){ \
  CMD='l-show-log' && \
  showlog=${1:-on} && \
  [ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '--- Please check ---' 5 && git last) || : \
+;};f"
+
+l-last-short = "!f(){ \
+ [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
+ CMD='l-last-short' && \
+ showlog=${1:-on} && \
+ [ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '--- Please check ---' 5 && git last-short) || : \
 ;};f"
 
 ##############
@@ -712,7 +719,7 @@ mcf-copy2tmp = "!f(){ \
  git l-echo-l1 \"$CMD $src1 $showlog\" && \
  git l-echo-lc \"$CMD 1:\" \"git add --all\"                        && git add --all && \
  git l-echo-lc \"$CMD 2:\" \"git commit -am '$MESS'\"               && git commit -m \"${MESS}\" && \
- git l-echo-lc \"$CMD 3:\" \"git push -f $src1 $cbr:$src1_rbranch\" && git push $quite -f $src1 $cbr:$src1_rbranch && \
+ git l-echo-lc \"$CMD 3:\" \"git push -f --no-verify $src1 $cbr:$src1_rbranch\" && git push $quite -f --no-verify $src1 $cbr:$src1_rbranch && \
  git l-echo-lc \"$CMD 4:\" \"git reset HEAD~1\"                                && git reset HEAD~1 && \
  rm -f \"$TMPFILE\" && \
  git l-showlog $showlog \
@@ -1835,58 +1842,16 @@ l-flow-setup-feature = "!f(){ \
 
 ################################################################################
 
-##################################
-# Attention only for old system!!!
-# Only for fix old versions names
-# Dangerously !!!
-# *-old-*
-##################################
-
-l-fix-old-param = "!f(){ \
+w-sync-tags = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
- CMD='l-fix-old-param' && \
- paramname=$1 && \
- old=$2 && \
- new=$3 && \
- type=--local && \
- cur=$(git l-mcf-param-get $paramname 1 $type); \
- git l-echo-l2 \"$CMD 1: name=$paramname type=$type cur_value=$cur\"; \
- if [ \"$cur\" != '' -a \"$cur\" = \"$old\" ]; then \
-    git l-echo-l2 \"$CMD 2:\" && \
-    git l-mcf-param-set \"$paramname\" \"$new\" \"$type\" 0; \
- fi && \
- type=--global && \
- cur=$(git l-mcf-param-get $paramname 1 $type); \
- git l-echo-l2 \"$CMD 3: name=$paramname type=$type cur_value=$cur\"; \
- if [ \"$cur\" != '' -a \"$cur\" = \"$old\" ]; then \
-    git l-echo-l2 \"$CMD 4:\" && \
-    git l-mcf-param-set \"$paramname\" \"$new\" \"$type\" 0; \
- fi \
+ CMD='w-master-pull' && \
+ quite=$(git l-quite) && \
+ src1=${1:-$(git l-mcf-param-get l-src1)} && \
+ showlog=${2:-on} && \
+ git l-echo-l2 \"$CMD 1:\"; git l-echo-l0 \"git tag -l | xargs git tag -d\"; git tag -l | xargs git tag -d; \
+ git l-echo-l2 \"$CMD 2:\"; git l-echo-l0 \"git fetch -t $src1 \";           git fetch -t $src1 && \
+ git l-last-short $showlog \
 ;};f"
-
-l-fix-old-branch = "!f(){ \
- [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
- CMD='l-fix-old-branch' && \
- old=$1 && \
- new=$2 && \
- if git l-check-exists-branch $old; then \
-    git l-echo-lc \"$CMD 1:\" \"git branch -m $old $new\" && git branch -m $old $new; \
- fi \
-;};f"
-
-l-fix-all-old-names = "!f(){ \
- [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
- CMD='l-fix-all-old-names' && \
- git l-fix-old-branch fix _fix && \
- git l-fix-old-branch cfg _cfg && \
- git l-fix-old-param l-fix fix _fix && \
- git l-fix-old-param l-cfg cfg _cfg && \
- git l-fix-old-param l-prev-fix fix _fix && \
- git l-fix-old-param l-prev-cfg cfg _cfg && \
- git branch && \
- git w-mcf-param-list\
-;};f"
-
 
 w-master-pull = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
@@ -1897,8 +1862,8 @@ w-master-pull = "!f(){ \
  src1_rbranch=${3:-$(git l-mcf-param-get l-src1-rmaster)} && \
  cbr=$(git cbr); \
  git l-echo-l2 \"$CMD 1:\"; git l-echo-l0 \"git checkout $master \";                  git checkout $master; \
- git l-echo-l2 \"$CMD 3:\"; git l-echo-l0 \"git remote prune $src1 \";                git remote prune $src1; \
- git l-echo-l2 \"$CMD 2:\"; git l-echo-l0 \"git fetch -pt $src1 \";                   git fetch -pt $src1; \
+ git l-echo-l2 \"$CMD 2:\"; git l-echo-l0 \"git remote prune $src1 \";                git remote prune $src1; \
+ git l-echo-l2 \"$CMD 3:\"; git l-echo-l0 \"git fetch -pt $src1 \";                   git fetch -pt $src1; \
  git l-echo-l2 \"$CMD 4:\"; git l-echo-l0 \"git rebase $src1/$src1_rbranch \";        git rebase $src1/$src1_rbranch; \
  git l-echo-l2 \"$CMD 5:\"; git l-echo-l0 \"git checkout $cbr \";                     git checkout $cbr; \
  git l-echo-l2 \"$CMD 6:\"; git l-echo-l0 \"git last-short\";                         git last-short \

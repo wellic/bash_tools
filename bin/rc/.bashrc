@@ -138,4 +138,11 @@ wttr()
 
 source "$HOME/.rvm/scripts/rvm"
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
+PATH="$PATH:$HOME/.rvm/bin"
+export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+
+
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/home/yournick/.sdkman"
+[[ -s "/home/yournick/.sdkman/bin/sdkman-init.sh" ]] && source "/home/yournick/.sdkman/bin/sdkman-init.sh"
