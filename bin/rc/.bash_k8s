@@ -1,0 +1,5 @@
+source <(kubectl completion bash)
+source <(kubectl completion bash | sed -e 's/kubectl/k/g')
+source <(minikube completion bash)
+
+alias k=kubectl

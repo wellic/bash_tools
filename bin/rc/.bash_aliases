@@ -55,6 +55,7 @@ if [ $UID -ne 0 ]; then
 #    alias update='sudo apt-get upgrade'
 fi
 
+
 ## Colorize the ls output ##
 alias ls='ls --color=auto'
 ## Use a long listing format ##
@@ -64,7 +65,6 @@ alias l.='ls -d .* --color=auto'
 
 #4: Generate sha1 digest
 alias sha1='openssl sha1'
-
 
 #5: Create parent directories on demand
 alias mkdir='mkdir -pv'

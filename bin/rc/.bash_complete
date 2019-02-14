@@ -18,3 +18,4 @@ complete -W "$HEADS" go gst gb makepatch gl
 #
 #    COMPREPLY=($(compgen -W "${opts}"));
 #}
+
