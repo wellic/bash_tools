@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -ue
+#set -x
+
+SCRIPT=`realpath -s $0`
+SCRIPT_DIR=`dirname $SCRIPT`
+HOSTNAME=$(hostname -s)
+
+BACKDIR=${1:-"$SCRIPT_DIR"}
+DT=${2:-`date +%Y%m%d`}
+FN=${3:-backup_panels}
+
+cmd="tar -Pzcvf '$BACKDIR/${FN}.${HOSTNAME}.${DT}.tar.gz' /usr/share/mate-panel/layouts"
+echo "$cmd"
+eval "$cmd"
+

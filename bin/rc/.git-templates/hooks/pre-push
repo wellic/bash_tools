@@ -1,0 +1,33 @@
+#!/bin/bash
+#set -x
+
+protected_branch=(
+master
+main
+)
+
+# Argument parsing taken from .git/hooks/pre-push.sample
+while read local_ref local_sha remote_ref remote_sha
+do
+#    echo "$remote_ref"
+    found=
+    for p in "${protected_branch[@]}"; do
+        if [[ "$remote_ref" =~ "$p"$ ]]; then
+	    found=1
+	    break
+	fi
+    done
+    [ -z "$found" ] && exit 0 || :
+
+    echo -en "\033[1;33mYou're about to push to master, is that what you intended? [y|n] \033[0m"
+    echo -en "\033[1m"
+    read -n 1 -r < /dev/tty
+    echo -en "\033[0m"
+    echo
+
+    if echo $REPLY | grep -E '^[Yy]$' > /dev/null; then
+        exit 0 # push will execute
+    fi
+    exit 1 # push will not execute
+done
+exit 0

@@ -3,8 +3,15 @@
 #   user.email
 #   mcf.nickname
 [user]
-    name = your_name
-    email = your@mail
+	name = your_name
+	email = your@mail
+
+#for private repos
+#~/.git-credentials
+#https://name:token/github.com
+[credential]
+    helper = store
+
 [mcf]
 # Use commands w-(get,set,del,list)-mcf-param for work with l-* parameters
 #Your nickname
@@ -72,7 +79,7 @@
     commit = yellow bold
     meta = normal bold
     frag = magenta bold
-    old = red
+    old = red bold
     new = green
     whitespace = red reverse blink
     plain = normal
@@ -85,11 +92,16 @@
     commentchar = ";"
     pager = less -FXRS
     whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
+    excludesFile = ~/.gitignore_global
 #    editor = mcedit
 # FOR LINUX
-    autocrlf = input
-    safecrlf = false
-    eol = native
+#    autocrlf = input
+#	autocrlf = input
+#    autocrlf = false
+#    safecrlf = true
+#	safecrlf = true
+#    eol = lf
+#    eol = native
 # FOR WIN
 #    pager = more
 #    core.autocrlf true
@@ -155,11 +167,11 @@ df0c = diff --cached -U0
 visual = !LANG=C gitk --all &
 
 # show history and log
-sshow = "! f() { git --no-pager show --no-notes --stat --pretty=format:\"%C(yellow)%ad %C(green)%h%C(cyan)%d%Creset | %s %C(black bold)[%an]%Creset\"  --date=short --decorate $@ && echo  ; }; f"
-hist  = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%C(cyan)%d%Creset | %s %C(black bold)[%an]%Creset\"  --graph --date=short --decorate $@ && echo ; }; f"
-hist1 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%C(cyan)%d%Creset | %s %C(black bold)[%an]%Creset\"  --date=short $@ && echo  ; }; f"
-hist2 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %C(black bold)[%an]%Creset\"            --graph --date=short --decorate $@ && echo ; }; f"
-hist3 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %C(cyan)%d %C(black bold)[%an]%Creset\" --graph --date=short --decorate $@ && echo  ; }; f"
+sshow = "! f() { git --no-pager show --no-notes --stat --pretty=format:\"%C(yellow)%ad %C(green)%h%C(cyan)%d%Creset | %s %C(black bold)[%an:%ae]%Creset\"  --date=short --decorate $@ && echo  ; }; f"
+hist  = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%C(cyan)%d%Creset | %s %C(black bold)[%an:%ae]%Creset\"  --graph --date=short --decorate $@ && echo ; }; f"
+hist1 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%C(cyan)%d%Creset | %s %C(black bold)[%an:%ae]%Creset\"  --date=short $@ && echo  ; }; f"
+hist2 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %C(black bold)[%an:%ae]%Creset\"            --graph --date=short --decorate $@ && echo ; }; f"
+hist3 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %C(cyan)%d %C(black bold)[%an][%ae]%Creset\" --graph --date=short --decorate $@ && echo  ; }; f"
 hist4 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %Creset\" --graph --date=short --decorate $@ && echo  ; }; f"
 hist5 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %Creset\"         --date=short            $@ && echo  ; }; f"
 last  = "! git hist  --all -20 $* "
@@ -168,6 +180,15 @@ last2 = "! git hist2 --all -20 $* "
 last3 = "! git hist3 --all -20 $* "
 last4 = "! git hist4 --all -20 $* "
 last5 = "! git hist5 --all -20 $* "
+
+path-repo-commit = "!f(){ \
+ [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
+  def_path=$(git w-mcf-param-get l-src1) \
+&& rev=$(git l-rev ${1:-HEAD}) \
+&& remote_path=$(git remote get-url --push ${2:-$def_path} | sed 's/.git$//') \
+&& echo \"${remote_path}/tree/${rev}\" \
+;};f"
+
 
 #
 # User info
@@ -271,6 +292,9 @@ gi-list="! git gi list"
 # get rules for gitignore: git gi netbeans
 gi = "! gi() { curl -L -s https://www.gitignore.io/api/$@ ;}; gi"
 
+# get rules for gitattributes
+ga = "! ga() { [ $# -ne 0 ] && curl -L -s https://gitattributes.io/api/$@ || curl -L -s https://gitattributes.io/api/list ;}; ga"
+
 current-branch-name = "! git cbr"
 cbr = rev-parse --abbrev-ref HEAD
 
@@ -278,7 +302,6 @@ cbr = rev-parse --abbrev-ref HEAD
 # Show files ignored by git:
 ign = "! git status --ignored --short | awk '/^!!/ { print $2 }'"
 ign-cd = ls-files -o -i --exclude-standard
-
 
 # temporarily ignoring file
 ignore   = update-index --assume-unchanged
@@ -289,7 +312,9 @@ ignored = "!git ls-files -v | grep ^[a-z]"
 # check merged
 merged   = branch --merged
 unmerged = branch --no-merged
-merged-clear = "! git branch --merged | grep -vP '^[*]' | xargs git branch -d"
+merged-clear = "! [ "$(git branch --merged | wc -l)" -gt 1 ] && (git branch --merged | grep -vP '^[*]' | xargs git branch -d) || git branch --merged "
+gone-clear = "! for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do echo \" git branch -D $branch\"; done"
+
 
 # different list and logs
 ls = ls-files
@@ -302,11 +327,14 @@ dump = cat-file -p
 
 fsckclear = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
- git l-echo \"git fsck\"                                            && git fsck && \
- git l-echo \"git reflog expire --expire-unreachable=now --all\" && git reflog expire --expire-unreachable=now --all && \
- git l-echo \"git gc --prune prunefsck\"                         && git gc --prune=now && \
+ git l-echo \"git count-objects -v\"                             && git count-objects -v && \
  git l-echo \"git fsck\"                                         && git fsck && \
- git l-echo \"git gc\"                                           && git gc \
+ git l-echo \"git reflog expire --expire-unreachable=now --all\" && git reflog expire --expire-unreachable=now --all && \
+ git l-echo \"git prune\"                                        && git prune && \
+ git l-echo \"git gc --prune=now \"                              && git gc --prune=now && \
+ git l-echo \"git fsck\"                                         && git fsck && \
+ git l-echo \"git gc\"                                           && git gc && \
+ git l-echo \"git count-objects -v\"                             && git count-objects -v \
 ;};f"
 
 ################################################################################
@@ -332,7 +360,7 @@ l-echo = "!f(){ \
  MESS=${1:-} && \
  COLOR=${2:-3} && \
  BRIGHT=${3:-1} && \
- COLOR=\"\\033[${BRIGHT};3${COLOR}m\" && \
+ COLOR=\"\\033[${BRIGHT};9${COLOR}m\" && \
  NOCOLOR=\"\\033[0m\" && \
  MESS=\"${COLOR}${MESS}${NOCOLOR}\" && \
  [ \"$(uname)\" = 'Linux' ] && echo \"$MESS\" || echo -e \"$MESS\"; \
@@ -1869,6 +1897,39 @@ w-master-pull = "!f(){ \
  git l-echo-l2 \"$CMD 6:\"; git l-echo-l0 \"git last-short\";                         git last-short \
 ;};f"
 
+#https://github.com/brauliobo/gitconfig/blob/master/configs/.gitconfig
+w-change-commits = "!f() { \
+ VAR=$1; OLD=$2; NEW=$3; shift 3;  \
+ set -x; git filter-branch --env-filter \
+ \"if [ \\\"$\"$(echo $VAR)\"\\\" = '$OLD' ]; then $VAR='$NEW'; fi;\" $@ \
+;};f"
+
+w-fix-emails = "!f() { \
+ OLD=$1; NEW=$2; shift 2; set -x; \
+ git w-change-commits GIT_AUTHOR_EMAIL \"$OLD\" \"$NEW\" $@ ; \
+ git w-change-commits GIT_COMMITTER_EMAIL \"$OLD\" \"$NEW\" $@ \
+;};f"
+
+# from https://help.github.com/articles/remove-sensitive-data
+w-remove-file = "!f() { \
+ git filter-branch -f --index-filter \
+ \"git rm --cached --ignore-unmatch $1\" \
+ --prune-empty --tag-name-filter cat -- --all \
+;};f"
+
+w-shortlog = shortlog -sne
+
+
 ###################
 ### End ALIASES ###
 ###################
+[github]
+	accesstoken = your_access_token     
+[url "https://"]
+	insteadOf = git://
+[url "https://github.com/"]
+	insteadOf = git@github.com:
+[init]
+	templatedir = ~/.git-templates
+#[url "https://your_token:x-oauth-basic@github.com/"]
+#	insteadOf = https://github.com/

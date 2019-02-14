@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+set -u
+#set -x
+
+sudo echo "VPN: "
+
+_help_exit() {
+    echo "Usage:\n$0 mode full_path_to_file_ovpn [pass_file_name]"
+    echo "Select mode: up|down"
+    exit 1
+}
+
+[ $# -lt 1 ] && _help_exit
+MODE=$1
+CFG_FILE=$2
+auth_user_pass=${3:-}
+
+CFG_FILE=$(readlink -e "$CFG_FILE")
+CFG_DIR=$(dirname "$CFG_FILE")
+OVPN_FILE=$(basename "$CFG_FILE")
+
+LOG_FILE=/tmp/_ovpn_w.log
+
+if [ "$(whoami)" != "$USER" ] || [ -z "$CFG_FILE" ]; then
+  echo "Check params!"
+  echo "USER=$USER"
+  echo "CFG_FILE=$CFG_FILE"
+  exit 1
+fi
+
+MASK="openvpn --config"
+
+_ps(){
+    _vpn_log "$MASK" 0
+    ids=$(pgrep -fa "$MASK")
+    [ "$ids" != '' ] && echo -e "$ids"
+}
+
+_down() {
+    echo -e "\ndown ..."
+
+    ids=$(pgrep -fa "$MASK")
+    if [ "$ids" = '' ]; then 
+        echo "No VPN processes"
+        return 1
+    fi
+
+    _vpn_view_log '' "$MASK" 0 "$LOG_FILE"
+
+    echo -e '\n-----' | tee -a "$LOG_FILE"
+    echo "Down: `LANG=en_US date`" | tee -a "$LOG_FILE"
+    echo '' | tee -a "$LOG_FILE"
+    cmd="sudo pkill -f '$MASK'"
+    echo "$cmd"
+    eval "$cmd"
+    sleep 1
+}
+
+
+_up() {
+    echo -e "\nup ..."
+
+    if [ ! -f "$CFG_FILE" ]; then
+        echo "Can't find file ${CFG_FILE}"
+        exit 1
+    fi
+
+    ids=$(pgrep -fa "$MASK")
+    if [ "$ids" != '' ]; then 
+        echo "VPN was already started"
+        _down
+        sleep 1
+    fi
+
+    cd "$CFG_DIR"
+    [ -n "$auth_user_pass" ] && OPT="--auth-user-pass $auth_user_pass" || OPT=""
+    echo -e '\n-----' | tee -a "$LOG_FILE"
+    echo "up: `LANG=en_US date`" | tee -a "$LOG_FILE"
+    echo '' | tee -a "$LOG_FILE"
+    cmd="sudo openvpn --config $OVPN_FILE $OPT --log-append '$LOG_FILE'"
+    echo "$cmd"
+    eval "$cmd" &
+}
+
+[ "$MODE" = 'up'   ] && _up
+[ "$MODE" = 'down' ] && _down
+
+echo -e "\nFinish !!!"
+
+_vpn_view_log '' "$MASK" 1 "$LOG_FILE"
+
+echo -e "\nLog:\ntail -f -n100 '$LOG_FILE'\n"

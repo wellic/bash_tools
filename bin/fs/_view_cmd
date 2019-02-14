@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+set -u
+#set -x
+
+ADD_COMMENT=1
+COMMENT_SIGN="# "
+
+SCRIPT_NAME=$(basename "$0")
+print_help() {
+    echo "Usage:"
+    echo "$SCRIPT_NAME name_cmd"
+}
+
+_trim_space() {
+    local s=$(echo -e "${1}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+    echo "$s"
+}
+
+_print_separator() {
+    local sep=${1:-}
+    local cnt=${2:-80}
+    local line=
+    if [ -n "$sep" ]; then
+        while [ "$cnt" -gt 0 ]; do
+            line+="$sep"
+            (( cnt-- ))
+        done
+    fi
+    [ "$ADD_COMMENT" = '1' -a "$line" != '' ] && line="${COMMENT_SIGN}$line"
+    echo "$line"
+}
+
+if [ $# -lt 1 ]; then
+    print_help
+    exit 1
+fi
+
+name_cmd=$(_trim_space "$1")
+shift
+
+f=`which $name_cmd`
+if [ $? = '0' ]; then
+    cat "$f"
+    _print_separator '-'
+    echo "# Full: '$f'"
+    echo "# Path: '$(dirname "$f")'"
+    echo "# Name: '$name_cmd'"
+fi

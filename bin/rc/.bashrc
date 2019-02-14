@@ -1,3 +1,4 @@
+# set -x
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
@@ -11,16 +12,19 @@ esac
 [ -z "$PS1" ] && return
 source ~/.bashps1
 
-# don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
-HISTCONTROL=ignoreboth
-
+#see https://sanctum.geek.nz/arabesque/better-bash-history/
 # append to the history file, don't overwrite it
 shopt -s histappend
 
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
+export HISTCONTROL=$HISTCONTROL:ignorespace:ignoredups
+
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=100000
+HISTFILESIZE=100000
+HISTIGNORE='bg:fg:history'
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -29,6 +33,7 @@ shopt -s checkwinsize
 # If set, the pattern "**" used in a pathname expansion context will
 # match all files and zero or more directories and subdirectories.
 #shopt -s globstar
+
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -101,9 +106,9 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 # ~/.bash_aliases, instead of adding them here directly.
 # See /usr/share/doc/bash-doc/examples in the bash-doc package.
 
-[ -f ~/.bash_aliases ] && ~/.bash_aliases
+[ -f ~/.bash_aliases ] && source ~/.bash_aliases
 [ -f ~/.bash_tokens ] && source ~/.bash_tokens
-[ -f ~/.bash_k8s ] && source ~/.bash_k8s
+#[ -f ~/.bash_k8s ] && source ~/.bash_k8s
 
 
 # enable programmable completion features (you don't need to enable
@@ -120,7 +125,10 @@ fi
 #source ~/.bash_complete
 
 export EDITOR=/usr/bin/mcedit
-export PATH="$PATH:$HOME/bin:$HOME/Soft/netbeans-8.2/bin"
+[ -f ~/.bash_bin ]   && source ~/.bash_bin
+[ -f ~/.bash_local ] && source ~/.bash_local
+PATH="$PATH:$HOME/bin;$HOME/.local/bin"
+export PATH
 
 wttr()
 {
@@ -131,16 +139,24 @@ wttr()
 }
 
 
-# added by Anaconda3 4.4.0 installer
-#export PATH="/home/yournick/anaconda3/bin:$PATH"
-
-source "$HOME/.rvm/scripts/rvm"
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-PATH="$PATH:$HOME/.rvm/bin"
-export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
-
-
-
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="/home/yournick/.sdkman"
-[[ -s "/home/yournick/.sdkman/bin/sdkman-init.sh" ]] && source "/home/yournick/.sdkman/bin/sdkman-init.sh"
+#export SDKMAN_DIR="/home/yournick/.sdkman"
+#[[ -s "/home/yournick/.sdkman/bin/sdkman-init.sh" ]] && source "/home/yournick/.sdkman/bin/sdkman-init.sh"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+#[ -d "/opt/f5/epi" ] && PATH="/opt/f5/epi:/opt/f5/epi/xdg-scripts:$PATH"
+
+#remove dublicated paths
+WHICH=/usr/bin/which
+CMD_env=$($WHICH env)
+CMD_grep=$($WHICH grep)
+CMD_cut=$($WHICH cut)
+CMD_tr=$($WHICH tr)
+CMD_awk=$($WHICH awk)
+PATH=$($CMD_env | $CMD_grep -E '\bPATH=' | $CMD_cut -d '=' -f2 | $CMD_tr ':' '\n' | $CMD_awk '!x[$0]++' | tr '\n' ':')
+
+export PATH="${PATH%%:}"
+

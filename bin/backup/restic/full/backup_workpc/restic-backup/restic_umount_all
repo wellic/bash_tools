@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+if [ "$(whoami)" != "root" ]
+then
+  echo "You have to run this script as Superuser!"
+  exit 1
+fi
+
+set -u
+#set -x
+
+DEBUG=0
+
+RET_DIR=$PWD
+
+SCRIPT=$(readlink -e "$0")
+SCRIPT_DIR=$(dirname "$SCRIPT")
+
+cd "$SCRIPT_DIR"
+
+source "./vars.sh"
+source "./funcs.sh"
+
+_find_restic_app
+#set -x
+for t in "${all_types[@]}"; do
+    _umount "$t"
+done
+[ -d "$MNT_ROOT" ] && rmdir "$MNT_ROOT" 2>/dev/null
+
+#pgrep --signal 15 -f "restic_mnt_"
+
+cd "$RET_DIR"

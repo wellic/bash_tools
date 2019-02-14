@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -u
+#set -x
+
+mode=${1:-v}
+shift
+
+_clean_history '[йцукенгшщзхъёфывапролджэячсмитьбю]' "$mode" $@

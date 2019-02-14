@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -u
+#set -x
+#set -v
+
+RET_DIR=$PWD
+
+SCRIPT=$(realpath -s "$0")
+SCRIPT_DIR=$(dirname "$SCRIPT")
+
+dirs=(
+    gsettings
+    mate_panels
+    apt-clone
+    restic-backup
+)
+
+cd "$SCRIPT_DIR"
+for d in "${dirs[@]}"; do
+    echo "$d"
+    cd "$d"
+    ./backup.sh
+    cd "$SCRIPT_DIR"
+done
+
+cd "$RET_DIR"

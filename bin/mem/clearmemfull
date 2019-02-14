@@ -6,6 +6,9 @@ then
   exit 1
 fi
 
+SCR=$(readlink -e "$0")
+SCR_DIR=$(dirname "$SCR")
+
 echo before: $(date +%c) | tee /tmp/clearmem.tmp
 free -m | tee -a /tmp/clearmem.tmp
 echo | tee -a /tmp/clearmem.tmp
@@ -18,5 +21,5 @@ free -m | tee -a /tmp/clearmem.tmp
 echo | tee -a /tmp/clearmem.tmp
 
 echo swap | tee -a /tmp/clearmem.tmp
-/home/wellic/bin/clearswap | tee -a /tmp/clearmem.tmp
+"$SCR_DIR/clearswap" | tee -a /tmp/clearmem.tmp
 exit 0

@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+set -u;
+set -e
+#set -x;
+
+admin_name=myadmin
+user_name=wellic
+CLEAN_PREV_BAK=${1:-0}
+
+[ -z "$admin_name" -o "$admin_name" = "root" ] && exit 1 || :
+[ -z "$user_name" -o "$user_name" = "root" ]   && exit 1 || :
+
+dt=$(date +"%Y%m%d_%H%M%S")
+
+d_admin_home="/$admin_name"
+d_admin_user="$d_admin_home/$user_name"
+d_admin_user_bak="${d_admin_user}.bak"
+d_admin_user_bak_dt="${d_admin_user}.bak/$dt"
+
+d_user_home=/home/$user_name
+path_cfg=.config/dconf
+f_arc_cfg=cfg.tgz
+
+CMD_CNT=0
+CMD_VERBOSE=1
+W=2
+_run(){
+    local cmd=("$@")
+    CMD_CNT=$(( CMD_CNT+1 ))
+    if [ "$CMD_VERBOSE" = 1 ]; then
+        local s_cmd="${cmd[@]}"
+        printf "#%${W}d: %s\n" $CMD_CNT "${s_cmd}"
+        "${cmd[@]}"
+    else
+        "${cmd[@]}" > /dev/null
+    fi
+}
+
+###################
+if [ -d $d_admin_user ];then 
+    [ "$CLEAN_PREV_BAK" = 1 -a -d "$d_admin_user_bak" ] && _run sudo -u $admin_name rm -rf "$d_admin_user_bak" || :
+    _run sudo -u $admin_name mkdir -p "$d_admin_user_bak_dt"
+    _run sudo -u $admin_name mv -T "$d_admin_user" "$d_admin_user_bak/$dt"
+fi
+
+_run sudo -u $admin_name mkdir -p "$d_admin_user"
+_run sudo tar cpf "$d_admin_user/$f_arc_cfg" -C "$d_user_home" "$path_cfg"
+_run sudo chown $admin_name:$admin_name "$d_admin_user/$f_arc_cfg"
+
+# compare tree
+opt_tree=-ahFDugsi
+opt_tree="-ahFDugs --noreport"
+[ -d "$d_admin_user_bak" ] && _run sudo tree $opt_tree  "$d_admin_user_bak" || :
+_run sudo tree $opt_tree "$d_admin_user"

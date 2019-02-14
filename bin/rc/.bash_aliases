@@ -8,7 +8,15 @@ fi
 
 ######################################################
 
-alias apip=/home/yournick/anaconda3/bin/pip
+alias sudop='sudo env PATH=$PATH'
+
+alias rgi='rg -i'
+
+alias catb='bat'
+alias cats='bat -A'
+alias catc='bat -p'
+alias catn='bat -n'
+
 alias fix_term='printf "\e[?2004l"'
 
 alias logout='mate-session-save --logout'
@@ -25,11 +33,12 @@ alias cdww='cd;  cd ~/sites/var/www'
 alias cdwd='cd;  cd ~/sites/var/dockers'
 alias cdwp='cd;  cd ~/projects'
 alias cderr='cd; cd ~/sites/var/log'
-alias cdz='cd; cd Downloads'
+alias cdz='cd; cd ~/Downloads'
+alias cds='cd; cd ~/Sync'
 alias cdl='cd; cd ~/lib'
 alias cdt='cd; cd ~/tmp'
 alias cdb='cd; cd ~/bin'
-alias cdd='cd; cd ~/Docs'
+alias cdd='cd; cd ~/Docs/tech'
 alias cddr='cd; cd ~/Dropbox'
 alias s_bashrc='source ~/.bashrc'
 #alias etsys='ssh etsys'
@@ -37,7 +46,9 @@ alias s_bashrc='source ~/.bashrc'
 ##--------------http://www.cyberciti.biz/tips/bash-aliases-mac-centos-linux-unix.html
 
 alias apt-get='sudo apt-get'
+alias dpkg='sudo dpkg'
 alias apt='sudo apt'
+alias ag='ag --hidden'
 alias grep=grep --color=auto
 alias gr="echo \'grep --exclude-dir=.git --color=auto -rnP\' ; grep --exclude-dir=.git --color=auto -rnP"
 
@@ -88,3 +99,15 @@ alias du_m2='du -ch * | sort -rh | head -10'
 alias cd..='cd ..'
 ## a quick way to get out of current directory ##
 alias ..='cd ..'
+
+function _cd_by_filename() {
+    local d=$(dirname "$@")
+    echo "cd \"$d\""
+    cd "$d"
+}
+
+alias _cd_f=_cd_by_filename
+
+alias venv_activate='[ -d venv ] && source venv/bin/activate || source'
+
+alias lint_bash='rg "\[\s+[^]]+\S[!=]{0,1}[=]{1,2}[~]{0,1}\S.*\s+\]"'

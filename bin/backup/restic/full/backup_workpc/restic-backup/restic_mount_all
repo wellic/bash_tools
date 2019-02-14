@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+if [ "$(whoami)" != "root" ]
+then
+  echo "You have to run this script as Superuser!"
+  exit 1
+fi
+
+set -u
+#set -x
+
+DEBUG=0
+
+RET_DIR=$PWD
+
+clean_and_exit() {
+    local exit_code=${1:-1}
+    cd "$RET_DIR"
+    exit $exit_code
+}
+
+# trap ctrl-c and call ctrl_c()
+trap ctrl_c INT
+ctrl_c() {
+    clean_and_exit 0
+}
+
+SCRIPT=$(readlink -e "$0")
+SCRIPT_DIR=$(dirname "$SCRIPT")
+
+cd "$SCRIPT_DIR"
+
+source "./vars.sh"
+source "./funcs.sh"
+
+_find_restic_app
+for t in "${all_types[@]}"; do
+    ./restic_mount $t &
+done
+
+echo "========================="
+sleep "${MOUNT_TMEOUT:-10}"
+echo "-------------------------"
+mount | grep -P '^restic'

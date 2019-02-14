@@ -1,5 +1,7 @@
 #!/bin/bash
 
+_info() {
+
 free_data="$(free)"
 mem_data="$(echo "$free_data" | grep 'Mem:')"
 free_mem="$(echo "$mem_data" | awk '{print $4}')"
@@ -9,13 +11,21 @@ total_free=$((free_mem + buffers + cache))
 used_swap="$(echo "$free_data" | grep 'Swap:' | awk '{print $3}')"
 
 echo -e "Free memory:\t$total_free kB ($((total_free / 1024)) MB)\nUsed swap:\t$used_swap kB ($((used_swap / 1024)) MB)"
+}
+
+echo '---'
+_info
+
 if [[ $used_swap -eq 0 ]]; then
     echo "Congratulations! No swap is in use."
 elif [[ $used_swap -lt $total_free ]]; then
     echo "Freeing swap..."
     sudo swapoff -a
+    sleep 1
     sudo swapon -a
 else
     echo "Not enough free memory. Exiting."
     exit 1
 fi
+
+_info

@@ -1,15 +1,57 @@
+#https://docs.docker.com/build/building/env-vars/#buildkit_colors
+#https://github.com/moby/buildkit/blob/master/util/progress/progressui/colors.go
+export BUILDKIT_COLORS="run=green:error=light-red:cancel=light-yellow:warning=light-cyan"
 
+function _w_containers() {
+  #src1: https://iridakos.com/programming/2018/03/01/bash-programmable-completion-tutorial
+  #src2: https://www.linuxjournal.com/content/more-using-bash-complete-command
+  COMPREPLY=( $(compgen -W "$(docker ps -a --format {{.Names}})" "${COMP_WORDS[COMP_CWORD]}"))
+}
+complete -F _w_containers dbash dexec dlogs dclear_container_names dclear_container_name _wdocker_remove_containers
 #docker aliases
 
-alias php-cs-fixer='docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" ludofleury/php-cs-fixer'
-alias phpspec='     docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" phpspec/phpspec'
-alias php='         docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" php:5.6 php'
+alias _wdocker_prune_all='yes | docker system prune --volumes'
 
-alias composer='    [ -d ~/.composer ] || mkdir ~/.composer; docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" -v "$PWD/.composer":/composer composer/composer'
-alias composer_ssh='[ -d ~/.composer ] || mkdir ~/.composer; docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" -v "$PWD/.composer":/composer -v ~/.ssh:/root/.ssh composer/composer'
+function _wdocker_remove_containers() {
+#set -x
+    local c=($(docker ps -a | tail -n +2 | awk -F' ' 'BEGIN { OFS=";" } {print $1,$NF}'))
+    local m=0
+    if [ $# -ne 0 -a "$1" = '-d' ]; then m=1; shift; else echo -e "\n#_wdocker_remove_containers [-d] [name1 name2 ...]"; fi
+    local s=($@)
+    local ls="${#s[@]}"
+    local d_cmd=(stop rm)
+    local cmd
+    local dc
+    local si
+    local ci
+    for dc in "${d_cmd[@]}"; do
+        for ci in "${c[@]}"; do
+	    local ca=(${ci//;/ })
+	    printf -v cmd "docker %-4s %s" "$dc" "${ca[0]}"
+	    if [ "$ls" -eq 0 ]; then 
+		echo " $cmd # ${ca[1]}"; [ "$m" = '1' ] && eval "$cmd"
+	    else
+		for si in "${s[@]}"; do
+		    [ "${ca[1]}" != "$si" ] && continue
+		    echo " $cmd # ${ca[1]}"; [ "$m" = '1' ] && eval "$cmd"
+		    break;
+		done
+	    fi
+	done
+    done
+#set +x
+}
+#alias wdocker_remove_containers=_wdocker_remove_containers
 
-alias node='docker run -it --rm -p 8080:8080 -p 3000:3000 -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" -e "PATH=$PATH:$PWD/node_modules/bin" node node'
-alias  npm='docker run -it --rm -p 8080:8080 -p 3000:3000 -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" -e "PATH=$PATH:$PWD/node_modules/bin" node npm'
+#alias php-cs-fixer='docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" ludofleury/php-cs-fixer'
+#alias phpspec='     docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" phpspec/phpspec'
+#alias php='         docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" php:5.6 php'
+
+#alias composer='    [ -d ~/.composer ] || mkdir ~/.composer; docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" -v "$PWD/.composer":/composer composer/composer'
+#alias composer_ssh='[ -d ~/.composer ] || mkdir ~/.composer; docker run -it --rm -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" -v "$PWD/.composer":/composer -v ~/.ssh:/root/.ssh composer/composer'
+
+#alias node='docker run -it --rm -p 8080:8080 -p 3000:3000 -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" -e "PATH=$PATH:$PWD/node_modules/bin" node node'
+#alias  npm='docker run -it --rm -p 8080:8080 -p 3000:3000 -u $(id -u):$(id -g) -v "$(pwd)":"$(pwd)" -w "$(pwd)" -e "PATH=$PATH:$PWD/node_modules/bin" node npm'
 
 alias did='docker ps -l -q'
 

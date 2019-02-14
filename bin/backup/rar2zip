@@ -78,13 +78,15 @@ for OLDFILE in `find $SOURCEDIR -iname "$FILENAME" -printf "%p␜"`; do
    # Create a temporary folder for unRARed files
    echo "Extracting $OLDFILE"
    mkdir "$BASENAME"
-   7z x "$OLDFILE" -O"$BASENAME"
+#   7z x "$OLDFILE" -O"$BASENAME"
+   unrar x "$OLDFILE" "$BASENAME"
    cd "$BASENAME"
 
    # Zip the files with maximum compression
-   7z a -tzip -mx=9 "$NEWNAME" *
+ #  7z a -tzip -mx=9 "$NEWNAME" *
+   #zip -9qr "$NEWNAME" *
    # Alternative. MUCH SLOWER, but better compression
-   # 7z a -mm=Deflate -mfb=258 -mpass=15 -r "$NEWNAME" *
+   7z a -mm=Deflate -mfb=258 -mpass=15 -r "$NEWNAME" *
 
    # Move the new .zip to the directory containing the original ".rar" file
    mv "$NEWNAME" $DIRNAME/"$NEWNAME"

@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+set -u
+DEBUG=0
+
+RET_DIR=$PWD
+
+if [ "$(whoami)" != "root" ]; then
+  echo "You have to run this script as Superuser!"
+  exit 1
+fi
+
+REPO=$1
+
+SCRIPT=$(readlink -e "$0")
+SCRIPT_DIR=$(dirname "$SCRIPT")
+
+cd "$SCRIPT_DIR"
+
+source "./vars.sh"
+source "./funcs.sh"
+
+###################################
+#clean_and_exit() {
+#set -x
+#    local exit_code=${1:-1}
+#    _umount "$REPO"
+#    exit $exit_code
+#}
+#
+## trap ctrl-c and call ctrl_c()
+#trap ctrl_c INT
+#ctrl_c() {
+#set -x
+#    clean_and_exit 0
+#}
+###################################
+
+_find_restic_app
+_mount "$REPO"
+
+cd "$RET_DIR"

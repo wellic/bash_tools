@@ -1,0 +1,17 @@
+.idea/*
+
+#__yournick__/
+*__yournick__*
+*__dev__*
+*__debug__*
+__tmp__/
+
+### Python ###
+__pycache__/
+.pytest_cache
+
+.venv/
+venv/
+
+.coveragerc
+

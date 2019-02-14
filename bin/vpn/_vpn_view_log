@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -u
+#set -x
+
+TAIL_OPTS=${1:-}
+[ $# -ge 1 ] && shift 
+
+MASK=${1:-"openvpn --config"}
+[ $# -ge 1 ] && shift 
+
+SHOW_LOG=${1:-1}
+[ $# -ge 1 ] && shift 
+
+LOG_FILE=${1:-"/tmp/_ovpn_w.log"}
+[ $# -ge 1 ] && shift 
+
+ids=$(pgrep -fa "$MASK")
+[ "$ids" != '' ] && echo -e "VPN ids:\n$ids\n"
+
+if [ "$SHOW_LOG" = '1' ] && [ "$LOG_FILE" != '' ] ; then
+    [ ! -f "$LOG_FILE" ] && touch "$LOG_FILE"
+    tail $TAIL_OPTS "$LOG_FILE"
+fi
+

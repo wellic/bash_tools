@@ -26,10 +26,12 @@ NS1_1=$(`which my_ip` lo)
 NS1_2=$(`which my_ns` lo)
 NS2_1=$(`which my_ip`)
 NS2_2=$(`which my_ns`)
+NS3_1=$(`which my_ip` tun0)
+NS3_2=$(`which my_ns` tun0)
 
 cat <<EOF
 ------------------------------
-US
+
 More options:
  python3 -m http.server --help
 
@@ -38,6 +40,8 @@ Start in browser:
  http://$NS1_2:$PORT
  http://$NS2_1:$PORT
  http://$NS2_2:$PORT
+ http://$NS3_1:$PORT
+ http://$NS3_2:$PORT
 ------------------------------
 
 EOF

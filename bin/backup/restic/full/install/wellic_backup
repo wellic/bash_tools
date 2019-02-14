@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+set -u;
+#set -x;
+
+SCRIPT_NAME=$(basename "$0")
+
+app="{{app}}"
+user={{user}}
+log="/tmp/_{{user}}_backup.log"
+truncate -s0 "$log"
+
+_label() {
+    local dt=`date +"%Y-%m-%d %H:%M:%S"`
+    echo "$(dt) ($SCRIPT_NAME):"
+}
+
+_print() {
+    echo "$(_label) $1" >> "$log"
+}
+
+_print_error() {
+    echo "$(_label) $1" | tee -a "$log"
+}
+
+_detect_app() {
+    [ -e "$app" -a -x "$app" ] && return 0 || return 1
+}
+
+sleeptime=60m
+NOW_H=$(date +"%H")
+maxtries=$(( 24 - NOW_H - 1 ))
+
+while ! _detect_app ; do
+    _print_error "Try run $maxtries: $app"
+    maxtries=$(( maxtries - 1 ))
+
+    if [ "$maxtries" -eq 0 ]; then
+        _print_error "Failed run: $app"
+        exit 1
+    fi
+
+    sleep "$sleeptime" || break
+    _print_error "Try run $maxtries: $app"
+done
+
+_print "Run $app"
+_print ""
+"$app" >> "$log"
+status=$?
+[ "$status" = '0' ] && _print "App status=$?" || _print_error "App status=$?"
+
+exit 0
+
+
+rm /var/spool/anacron/cron.daily
+systemctl status anacron
+systemctl stop   anacron
+systemctl start  anacron
+systemctl status anacron
+tail -f /var/log/syslog | grep -i cron
+cat /tmp/_{{user}}_backup.log
+
+exit 0
+
+#systemctl restart anacron 

@@ -4,7 +4,7 @@ set -e
 set -u
 #set -x
 
-suffix=".local"
+suffix=".docker"
 ip="127.1.0.1"
 hosts_file='/etc/hosts'
 
@@ -77,7 +77,8 @@ get_host() {
   if [ "$exact" == '1' ]; then 
     grep -E "\\s$l_new_host(\\s|\$)" "$hosts_file"
   else
-    grep -wF "$l_new_host" "$hosts_file"
+    grep -E "\\b$l_new_host(\\b)" "$hosts_file"
+#    grep -wF "$l_new_host" "$hosts_file"
   fi
 }
 
@@ -140,7 +141,8 @@ _remove() {
 }
 
 _list() {
-  local l_new_host=${2:-$new_host}
+#  local l_new_host=${2:-$new_host}
+  local l_new_host=${2:-$g_suffix}
   print_similar_hosts "$l_new_host" 0
 }
 

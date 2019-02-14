@@ -14,6 +14,7 @@
 *.gif binary
 *.odg binary
 *.zip binary
+*.tar binary
 *.gz  binary
 *.rar binary
 *.xcf binary

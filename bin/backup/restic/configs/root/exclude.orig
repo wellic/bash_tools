@@ -1,0 +1,17 @@
+lost+found
+
+/dev
+/proc
+/swapfile
+/sys
+/tmp
+
+/var/cache
+/var/lib/docker/containers/**/*-json.log
+/var/lib/docker/overlay2/**/log/*
+/var/lib/docker/overlay2/**/session/sess_*
+/var/tmp
+
+/home/*/.gvfs
+/home/*/.dbus
+/home/*/.local/share/Trash

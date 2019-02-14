@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -u
+
+
+ROOT_BORG_WEB=${1:-$HOME/Soft/borg_web}
+
+mkdir -p "$ROOT_BORG_WEB"
+
+cd "$ROOT_BORG_WEB"
+
+# Install Python code and dependencies:
+virtualenv --python=python3 borg-env
+source borg-env/bin/activate
+pip install tox pytest
+git clone https://github.com/borgbackup/borgweb.git
+cd borgweb
+pip install -e .
+
+# Install JS code and dependencies:
+cd js
+npm install
+
+# Start the local Flask webserver:
+cd ../../
+mkdir logs
+./borg-env/bin/borgweb
+
+# Start the watch process and Browsersync
+# In another shell navigate to `borgweb/js` and enter:
+
+gulp watch
