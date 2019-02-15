@@ -29,7 +29,7 @@ NS2_2=$(`which my_ns`)
 
 cat <<EOF
 ------------------------------
-US
+
 More options:
  python3 -m http.server --help
 
