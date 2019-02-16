@@ -8,7 +8,11 @@ fi
 
 ######################################################
 
-alias apip=/home/yournick/anaconda3/bin/pip
+alias catb='bat'
+alias cats='bat -A'
+alias catc='bat -p'
+alias catn='bat -n'
+
 alias fix_term='printf "\e[?2004l"'
 
 alias logout='mate-session-save --logout'

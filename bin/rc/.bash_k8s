@@ -3,3 +3,4 @@ source <(kubectl completion bash | sed -e 's/kubectl/k/g')
 source <(minikube completion bash)
 
 alias k=kubectl
+alias kcd='kubectl config set-context $(kubectl config current-context) --namespace '
