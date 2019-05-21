@@ -57,7 +57,7 @@ if _is_container_exists; then
         docker restart $CONTAINER_NAME
     fi
 else
-  docker run -d --name=$CONTAINER_NAME -p ${HOST_PORT:-9000}:9000 -v $DOCKER_SOCK:$DOCKER_SOCK "$IMAGE_NAME"
+  docker run -d --rm --name=$CONTAINER_NAME -p ${HOST_PORT:-9000}:9000 -v $DOCKER_SOCK:$DOCKER_SOCK "$IMAGE_NAME"
 fi
 
 echo '-----------------------------------------------'

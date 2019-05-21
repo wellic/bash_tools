@@ -103,7 +103,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 
 [ -f ~/.bash_aliases ] && source ~/.bash_aliases
 [ -f ~/.bash_tokens ] && source ~/.bash_tokens
-[ -f ~/.bash_k8s ] && source ~/.bash_k8s
+#[ -f ~/.bash_k8s ] && source ~/.bash_k8s
 
 
 # enable programmable completion features (you don't need to enable
@@ -131,16 +131,12 @@ wttr()
 }
 
 
-# added by Anaconda3 4.4.0 installer
-#export PATH="/home/yournick/anaconda3/bin:$PATH"
-
-source "$HOME/.rvm/scripts/rvm"
+#source "$HOME/.rvm/scripts/rvm"
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-PATH="$PATH:$HOME/.rvm/bin"
-export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
-
+#PATH="$PATH:$HOME/.rvm/bin"
+#export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
 
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="/home/yournick/.sdkman"
-[[ -s "/home/yournick/.sdkman/bin/sdkman-init.sh" ]] && source "/home/yournick/.sdkman/bin/sdkman-init.sh"
+#export SDKMAN_DIR="/home/yournick/.sdkman"
+#[[ -s "/home/yournick/.sdkman/bin/sdkman-init.sh" ]] && source "/home/yournick/.sdkman/bin/sdkman-init.sh"

@@ -1,3 +1,4 @@
+#http://ezprompt.net/
 [ -f /etc/bash_completion.d/git-prompt ] && source /etc/bash_completion.d/git-prompt
 [ -f /etc/bash_completion.d/git ]        && source /etc/bash_completion.d/git
 
