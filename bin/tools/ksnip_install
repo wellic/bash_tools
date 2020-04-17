@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -u
+set -x
+
+if [ "$(whoami)" != "root" ]
+then
+  echo "You have to run this script as Superuser!"
+#  exit 1
+fi
+
+ver=${1:-1.7.0}
+ksnip_repo="https://github.com/ksnip/ksnip/releases"
+ksnip_fn="ksnip-${ver}-continuous.deb"
+
+echo "Try download file ${ksnip_fn} from $ksnip_repo"
+
+tmp_dir=/tmp
+install_file="${tmp_dir}/${ksnip_fn}"
+
+wget -q -O "$install_file" "${ksnip_repo}/download/continuous/${ksnip_fn}"
+
+if [ ! -e "$install_file" ]; then
+     echo "File $install_file does not exists"
+     echo "Check: $ksnip_repo"
+     exit 1
+fi
+
+sudo dpkg -i "$install_file"
+rm -f "$install_file"

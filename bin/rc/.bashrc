@@ -11,16 +11,19 @@ esac
 [ -z "$PS1" ] && return
 source ~/.bashps1
 
-# don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
-HISTCONTROL=ignoreboth
-
+#see https://sanctum.geek.nz/arabesque/better-bash-history/
 # append to the history file, don't overwrite it
 shopt -s histappend
 
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
+export HISTCONTROL=$HISTCONTROL:ignorespace:ignoredups
+
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=100000
+HISTFILESIZE=100000
+HISTIGNORE='bg:fg:history'
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -29,6 +32,7 @@ shopt -s checkwinsize
 # If set, the pattern "**" used in a pathname expansion context will
 # match all files and zero or more directories and subdirectories.
 #shopt -s globstar
+
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -120,7 +124,9 @@ fi
 #source ~/.bash_complete
 
 export EDITOR=/usr/bin/mcedit
-export PATH="$PATH:$HOME/bin:$HOME/Soft/netbeans-8.2/bin"
+[ -f ~/.bash_local ] && source ~/.bash_local
+PATH="$PATH:$HOME/bin"
+export PATH
 
 wttr()
 {
@@ -129,12 +135,6 @@ wttr()
 #    L=${2:-ru}
     curl -H "Accept-Language: ${2:-ru}" wttr.in/"${1:-Sumy}?m$3"
 }
-
-
-#source "$HOME/.rvm/scripts/rvm"
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-#PATH="$PATH:$HOME/.rvm/bin"
-#export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
 
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
