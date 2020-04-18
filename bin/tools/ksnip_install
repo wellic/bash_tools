@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -u
-set -x
+#set -x
 
 if [ "$(whoami)" != "root" ]
 then
