@@ -9,9 +9,8 @@ then
 #  exit 1
 fi
 
-ver=${1:-1.7.0}
 ksnip_repo="https://github.com/ksnip/ksnip/releases"
-ksnip_fn="ksnip-${ver}-continuous.deb"
+ksnip_fn=${1:-ksnip-1.7.0-continuous.deb}
 
 echo "Try download file ${ksnip_fn} from $ksnip_repo"
 
