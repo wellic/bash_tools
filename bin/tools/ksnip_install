@@ -10,20 +10,43 @@ then
 fi
 
 ksnip_repo="https://github.com/ksnip/ksnip/releases"
-ksnip_fn=${1:-ksnip-1.7.0-continuous.deb}
+ksnip_fn=${1:-"ksnip-1.7.0-continuous.deb"}
 
-echo "Try download file ${ksnip_fn} from $ksnip_repo"
+echo "Try to download file ${ksnip_fn} from $ksnip_repo"
 
 tmp_dir=/tmp
 install_file="${tmp_dir}/${ksnip_fn}"
 
-wget -q -O "$install_file" "${ksnip_repo}/download/continuous/${ksnip_fn}"
+cmd="wget -O '$install_file' '${ksnip_repo}/download/continuous/${ksnip_fn}'"
+echo "$cmd"
+eval "$cmd"
 
-if [ ! -e "$install_file" ]; then
-     echo "File $install_file does not exists"
-     echo "Check: $ksnip_repo"
-     exit 1
+_clean(){
+    [ -e "$install_file" ] && rm -f "$install_file"
+}
+
+if [ "$?" != 0 ]; then
+    echo "Can't download file: $ksnip_fn"
+    echo "Check: $ksnip_repo"
+    _clean
+    exit 1
 fi
 
-sudo dpkg -i "$install_file"
-rm -f "$install_file"
+if [ ! -e "$install_file" ]; then
+    echo "File $install_file does not exists"
+    echo "Check: $ksnip_repo"
+    _clean
+    exit 1
+fi
+
+if [ -s "$install_file" ]; then
+    sudo dpkg -i "$install_file"
+else
+    echo "File $install_file has zero size"
+    echo $(ls -la "$install_file")
+    echo "Check: $ksnip_repo"
+    _clean
+    exit 1
+fi
+
+_clean
