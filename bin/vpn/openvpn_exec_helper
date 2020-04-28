@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+set -u
+#set -x
+
+
+_help_exit() {
+    echo "Usage:\n$0 path_to_cfg_file mode [pass_file_name]"
+    echo "Select mode: up|down"
+    exit 1
+}
+
+[ $# -lt 2 ] && _help_exit
+VPN_CFG_FILE=$1
+MODE=$2
+auth_user_pass=${3:-}
+
+if [ "$(whoami)" != "$USER" ] || [ -z "$VPN_CFG_FILE" ]; then
+  echo "You have to run this script as simple user!"
+  echo "USER=$USER"
+  echo "VPN_CFG_FILE=$VPN_CFG_FILE"
+  exit 1
+fi
+
+VPN_CFG_FILE=$(readlink -e "$VPN_CFG_FILE")
+CFG_DIR=$(dirname "$VPN_CFG_FILE")
+CFG_NAME=$(basename "$VPN_CFG_FILE")
+
+ids=$(pgrep -f "openvpn --config $CFG_NAME")
+
+cd ""
+start() {
+    if [ "$ids" != '' ]; then 
+        echo "VPN already started"
+        exit 1
+    fi
+    [ -n "$auth_user_pass" ] && OPT="--auth-user-pass $auth_user_pass"
+    cmd="sudo openvpn --config $CFG_NAME $OPT --"
+    echo "$cmd"
+    eval "$cmd" &
+    status=$?
+    echo "!!! Finish"
+    exit $status
+}
+
+stop() {
+    if [ "$ids" = '' ]; then 
+        echo "VPN process not exist"
+        exit 1
+    fi
+    cmd="sudo pkill -f '$CFG_NAME'"
+    echo "$cmd"
+    eval "$cmd"
+    status=$?
+    echo "!!! Finish"
+    exit $status
+}
+
+
+cd "$CFG_DIR"
+[ "$MODE" = 'up' ] && start
+[ "$MODE" = 'down' ] && stop
+cd -
+
+_help_exit
+
