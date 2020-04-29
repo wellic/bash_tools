@@ -10,7 +10,8 @@ then
 fi
 
 ksnip_repo="https://github.com/ksnip/ksnip/releases"
-ksnip_fn=${1:-"ksnip-1.7.0-continuous.deb"}
+last_version_deb=ksnip-1.6.2-continuous.deb
+ksnip_fn=${1:-$last_version_deb}
 
 echo "Try to download file ${ksnip_fn} from $ksnip_repo"
 
