@@ -124,6 +124,7 @@ fi
 #source ~/.bash_complete
 
 export EDITOR=/usr/bin/mcedit
+[ -f ~/.bash_bin ]   && source ~/.bash_bin
 [ -f ~/.bash_local ] && source ~/.bash_local
 PATH="$PATH:$HOME/bin"
 export PATH

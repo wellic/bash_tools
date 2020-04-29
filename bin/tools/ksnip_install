@@ -3,6 +3,8 @@
 set -u
 #set -x
 
+last_version_deb=ksnip-1.7.0-continuous.deb
+
 if [ "$(whoami)" != "root" ]
 then
   echo "You have to run this script as Superuser!"
@@ -10,7 +12,8 @@ then
 fi
 
 ksnip_repo="https://github.com/ksnip/ksnip/releases"
-last_version_deb=ksnip-1.6.2-continuous.deb
+
+
 ksnip_fn=${1:-$last_version_deb}
 
 echo "Try to download file ${ksnip_fn} from $ksnip_repo"
