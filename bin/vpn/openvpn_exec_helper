@@ -44,7 +44,7 @@ _down() {
     fi
 
     _ps
-    echo '-----' | tee -a "$LOG_FILE"
+    echo -e '\n-----' | tee -a "$LOG_FILE"
     echo "Down: `LANG=en_US date`" | tee -a "$LOG_FILE"
     echo '' | tee -a "$LOG_FILE"
     cmd="sudo pkill -f '$MASK'"
@@ -71,11 +71,12 @@ _up() {
 
     cd "$CFG_DIR"
     [ -n "$auth_user_pass" ] && OPT="--auth-user-pass $auth_user_pass" || OPT=""
-    echo '-----' | tee -a "$LOG_FILE"
+    echo -e '\n-----' | tee -a "$LOG_FILE"
     echo "up: `LANG=en_US date`" | tee -a "$LOG_FILE"
     echo '' | tee -a "$LOG_FILE"
-#    sudo openvpn --config $OVPN_FILE $OPT 2>&1 | tee -a "$LOG_FILE"
-    sudo openvpn --config $OVPN_FILE $OPT --log-append $LOG_FILE &
+    cmd="sudo openvpn --config $OVPN_FILE $OPT --log-append $LOG_FILE"
+    echo "$cmd"
+    eval "$cmd" &
 }
 
 [ "$MODE" = 'up'   ] && _up
