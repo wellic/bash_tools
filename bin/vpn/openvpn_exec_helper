@@ -74,7 +74,7 @@ _up() {
     echo -e '\n-----' | tee -a "$LOG_FILE"
     echo "up: `LANG=en_US date`" | tee -a "$LOG_FILE"
     echo '' | tee -a "$LOG_FILE"
-    cmd="sudo openvpn --config $OVPN_FILE $OPT --log-append $LOG_FILE"
+    cmd="sudo openvpn --config $OVPN_FILE $OPT --log-append '$LOG_FILE'"
     echo "$cmd"
     eval "$cmd" &
 }
@@ -86,4 +86,4 @@ echo -e "\nFinish !!!"
 
 _ps
 
-echo -e "\nLog:\ntail -f -n100 $LOG_FILE\n"
+echo -e "\nLog:\ntail -f -n100 '$LOG_FILE'\n"
