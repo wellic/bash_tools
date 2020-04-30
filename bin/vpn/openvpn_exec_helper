@@ -3,6 +3,8 @@
 set -u
 #set -x
 
+sudo echo "VPN: "
+
 _help_exit() {
     echo "Usage:\n$0 mode full_path_to_file_ovpn [pass_file_name]"
     echo "Select mode: up|down"
@@ -30,8 +32,9 @@ fi
 MASK="openvpn --config"
 
 _ps(){
+    _vpn_log "$MASK" 0
     ids=$(pgrep -fa "$MASK")
-    echo -e "$ids"
+    [ "$ids" != '' ] && echo -e "$ids"
 }
 
 _down() {
@@ -43,7 +46,8 @@ _down() {
         return 1
     fi
 
-    _ps
+    _vpn_view_log '' "$MASK" 0 "$LOG_FILE"
+
     echo -e '\n-----' | tee -a "$LOG_FILE"
     echo "Down: `LANG=en_US date`" | tee -a "$LOG_FILE"
     echo '' | tee -a "$LOG_FILE"
@@ -84,6 +88,6 @@ _up() {
 
 echo -e "\nFinish !!!"
 
-_ps
+_vpn_view_log '' "$MASK" 1 "$LOG_FILE"
 
 echo -e "\nLog:\ntail -f -n100 '$LOG_FILE'\n"
