@@ -20,10 +20,10 @@ CFG_FILE=$(readlink -e "$CFG_FILE")
 CFG_DIR=$(dirname "$CFG_FILE")
 OVPN_FILE=$(basename "$CFG_FILE")
 
-LOG_FILE=/tmp/_w_ovpn_.log
+LOG_FILE=/tmp/_ovpn_w.log
 
 if [ "$(whoami)" != "$USER" ] || [ -z "$CFG_FILE" ]; then
-  echo "You have to run this script as simple user!"
+  echo "Check params!"
   echo "USER=$USER"
   echo "CFG_FILE=$CFG_FILE"
   exit 1
