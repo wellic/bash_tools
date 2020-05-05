@@ -5,6 +5,13 @@
 [user]
     name = your_name
     email = your@mail
+
+#for private repos
+#~/.git-credentials
+#https://name:token/github.com
+[credential]
+    helper = store
+
 [mcf]
 # Use commands w-(get,set,del,list)-mcf-param for work with l-* parameters
 #Your nickname
