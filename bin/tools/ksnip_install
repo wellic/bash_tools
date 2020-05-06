@@ -15,13 +15,14 @@ ksnip_repo="https://github.com/ksnip/ksnip/releases"
 
 
 ksnip_fn=${1:-$last_version_deb}
+ksnip_vpath=${2:-continuous}
 
 echo "Try to download file ${ksnip_fn} from $ksnip_repo"
 
 tmp_dir=/tmp
 install_file="${tmp_dir}/${ksnip_fn}"
 
-cmd="wget -O '$install_file' '${ksnip_repo}/download/continuous/${ksnip_fn}'"
+cmd="wget -O '$install_file' '${ksnip_repo}/download/${ksnip_vpath}/${ksnip_fn}'"
 echo "$cmd"
 eval "$cmd"
 
