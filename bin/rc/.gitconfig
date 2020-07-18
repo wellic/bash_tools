@@ -3,8 +3,8 @@
 #   user.email
 #   mcf.nickname
 [user]
-    name = your_name
-    email = your@mail
+    name = "your_name
+    email = "your@mail
 
 #for private repos
 #~/.git-credentials
@@ -340,7 +340,7 @@ l-echo = "!f(){ \
  MESS=${1:-} && \
  COLOR=${2:-3} && \
  BRIGHT=${3:-1} && \
- COLOR=\"\\033[${BRIGHT};3${COLOR}m\" && \
+ COLOR=\"\\033[${BRIGHT};9${COLOR}m\" && \
  NOCOLOR=\"\\033[0m\" && \
  MESS=\"${COLOR}${MESS}${NOCOLOR}\" && \
  [ \"$(uname)\" = 'Linux' ] && echo \"$MESS\" || echo -e \"$MESS\"; \
@@ -1880,3 +1880,9 @@ w-master-pull = "!f(){ \
 ###################
 ### End ALIASES ###
 ###################
+[github]
+	accesstoken = your_access_token
+[url "https://"]
+	insteadOf = git://
+[url "https://github.com/"]
+	insteadOf = git@github.com:

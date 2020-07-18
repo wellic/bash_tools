@@ -3,7 +3,7 @@
 set -u
 #set -x
 
-last_version_deb=ksnip-1.7.1-continuous.deb
+last_version_deb=ksnip-1.7.2-continuous.deb
 
 if [ "$(whoami)" != "root" ]
 then
