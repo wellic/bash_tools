@@ -67,6 +67,9 @@ if [ -s "$install_file" ]; then
         echo -e "\nUse option -f as first parameter for force install"
         exit 0
     fi
+    echo -e "\nFile $install_file is new\n"
+    ls -la1 "$install_file" "$prev_install_file"
+    echo -e "\nStart install\n"
     sudo dpkg -i "$install_file"
     mv "$install_file" "$prev_install_file"
 else
