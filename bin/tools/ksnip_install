@@ -3,28 +3,22 @@
 set -u
 #set -x
 
+tmp_dir=~/tmp
+ksnip_repo="https://github.com/ksnip/ksnip/releases"
 last_version_deb=ksnip-1.8.0-continuous.deb
 
-if [ "$(whoami)" != "root" ]
-then
-  echo "You have to run this script as Superuser!"
-#  exit 1
-fi
-
-ksnip_repo="https://github.com/ksnip/ksnip/releases"
-
-force_mode=0
 ksnip_fn=${1:-$last_version_deb}
+force_mode=0
 if [ "$ksnip_fn" = '-f' ]; then 
     shift
     ksnip_fn=${1:-$last_version_deb}
     force_mode=1
 fi
+
 ksnip_vpath=${2:-continuous}
 
 echo "Try to download file ${ksnip_fn} from $ksnip_repo"
 
-tmp_dir=/tmp
 install_file="${tmp_dir}/${ksnip_fn}"
 prev_install_file="${tmp_dir}/ksnip_prev_install.deb"
 
