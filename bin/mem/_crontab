@@ -1,0 +1,1 @@
+55 */1 * * * LOG=/tmp/_clear_mem.log;date "+--- \%Y/\%m/\%d \%H:\%M:\%S" | tee $LOG; free -ml | tee -a $LOG; sync; echo 3 | tee /proc/sys/vm/drop_caches; swapoff -a; sleep 1; swapon -a; free -ml | tee -a $LOG
