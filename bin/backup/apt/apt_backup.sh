@@ -6,12 +6,13 @@
 set -u
 #set -x
 
-SCRIPT_DIR=$(dirname "$0")
-SCRIPT_DIR=$(readlink -e "$SCRIPT_DIR")
+SCRIPT=`realpath -s $0`
+SCRIPT_DIR=`dirname $SCRIPT`
 HOSTNAME=$(hostname -s)
 
 DT=${1:-`date +%Y%m%d`}
-FN=${2:-"apt-clone-state-$HOSTNAME"}
+FN=${2:-"apt_backup"}
 BACKDIR=${3:-"$SCRIPT_DIR"}
-
-apt-clone clone --with-dpkg-status --with-dpkg-repack "$BACKDIR/${FN}.${DT}.tgz"
+ARC_NAME=$BACKDIR/${FN}.$HOSTNAME.${DT}.tgz
+exit
+apt-clone clone --with-dpkg-status --with-dpkg-repack "$ARC_NAME"
