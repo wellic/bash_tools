@@ -95,7 +95,7 @@
 #    editor = mcedit
 # FOR LINUX
 #    autocrlf = input
-    autocrlf = false
+	autocrlf = input
     safecrlf = false
     eol = native
 # FOR WIN
