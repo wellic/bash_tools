@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+#https://askubuntu.com/questions/184397/how-do-i-pipe-terminal-standard-output-stdout-to-the-clipboard
+
+set -u
+#set -x
+
+#"cat $@ | xsel -ib"
+
+if [ $# -lt 1 ]; then
+    echo "You have to specify at least one filename"
+    exit 1
+fi
+
+cat $@ && cat $@  | xclip -sel clip
+
