@@ -66,6 +66,8 @@ if [ -s "$install_file" ]; then
     echo -e "\nStart install\n"
     sudo dpkg -i "$install_file"
     mv "$install_file" "$prev_install_file"
+    sudo pkill ksnip || echo "Can't close ksnip"
+    $(which ksnip) &
 else
     echo -e "\nFile $install_file has zero size"
     ls -la1 "$install_file" "$prev_install_file"
