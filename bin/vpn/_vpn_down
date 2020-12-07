@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -u
+#set -x
+
+CFG="."
+
+openvpn_exec_helper down "$CFG"
+
+#wget https://raw.githubusercontent.com/wellic/bash_tools/master/bin/vpn/openvpn_exec_helper
+
