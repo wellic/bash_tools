@@ -1,0 +1,193 @@
+#!/usr/bin/env bash
+
+set -u
+#set -x
+
+DEBUG=${1:-1}
+
+RESTIC_APP=restic
+PASS_FILE=key/key
+
+SCRIPT=$(readlink -e "$0")
+SCRIPT_DIR=$(dirname "$SCRIPT")
+
+DIRNAME_CFG=configs
+FN_CFG_DIRS=backup_dirs
+FN_CFG_EXCLUDE=exclude
+FN_CFG_REPO_PATH=repo_path
+
+NICE=(nice -n 19 ionice -c 3)
+
+#OPT_FORGET="--keep-last=1 --prune"
+#OPT_FORGET="--keep-last=1 --keep-hourly=24 --keep-daily=7 --keep-weekly=4 --keep-monthly=12 --keep-yearly=1 --prune"
+OPT_FORGET="--keep-last=1 --keep-daily=7 --keep-weekly=4 --keep-monthly=12 --keep-yearly=1 --prune"
+[ "$DEBUG" != '0' ] && OPT_FORGET+=' --dry-run'
+
+#############################################################
+
+_set_restic_app() {
+    local app=$1
+    [ -z "$app" ] && return
+    [ ! -x "$RESTIC_APP" ] && return
+    echo "$app"
+}
+
+_find_restic_app() {
+    local app
+
+    app=$(_set_restic_app "$RESTIC_APP")
+    if [ -n "$app" ]; then
+        RESTIC_APP=$(readlink -e "$app")
+        return
+    fi
+
+    if [ -n "$RESTIC_APP" ] ; then
+        app=$(_set_restic_app "${SCRIPT_DIR}/$RESTIC_APP")
+        if [ -n "$app" ]; then
+            RESTIC_APP=$(readlink -e "$app")
+            return
+        fi
+    fi
+
+    app=$(which "retic")
+    if [ -n "$app" ]; then
+        RESTIC_APP=$(readlink -e "$app")
+        return
+    fi
+
+    echo "Error: can't find restic application"
+    exit 1
+}
+
+_fn_cfg() {
+    local TYPE=$1
+    local FN=$2
+
+    local fn_cfg="${SCRIPT_DIR}/${DIRNAME_CFG}/${TYPE}/${FN}"
+    if [ ! -e "$fn_cfg" ]; then
+        echo "Error: Can't find file '$fn_cfg'"
+        exit 1
+    fi
+
+    echo "$fn_cfg"
+}
+
+
+_fn_cfg_backup_dirs() {
+    local TYPE=$1
+
+    local fn_cfg=$(_fn_cfg "$TYPE" "$FN_CFG_DIRS")
+    echo "$fn_cfg"
+}
+
+_fn_cfg_repo_path() {
+    local TYPE=$1
+
+    local fn_cfg=$(_fn_cfg "$TYPE" "$FN_CFG_REPO_PATH")
+    echo "$fn_cfg"
+}
+
+_fn_cfg_exclude() {
+    local TYPE=$1
+
+    local fn_cfg=$(_fn_cfg "$TYPE" "$FN_CFG_EXCLUDE")
+    echo "$fn_cfg"
+}
+
+_backup_dirs() {
+    local TYPE=$1
+
+    local fn_cfg=$(_fn_cfg_backup_dirs "$TYPE")
+
+    local line
+    local BACKUP_DIRS=
+    while IFS= read -r line || [ -n "$line" ]; do
+        [ -z "$line" ] || BACKUP_DIRS+=" $line"
+    done < "$fn_cfg"
+
+    if [ -z "$BACKUP_DIRS" ]; then
+        echo "Error: File '$fn_cfg' is empty"
+        exit 1
+    fi
+
+    echo "$BACKUP_DIRS"
+}
+
+_repo_path() {
+    local TYPE=$1
+
+    local fn_cfg=$(_fn_cfg_repo_path "$TYPE")
+
+    local REPO_PATH=
+    local line
+    while IFS= read -r line || [ -n "$line" ]; do
+        [ -n "$REPO_PATH" ] && break
+        REPO_PATH="$line"
+    done < "$fn_cfg"
+
+    if [ -z "$REPO_PATH" ]; then
+        echo "Error: File '$fn_cfg' is empty"
+        exit 1
+    fi
+
+    echo "$REPO_PATH"
+
+}
+
+_restic_task_cmd() {
+    local REPO_PATH=$1
+    shift
+
+    echo "'$RESTIC_APP' -r '$REPO_PATH' -p '$PASS_FILE' -v $@"
+}
+
+_restic_task() {
+    local REPO_PATH=$1
+    shift
+
+    local RESTIC_CMD=$(_restic_task_cmd "$REPO_PATH")
+
+    echo -e '\n============================'
+    CMD="${NICE[@]} $RESTIC_CMD $@"
+    echo "$CMD"
+    echo -e '============================\n'
+    eval "$CMD"
+}
+
+_backup() {
+    local TYPE="$1"
+    shift
+    local REPO_PATH=$(_repo_path "$TYPE")
+
+    echo -e '\n****************************'
+    echo -e "$TYPE: $REPO_PATH"
+    echo -e '****************************'
+
+    [ ! -d "$REPO_PATH" ] && _restic_task "$REPO_PATH" init
+
+    local BACKUP_DIRS=$(_backup_dirs "$TYPE")
+    local EXCLUDE_FILE=$(_fn_cfg_exclude "$TYPE")
+
+    local TASKS=()
+    [ "$DEBUG" = '0' ] && TASKS+=("backup -x --exclude-file '$EXCLUDE_FILE' $BACKUP_DIRS")
+                          TASKS+=("forget $OPT_FORGET")
+    [ "$DEBUG" = '0' ] && TASKS+=("check")
+                          TASKS+=("snapshots -c")
+
+    for task in "${TASKS[@]}"; do
+        _restic_task "$REPO_PATH" $task
+    done
+}
+
+################################################
+RET_DIR=$PWD
+
+cd "$SCRIPT_DIR"
+[ "$DEBUG" = '0' ] && pwd
+
+_find_restic_app
+
+_backup 'root'
+_backup 'home'
+
+cd "$RET_DIR"

@@ -5,7 +5,7 @@ set -u
 
 tmp_dir=~/tmp
 ksnip_repo="https://github.com/ksnip/ksnip/releases"
-last_version_deb=ksnip-1.8.0-continuous.deb
+last_version_deb=ksnip-1.8.1-continuous.deb
 
 ksnip_fn=${1:-$last_version_deb}
 force_mode=0
@@ -67,7 +67,7 @@ if [ -s "$install_file" ]; then
     sudo dpkg -i "$install_file"
     mv "$install_file" "$prev_install_file"
     sudo pkill ksnip || echo "Can't close ksnip"
-    $(which ksnip) &
+#    $(which ksnip) &
 else
     echo -e "\nFile $install_file has zero size"
     ls -la1 "$install_file" "$prev_install_file"
