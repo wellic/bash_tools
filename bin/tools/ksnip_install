@@ -5,7 +5,7 @@ set -u
 
 tmp_dir=~/tmp
 ksnip_repo="https://github.com/ksnip/ksnip/releases"
-last_version_deb=ksnip-1.8.1-continuous.deb
+last_version_deb=ksnip-1.9.0-continuous.deb
 
 ksnip_fn=${1:-$last_version_deb}
 force_mode=0
