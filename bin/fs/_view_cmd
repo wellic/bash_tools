@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -u
+#set -x
+
+SCRIPT_NAME=$(basename "$0")
+print_help() {
+    echo "Usage:"
+    echo "$SCRIPT_NAME name_cmd"
+}
+
+if [ $# -lt 1 ]; then
+    print_help
+    exit 1
+fi
+
+name_cmd=$1
+shift
+
+cat `which $name_cmd`
