@@ -32,6 +32,9 @@ ROOT_DIR=${ROOT_DIR#$PWD}
 cmd="sudo find $ROOT_DIR -type d -name __pycache__"
 cmd_remove='-exec rm -rf {} \+'
 
+cmd="sudo find $ROOT_DIR -type d -name .pytest_cache"
+cmd_remove='-exec rm -rf {} \+'
+
 _lc() {
   echo "$1" | tr '[:upper:]' '[:lower:]'
 }
