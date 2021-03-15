@@ -141,3 +141,20 @@ wttr()
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 #export SDKMAN_DIR="/home/yournick/.sdkman"
 #[[ -s "/home/yournick/.sdkman/bin/sdkman-init.sh" ]] && source "/home/yournick/.sdkman/bin/sdkman-init.sh"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+#remove dublicated paths
+WHICH=/usr/bin/which
+CMD_env=$($WHICH env)
+CMD_grep=$($WHICH grep)
+CMD_cut=$($WHICH cut)
+CMD_tr=$($WHICH tr)
+CMD_awk=$($WHICH awk)
+PATH=$($CMD_env | $CMD_grep -E '\bPATH=' | $CMD_cut -d '=' -f2 | $CMD_tr ':' '\n' | $CMD_awk '!x[$0]++' | tr '\n' ':')
+
+export PATH="${PATH%%:}"
+
+

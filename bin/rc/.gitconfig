@@ -279,6 +279,9 @@ gi-list="! git gi list"
 # get rules for gitignore: git gi netbeans
 gi = "! gi() { curl -L -s https://www.gitignore.io/api/$@ ;}; gi"
 
+# get rules for gitattributes
+ga = "! ga() { [ $# -ne 0 ] && curl -L -s https://gitattributes.io/api/$@ || curl -L -s https://gitattributes.io/api/list ;}; ga"
+
 current-branch-name = "! git cbr"
 cbr = rev-parse --abbrev-ref HEAD
 
@@ -286,7 +289,6 @@ cbr = rev-parse --abbrev-ref HEAD
 # Show files ignored by git:
 ign = "! git status --ignored --short | awk '/^!!/ { print $2 }'"
 ign-cd = ls-files -o -i --exclude-standard
-
 
 # temporarily ignoring file
 ignore   = update-index --assume-unchanged
@@ -310,11 +312,14 @@ dump = cat-file -p
 
 fsckclear = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
- git l-echo \"git fsck\"                                            && git fsck && \
- git l-echo \"git reflog expire --expire-unreachable=now --all\" && git reflog expire --expire-unreachable=now --all && \
- git l-echo \"git gc --prune prunefsck\"                         && git gc --prune=now && \
+ git l-echo \"git count-objects -v\"                             && git count-objects -v && \
  git l-echo \"git fsck\"                                         && git fsck && \
- git l-echo \"git gc\"                                           && git gc \
+ git l-echo \"git reflog expire --expire-unreachable=now --all\" && git reflog expire --expire-unreachable=now --all && \
+ git l-echo \"git prune\"                                        && git prune && \
+ git l-echo \"git gc --prune=now \"                              && git gc --prune=now && \
+ git l-echo \"git fsck\"                                         && git fsck && \
+ git l-echo \"git gc\"                                           && git gc && \
+ git l-echo \"git count-objects -v\"                             && git count-objects -v \
 ;};f"
 
 ################################################################################
