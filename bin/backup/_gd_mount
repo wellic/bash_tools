@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+
+GD_DIR=~/.GoogleDrive
+
+set -u
+#set -x
+UMOUNT_MODE=${1:-0}
+
+INSTALL=0
+if [ "$INSTALL" = 1 ]; then
+    sudo add-apt-repository ppa:alessandro-strada/ppa
+    sudo apt-get update
+    sudo apt-get install google-drive-ocamlfuse
+fi
+
+if [ ! -d "$GD_DIR" ]; then 
+    mkdir "$GD_DIR"
+fi
+
+if [ "$UMOUNT_MODE" = '1' ]; then
+    fusermount -u "$GD_DIR"
+else
+    google-drive-ocamlfuse "$GD_DIR"
+fi
+
+
+exit 0
+
+##############################################################################
+
+#https://linuxconfig.org/google-drive-on-ubuntu-18-04-bionic-beaver-linux
+#https://maddot.ru/google-drive-v-ubuntu-cherez-google-drive-ocamlfuse.html
+#Google Drive в Ubuntu через google-drive-ocamlfuse
+#29.03.2018
+#В отличии от предыдущей данная статья не будет выглядеть столь сложной с точки зрения обычного пользователя. И это совершенно не плохо, ведь теперь подключить Диск Google в Ubuntu Linux сможет даже новичек.
+#Нам понадобится установить только одну программу — google-drive-ocamlfuse и настроить ее в один (ну, может, пару) клик.
+#Выполним пару комманд в терминале:
+#Подключим реппозиторий программы и установим ее:
+
+sudo add-apt-repository ppa:alessandro-strada/ppa
+sudo apt-get update
+sudo apt-get install google-drive-ocamlfuse
+
+#После того, как программа установится необходимо смонтировать каталог Google диска в любой локальный каталог. Создадим для удобства новый (в домашнем каталоге) и смонтируем облако в него:
+
+mkdir ~/GoogleCloud
+google-drive-ocamlfuse ~/GoogleCloud
+
+#На этом этапе откроется браузер, где тебе необходимо авторизоваться (если в браузере не авторизован в Google) и разрешить доступ программе к своему аккаунту.
+#Вот и все — довольно просто, правда? 🙂
+
+#Для того, чтобы добавить еще один аккаунт (в другой каталог соотв.) можно выполнить комманду:
+
+google-drive-ocamlfuse -label [ИМЯ] [~/точка_монтирования]
+
+#Чтобы размонтировать «облачный каталог» используй комманду:
+
+fusermount -u ~/GoogleCloud

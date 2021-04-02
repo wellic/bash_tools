@@ -11,7 +11,8 @@ export PREFIX
 
 #first install
 if [ ! -d "$SETUP_DIR" ]; then
-    git clone git@github.com:gnome-terminator/terminator.git "$SETUP_DIR"
+#    git clone git@github.com:gnome-terminator/terminator.git "$SETUP_DIR"
+    git clone https://github.com/gnome-terminator/terminator.git "$SETUP_DIR"
 
     sudo apt install -y  python3-gi python3-gi-cairo python3-psutil python3-configobj \
                     gir1.2-keybinder-3.0 gir1.2-vte-2.91 gettext intltool dbus-x11
