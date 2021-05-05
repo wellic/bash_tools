@@ -3,7 +3,7 @@
 set -u
 #set -x
 
-mode=$1
+mode=${1:-v}
 shift
 
-_clean_history '[йцукенгшщзхъёфывапролджэячсмитьбю]' $mode $@
+_clean_history '[йцукенгшщзхъёфывапролджэячсмитьбю]' "$mode" $@
