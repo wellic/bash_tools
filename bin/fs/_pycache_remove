@@ -29,12 +29,6 @@ ROOT_DIR=${ROOT_DIR#$PWD}
 [ "$ROOT_DIR" == ''  ] && ROOT_DIR=.
 [ "$ROOT_DIR" != '/' ] && ROOT_DIR=${ROOT_DIR%/}
 
-cmd="sudo find $ROOT_DIR -type d -name __pycache__"
-cmd_remove='-exec rm -rf {} \+'
-
-cmd="sudo find $ROOT_DIR -type d -name .pytest_cache"
-cmd_remove='-exec rm -rf {} \+'
-
 _lc() {
   echo "$1" | tr '[:upper:]' '[:lower:]'
 }
@@ -79,14 +73,26 @@ try_remove() {
   fi
 }
 
-_check
-cnt=$FOUND_CNT
+remove() {
+    _check
+    cnt=$FOUND_CNT
 
-if [ "$cnt" -ne 0 ]; then
-  view_bad $cnt
-  try_remove
-  cnt=$FOUND_CNT
-fi
+    if [ "$cnt" -ne 0 ]; then
+      view_bad $cnt
+      try_remove
+      cnt=$FOUND_CNT
+    fi
+}
+
+cmd="sudo find $ROOT_DIR -type d -name .pytest_cache"
+cmd_remove='-exec rm -rf {} \+'
+
+remove
+
+cmd="sudo find $ROOT_DIR -type d -name __pycache__"
+cmd_remove='-exec rm -rf {} \+'
+
+remove
 
 #[ "$YN" != 'y' ] && print_finish_message $cnt
 
@@ -95,6 +101,6 @@ cd "$RETDIR"
 #export -f _clear__pycache__dir
 #sudo find . -type d -name __pycache__ -exec rm -rf "{}"  \;
 
-cd "$RETDIR"
+#cd "$RETDIR"
 
 exit $cnt
