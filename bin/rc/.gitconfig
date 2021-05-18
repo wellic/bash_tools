@@ -92,12 +92,16 @@
     commentchar = ";"
     pager = less -FXRS
     whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
+    excludesfile = ~/.gitignore_global
 #    editor = mcedit
 # FOR LINUX
 #    autocrlf = input
-	autocrlf = input
-    safecrlf = false
-    eol = native
+#	autocrlf = input
+#    autocrlf = false
+#    safecrlf = true
+#	safecrlf = true
+#    eol = lf
+#    eol = native
 # FOR WIN
 #    pager = more
 #    core.autocrlf true
@@ -300,6 +304,8 @@ ignored = "!git ls-files -v | grep ^[a-z]"
 merged   = branch --merged
 unmerged = branch --no-merged
 merged-clear = "! git branch --merged | grep -vP '^[*]' | xargs git branch -d"
+gone-clear = "! for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do echo \" git branch -D $branch\"; done"
+
 
 # different list and logs
 ls = ls-files
