@@ -1,0 +1,11 @@
+.idea/*
+
+
+### Python ###
+__pycache__/
+.pytest_cache
+
+.venv
+
+.coveragerc
+
