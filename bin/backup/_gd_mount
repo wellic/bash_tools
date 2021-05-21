@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 
-GD_DIR=~/.GoogleDrive
+GD_DIR=~/GoogleDrive
 
 set -u
 #set -x
@@ -19,11 +19,15 @@ if [ ! -d "$GD_DIR" ]; then
 fi
 
 if [ "$UMOUNT_MODE" = '1' ]; then
+    cd ~
     fusermount -u "$GD_DIR"
 else
     google-drive-ocamlfuse "$GD_DIR"
 fi
 
+echo
+ls -la $GD_DIR
+echo -e "\n cd $GD_DIR;\n"
 
 exit 0
 
@@ -57,3 +61,4 @@ google-drive-ocamlfuse -label [ИМЯ] [~/точка_монтирования]
 #Чтобы размонтировать «облачный каталог» используй комманду:
 
 fusermount -u ~/GoogleCloud
+
