@@ -5,7 +5,7 @@ set -u
 
 tmp_dir=~/tmp
 ksnip_repo="https://github.com/ksnip/ksnip/releases"
-last_version_deb=ksnip-1.9.0-continuous.deb
+last_version_deb=ksnip-1.9.1-continuous.deb
 
 ksnip_fn=${1:-$last_version_deb}
 force_mode=0
@@ -34,6 +34,7 @@ _check_diff() {
 }
 
 cmd="wget -O '$install_file' '${ksnip_repo}/download/${ksnip_vpath}/${ksnip_fn}'"
+
 echo "$cmd"
 eval "$cmd"
 if [ "$?" != 0 ]; then
