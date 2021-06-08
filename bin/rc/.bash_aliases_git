@@ -1,11 +1,13 @@
 
-_w_MSG() {
- local mess=${1:-}
- echo "$mess" | sed -e 's/[^a-z0-9]\{1,\}/_/gi'
+alias w_CBR='git cbr'
+
+function _w_MSG() {
+    local mess=${1:-}
+    local add_chars=${2:-}
+    echo "$mess" | sed -e "s/[^a-z0-9$add_chars]\{1,\}/_/gi"
 }
 
-alias w_CBR='git cbr'
-alias w_MSG='function()'
+alias w_MSG='_w_MSG $@'
 
 ############ git aliases ################
 alias gst='git status '

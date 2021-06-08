@@ -84,15 +84,19 @@ remove() {
     fi
 }
 
-cmd="sudo find $ROOT_DIR -type d -name .pytest_cache"
-cmd_remove='-exec rm -rf {} \+'
+REMOVE_DIRS=(
+    .pytest_cache
+    .mypy_cache
+    __pycache__
+)
 
-remove
-
-cmd="sudo find $ROOT_DIR -type d -name __pycache__"
-cmd_remove='-exec rm -rf {} \+'
-
-remove
+for d in "${REMOVE_DIRS[@]}"; do
+    YN=
+    echo -e "\n$d\n"
+    cmd="sudo find $ROOT_DIR -type d -name $d"
+    cmd_remove='-exec rm -rf {} \;'
+    remove
+done
 
 #[ "$YN" != 'y' ] && print_finish_message $cnt
 
