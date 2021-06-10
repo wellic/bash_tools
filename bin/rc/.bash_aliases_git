@@ -1,12 +1,18 @@
 
 alias w_CBR='git cbr'
 
-function _w_MSG() {
+function _w_BRN() {
     local mess=${1:-}
-    local add_chars=${2:-}
-    echo "$mess" | sed -e "s/[^a-z0-9$add_chars]\{1,\}/_/gi"
+    echo "$mess" | sed -e ':a;N;$!ba;s/\n/_/g; s/[^a-z0-9-]\{1,\}/_/gi; s/\([-]\)\1\+/\1/gi;'
 }
 
+
+function _w_MSG() {
+    local mess=${1:-}
+    echo "$mess" | sed -e ':a;N;$!ba;s/\n/ /g; s/\([^0-9a-z]\)\1\+/\1/gi;'
+}
+
+alias w_BRN='_w_BRN $@'
 alias w_MSG='_w_MSG $@'
 
 ############ git aliases ################
