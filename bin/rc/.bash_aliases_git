@@ -1,19 +1,22 @@
 
 alias w_CBR='git cbr'
 
-function _w_BRN() {
-    local mess=${1:-}
-    echo "$mess" | sed -e ':a;N;$!ba;s/\n/_/g; s/[^a-z0-9-]\{1,\}/_/gi; s/\([-]\)\1\+/\1/gi;'
-}
+unset _w_BRN
+unset _w_MSG
 
+function _w_BRN() {
+#set -x
+#    echo "$@" | sed -e ':a;N;$!ba;s/\n/_/g' | sed -e 's/[^a-z0-9-]\{1,\}/_/gi; s/\([-]\)\1\+/\1/gi; s/\([_-]\)\1\+/\1/gi; s/[_-]\{2,\}/-/gi;'
+    echo "$@" | sed -e ':a;N;$!ba;s/\n/_/g' | sed -e 's/[^a-z0-9-]/_/gi; s/[^a-z0-9]*$//gi; s/-\+/-/gi; s/_\+/_/gi; s/\([^a-z0-9-]\)-*/\1/gi; s/-_/_/gi; s/_\+/_/g'
+#set +x
+}
 
 function _w_MSG() {
-    local mess=${1:-}
-    echo "$mess" | sed -e ':a;N;$!ba;s/\n/ /g; s/\([^0-9a-z]\)\1\+/\1/gi;'
+    echo "$@" | sed -e ':a;N;$!ba;s/\n/ /g' | sed -e 's/\([^0-9a-z]\)\1\+/\1/gi'
 }
 
-alias w_BRN='_w_BRN $@'
-alias w_MSG='_w_MSG $@'
+alias w_BRN=_w_BRN
+alias w_MSG=_w_MSG
 
 ############ git aliases ################
 alias gst='git status '

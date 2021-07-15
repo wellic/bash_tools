@@ -1,5 +1,7 @@
 .idea/*
 
+__yournick__/
+__tmp__/
 
 ### Python ###
 __pycache__/

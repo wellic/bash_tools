@@ -21,13 +21,16 @@ fi
 if [ "$UMOUNT_MODE" = '1' ]; then
     cd ~
     fusermount -u "$GD_DIR"
+    rmdir "$GD_DIR"
 else
     google-drive-ocamlfuse "$GD_DIR"
+    echo
+    cmd="ls -la $GD_DIR"
+    echo
+    eval "$cmd"
+    echo -e "\n cd $GD_DIR;\n"
 fi
 
-echo
-ls -la $GD_DIR
-echo -e "\n cd $GD_DIR;\n"
 
 exit 0
 

@@ -92,7 +92,7 @@
     commentchar = ";"
     pager = less -FXRS
     whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
-    excludesfile = ~/.gitignore_global
+    excludesFile = ~/.gitignore_global
 #    editor = mcedit
 # FOR LINUX
 #    autocrlf = input
@@ -180,6 +180,14 @@ last2 = "! git hist2 --all -20 $* "
 last3 = "! git hist3 --all -20 $* "
 last4 = "! git hist4 --all -20 $* "
 last5 = "! git hist5 --all -20 $* "
+
+path-repo-commit = "!f(){ \
+ [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
+  def_path=$(git w-mcf-param-get l-src1) \
+&& rev=$(git l-rev ${1:-HEAD}) \
+&& remote_path=$(git remote get-url --push ${2:-$def_path} | sed 's/.git$//') \
+&& echo \"${remote_path}/tree/${rev}\" \
+;};f"
 
 #
 # User info
