@@ -168,11 +168,11 @@ df0c = diff --cached -U0
 visual = !LANG=C gitk --all &
 
 # show history and log
-sshow = "! f() { git --no-pager show --no-notes --stat --pretty=format:\"%C(yellow)%ad %C(green)%h%C(cyan)%d%Creset | %s %C(black bold)[%an:%ae]%Creset\"  --date=short --decorate $@ && echo  ; }; f"
-hist  = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%C(cyan)%d%Creset | %s %C(black bold)[%an:%ae]%Creset\"  --graph --date=short --decorate $@ && echo ; }; f"
-hist1 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%C(cyan)%d%Creset | %s %C(black bold)[%an:%ae]%Creset\"  --date=short $@ && echo  ; }; f"
-hist2 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %C(black bold)[%an:%ae]%Creset\"            --graph --date=short --decorate $@ && echo ; }; f"
-hist3 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %C(cyan)%d %C(black bold)[%an][%ae]%Creset\" --graph --date=short --decorate $@ && echo  ; }; f"
+sshow = "! f() { git --no-pager show --no-notes --stat --pretty=format:\"%C(yellow)%ad %C(green)%h%C(cyan)%d%Creset | %s %C(black bold)[%ae](%an)%Creset\"  --date=short --decorate $@ && echo  ; }; f"
+hist  = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%C(cyan)%d%Creset | %s %C(black bold)[%ae](%an)%Creset\"  --graph --date=short --decorate $@ && echo ; }; f"
+hist1 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%C(cyan)%d%Creset | %s %C(black bold)[%ae](%an)%Creset\"  --date=short $@ && echo  ; }; f"
+hist2 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %C(black bold)[%ae](%an)%Creset\"            --graph --date=short --decorate $@ && echo ; }; f"
+hist3 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %C(cyan)%d %C(black bold)[%ae](%an)%Creset\" --graph --date=short --decorate $@ && echo  ; }; f"
 hist4 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %Creset\" --graph --date=short --decorate $@ && echo  ; }; f"
 hist5 = "! f() { git --no-pager log                    --pretty=format:\"%C(yellow)%ad %C(green)%h%Creset | %s %Creset\"         --date=short            $@ && echo  ; }; f"
 last  = "! git hist  --all -20 $* "
