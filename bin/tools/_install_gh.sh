@@ -12,7 +12,7 @@ get_release_link() {
 }
 
 get_current_version() {
-    "$tool_name" --version | head -n1 | cut -d ' ' -f 2 | sed -re 's/^v([0-9])/\1/'
+    "$tool_name" $OPT_VERSION | head -n1 | cut -d ' ' -f 2 | sed -re 's/^v([0-9])/\1/'
 }
 
 get_download_version() {
@@ -73,8 +73,11 @@ EOF
 ########################
 
 tmp_dir=/tmp
-def_mask_deb=browser_download_url.*.deb
-def_mask_amd64_deb=browser_download_url.*amd64.deb
+def_mask=browser_download_url
+def_mask_deb=${def_mask}.*.deb
+def_mask_amd64_deb=${def_mask}.*amd64.deb
+
+OPT_VERSION=--version
 
 last_releases=10
 
