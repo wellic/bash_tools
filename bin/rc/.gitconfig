@@ -5,6 +5,7 @@
 [user]
 	name = your_name
 	email = your@mail
+	email = your@mail
 
 #for private repos
 #~/.git-credentials
@@ -1933,3 +1934,6 @@ w-shortlog = shortlog -sne
 	templatedir = ~/.git-templates
 #[url "https://your_token:x-oauth-basic@github.com/"]
 #	insteadOf = https://github.com/
+
+[include]
+    path = ~/projects/.gitconfig
