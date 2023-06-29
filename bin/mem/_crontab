@@ -2,5 +2,3 @@ PATH=$PATH:/usr/bin:/usr/sbin
 
 #0 0,3,6,9,12,15,18,21 * * * LOG=/tmp/_clear_mem.log;date "+--- \%Y/\%m/\%d \%H:\%M:\%S" | tee $LOG; free -ml | tee -a $LOG; sync; echo 3 | tee /proc/sys/vm/drop_caches; swapoff -a; sleep 1; swapon -a; free -ml | tee -a $LOG
 0 0,3,6,9,12,15,18,21 * * * LOG=/tmp/_clear_mem.log;date "+--- \%Y/\%m/\%d \%H:\%M:\%S" > $LOG; free -ml >> $LOG; sync; echo 3 > /proc/sys/vm/drop_caches; swapoff -a; sleep 1; swapon -a; free -ml >> $LOG
-
-0,30 * * * *  USER_PC_ID=1000;USER_PC=$(id $USER_PC_ID -un);LOG="/home/$USER_PC/Dropbox/.wip"; touch "$LOG"; truncate -s0 "$LOG"; chown $USER_PC_ID:$USER_PC_ID "$LOG"; ip route list dev tun0 | grep -w sr

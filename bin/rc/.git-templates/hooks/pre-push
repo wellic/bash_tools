@@ -4,6 +4,7 @@
 protected_branch=(
 master
 main
+develop
 )
 
 # Argument parsing taken from .git/hooks/pre-push.sample

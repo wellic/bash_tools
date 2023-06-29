@@ -127,25 +127,46 @@ fi
 export EDITOR=/usr/bin/mcedit
 [ -f ~/.bash_bin ]   && source ~/.bash_bin
 [ -f ~/.bash_local ] && source ~/.bash_local
-PATH="$PATH:$HOME/bin;$HOME/.local/bin"
+PATH="$PATH:$HOME/bin:$HOME/.local/bin"
 export PATH
 
-wttr()
+_wttr()
 {
     # change Paris to your default location
 #    local L="${LANG%_*}"
-#    L=${2:-ru}
-    curl -H "Accept-Language: ${2:-ru}" wttr.in/"${1:-Sumy}?m$3"
+    local l=uk
+
+    local debug=${1:-0};  [ $# -eq 0 ] || shift
+    local loc=${1:-Sumy}; [ $# -eq 0 ] || shift
+    local params=${1:-};  [ $# -eq 0 ] || shift
+    [ "$params" != 0 ] && params="?$params"
+
+    echo
+    cmd="curl -fGsS -H 'Accept-Language: $l' 'wttr.in/$loc$params'"
+    [ "$debug" != 0 ] && echo "$cmd"
+    eval "$cmd"
 }
 
+wttr() {
+    local debug=${1:-1}
+    local city=Sumy
+    echo "curl -fGsS -H 'Accept-Language: uk' 'wttr.in/:help'"
+    echo "_wttr $debug 'moon' 'F'"
+    echo "_wttr 1 '$city' 'M1&F'"
+    echo "_wttr $debug '$city' 'M3&QF'"
+    echo "_wttr $debug '$city' 'format=v2&F'"
+    _wttr 0 "$city" "M1&F"
+}
+
+wttr 0
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 #export SDKMAN_DIR="/home/yournick/.sdkman"
 #[[ -s "/home/yournick/.sdkman/bin/sdkman-init.sh" ]] && source "/home/yournick/.sdkman/bin/sdkman-init.sh"
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+#export NVM_DIR="$HOME/.nvm"
+#[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+#[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 #[ -d "/opt/f5/epi" ] && PATH="/opt/f5/epi:/opt/f5/epi/xdg-scripts:$PATH"
 
@@ -159,4 +180,3 @@ CMD_awk=$($WHICH awk)
 PATH=$($CMD_env | $CMD_grep -E '\bPATH=' | $CMD_cut -d '=' -f2 | $CMD_tr ':' '\n' | $CMD_awk '!x[$0]++' | tr '\n' ':')
 
 export PATH="${PATH%%:}"
-
