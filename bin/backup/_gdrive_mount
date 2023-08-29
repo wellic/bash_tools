@@ -4,10 +4,10 @@
 GD_DIR=~/GoogleDrive
 
 set -u
-set -x
+#set -x
 UMOUNT_MODE=${1:-0}
 
-INSTALL=0
+INSTALL=${2:-0}
 if [ "$INSTALL" = 1 ]; then
     sudo add-apt-repository ppa:alessandro-strada/ppa
     sudo apt-get update

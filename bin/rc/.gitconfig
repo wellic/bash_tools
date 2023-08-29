@@ -141,11 +141,11 @@
 # Main commands
 ###############
 
-br = branch
-br-info = branch -vv --list
-br-info-all = branch -vv --list -ra
-bri = branch -vv --list
-bria = branch -vv --list -ra
+br = ! git --no-pager branch
+br-info = ! git  --no-pager branch -vv --list
+br-info-all = ! git  --no-pager branch -vv --list -ra
+bri = ! git --no-pager branch -vv --list
+bria = ! git  --no-pager branch -vv --list -ra
 
 co = checkout
 ci = commit
@@ -313,7 +313,9 @@ ignored = "!git ls-files -v | grep ^[a-z]"
 # check merged
 merged   = branch --merged
 unmerged = branch --no-merged
-merged-clear = "! [ "$(git branch --merged | wc -l)" -gt 1 ] && (git branch --merged | grep -vP '^[*]' | xargs git branch -d) || git branch --merged "
+#merged-clear = "! "$(git branch --merged | wc -l)" -gt 1 ] && (git branch --merged | grep -vP '^[*]' | xargs git branch -d) || git branch --merged "
+#merged-clear = "! echo '# git br -d \$(git rev-parse --abbrev-ref HEAD)'; git branch --merged | grep -vP '^[*]' | xargs echo '  git br -d';"
+merged-clear = "! echo ' # git br -d '$(git rev-parse --abbrev-ref HEAD);echo '';git branch --merged | grep -vP '^[*]' | xargs echo '   git br -d';"
 gone-clear = "! for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do echo \" git branch -D $branch\"; done"
 
 
@@ -1463,12 +1465,12 @@ l-mcf-param-init = "!f(){ \
  git l-echo-l2 \"$CMD 3:\" && git l-mcf-param-set-typeid $(git l-mcf-param-get-typeid 'prev') \"$fix\" \"$cfg\" \"$master\" \"$src1\" \"$src_rbranch\" \
 ;};f"
 
-# w-new-master [$master [l-src1_rmaster]]
+# w-set-new-master [$master [l-src1_rmaster]]
 #  Устанавливает новое значение $master для параметров l-master и l-src1_rbranch.
 #  Установка происходит в локальном конфиге.
-w-new-master = "!f(){ \
+w-set-new-master = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
- CMD='w-new-master' && git l-echo-l1 $CMD && \
+ CMD='w-set-new-master' && git l-echo-l1 $CMD && \
  quite=$(git l-quite) && \
  new_master=${1:-$(git l-mcf-param-get l-master '' --global)} && \
  new_rmaster=${2:-$new_master} && \

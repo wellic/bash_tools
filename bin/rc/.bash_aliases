@@ -11,6 +11,7 @@ fi
 alias sudop='sudo env PATH=$PATH'
 
 alias rgi='rg -i'
+alias rgn='rg --hidden --no-ignore'
 
 alias catb='bat'
 alias cats='bat -A'
