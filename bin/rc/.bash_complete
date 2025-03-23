@@ -19,3 +19,7 @@ complete -W "$HEADS" go gst gb makepatch gl
 #    COMPREPLY=($(compgen -W "${opts}"));
 #}
 
+#complete -F _complete_alias rgn
+#complete -o default -F _rg rgn
+#complete -D -F _rg -o bashdefault -o rgn
+#complete -o default -F _rg rgn

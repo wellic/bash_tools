@@ -1,25 +1,21 @@
 #!/bin/bash
 
-if [ "$(whoami)" != "root" ]
-then
-  echo "You have to run this script as Superuser!"
-  exit 1
-fi
+#if [ "$(whoami)" != "root" ]
+#then
+#  echo "You have to run this script as Superuser!"
+#  exit 1
+#fi
 
 SCR=$(readlink -e "$0")
 SCR_DIR=$(dirname "$SCR")
 
-echo before: $(date +%c) | tee /tmp/clearmem.tmp
-free -m | tee -a /tmp/clearmem.tmp
-echo | tee -a /tmp/clearmem.tmp
-
-sync 
-echo 3 | tee /proc/sys/vm/drop_caches
-
-echo after: $(date +%c) | tee -a /tmp/clearmem.tmp
-free -m | tee -a /tmp/clearmem.tmp
-echo | tee -a /tmp/clearmem.tmp
-
-echo swap | tee -a /tmp/clearmem.tmp
-"$SCR_DIR/clearswap" | tee -a /tmp/clearmem.tmp
-exit 0
+echo before: $(date +%c)  | sudo tee /tmp/clearmem.tmp
+sudo free -m              | sudo tee -a /tmp/clearmem.tmp
+echo                      | sudo tee -a /tmp/clearmem.tmp
+sudo sync
+sudo echo 3               | sudo tee /proc/sys/vm/drop_caches
+echo after: $(date +%c)   | sudo tee -a /tmp/clearmem.tmp
+sudo free -m              | sudo tee -a /tmp/clearmem.tmp
+echo                      | sudo tee -a /tmp/clearmem.tmp
+echo swap                 | sudo tee -a /tmp/clearmem.tmp
+sudo "$SCR_DIR/clearswap" | sudo tee -a /tmp/clearmem.tmp

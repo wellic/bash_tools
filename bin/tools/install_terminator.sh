@@ -2,6 +2,7 @@
 
 set -u
 #set -x
+#set -v
 
 echo $USER
 SETUP_DIR=terminator_repo
@@ -19,14 +20,15 @@ if [ ! -d "$SETUP_DIR" ]; then
                          gir1.2-keybinder-3.0 gir1.2-vte-2.91 gettext intltool dbus-x11
 fi
 
-sudo pkill terminator || echo "Can't close terminator"
+pgrep -fa bin/terminator
+sudo pkill -9 -f bin/terminator || echo "Can't close terminator"
 
 cd "$SETUP_DIR"
 [ ! -f install-files.txt ] || sudo python3 setup.py uninstall --manifest=install-files.txt
 
 git fetch -pt
-git pull
 git co "$BR"
+git pull --rebase
 
 sudo find "$PREFIX" -type f -name "terminator*"  || echo "Can't remove terminator"
 sudo find "$PREFIX" -type f -name "remotinator*" || echo "Can't remove renominator"

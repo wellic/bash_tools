@@ -1,17 +1,21 @@
-if [ -f ~/.bash_aliases_git ]; then
-    . ~/.bash_aliases_git
-fi
+alias cd1="cd /home/yournick/code/src/gitlab.1touch.corp/configuration/1touch-release-rbac/scripts/tools/test_installer"
+alias cd2="cd /home/yournick/code/src/gitlab.1touch.corp/configuration/1touch-release-rbac/scripts/tools/test_installer/tmp2/install/.gitlab-ci"
+alias cd3="cd /home/yournick/code/src/gitlab.1touch.corp/configuration/helm_info"
 
-if [ -f ~/.bash_aliases_docker ]; then
-    . ~/.bash_aliases_docker
-fi
+[ -e ~/.bash_complete_alias ] && source ~/.bash_complete_alias
+[ -e ~/.bash_aliases_git    ] && source ~/.bash_aliases_git
+[ -e ~/.bash_aliases_docker ] && source ~/.bash_aliases_docker
+[ -e ~/.bash_aliases_k8s    ] && source ~/.bash_aliases_k8s
 
 ######################################################
+alias c='clear'
+alias r='reset'
 
 alias sudop='sudo env PATH=$PATH'
 
 alias rgi='rg -i'
 alias rgn='rg --hidden --no-ignore'
+complete -F _complete_alias rgn
 
 alias catb='bat'
 alias cats='bat -A'
@@ -23,7 +27,6 @@ alias fix_term='printf "\e[?2004l"'
 alias logout='mate-session-save --logout'
 
 alias w_PWD='basename $PWD'
-alias w_CBR='git cbr'
 
 alias smcedit='sudo mcedit'
 alias logmysql='tail -f /var/log/mysql/error.log -f /var/log/mysql/mysql-slow.log'
@@ -33,6 +36,7 @@ alias cdadm='cd; cd ~/work'
 alias cdww='cd;  cd ~/sites/var/www'
 alias cdwd='cd;  cd ~/sites/var/dockers'
 alias cdwp='cd;  cd ~/projects'
+alias cdw1='cd;  cd ~/code/src'
 alias cderr='cd; cd ~/sites/var/log'
 alias cdz='cd; cd ~/Downloads'
 alias cds='cd; cd ~/Sync'
@@ -107,8 +111,8 @@ function _cd_by_filename() {
     cd "$d"
 }
 
+alias man_uk='man -Luk'
+alias man_ru='man -Lru'
 alias _cd_f=_cd_by_filename
-
 alias venv_activate='[ -d venv ] && source venv/bin/activate || source'
-
 alias lint_bash='rg "\[\s+[^]]+\S[!=]{0,1}[=]{1,2}[~]{0,1}\S.*\s+\]"'

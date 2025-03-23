@@ -4,7 +4,7 @@
 *__yournick__*
 *__dev__*
 *__debug__*
-__tmp__/
+*__tmp__*
 
 ### Python ###
 __pycache__/

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+original_symlink="$1"
+
+[[ -L $original_symlink ]] || exit 1
+
+_eval() {
+  local cmd=("$@")
+  echo "# ${cmd[*]}"
+  eval "${cmd[@]}"
+}
+
+absolute_path=$(readlink -f "$original_symlink")
+symlink_dir=$(dirname "$original_symlink")
+relative_path=$(realpath --relative-to="$symlink_dir" "$absolute_path")
+
+if [[ -e "$original_symlink" ]]; then 
+  _eval ls -la "$original_symlink"
+  _eval rm "$original_symlink"
+fi
+
+_eval ln -s "$relative_path" "$original_symlink"
+_eval ls -la "$original_symlink"

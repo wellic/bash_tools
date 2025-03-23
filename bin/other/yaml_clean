@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+
+set -uEeo pipefail
+#set -x
+
+sed=sed
+
+# YAML helpers
+################################################################################
+
+# yaml_clean(file_yaml)
+yaml_clean() {
+  local file_yaml=$1
+
+  # remove comments
+  $yq -i '... comments=""' "$file_yaml"
+  # remove empty nodes
+  $yq -i 'del(.. | select(tag == "!!str" and . == ""))' "$file_yaml"
+  while [[ "$($yq 'map(.. | select(tag == "!!str" and . == "")) | any' "$file_yaml")" == "true" ]]
+  do
+    # remove empty nodes recursively
+    $yq -i 'del(.. | select(tag == "!!str" and . == ""))' "$file_yaml"
+  done
+  # prettify file
+  $yq -i -P "$file_yaml"
+}
+
+# yaml_remove_comments(file_yaml)
+yaml_remove_comments() {
+  local file_yaml=${1:-}
+
+  $yq -i '... comments=""' "$file_yaml"
+}
+
+# yaml_full_clean(file_yaml)
+yaml_full_clean() {
+  local file_yaml=$1
+
+  # Remove Comments
+  yaml_remove_comments "$file_yaml"
+
+  # Remove Empty Nodes
+  $yq -i 'del(.. | select(length == 0))' "$file_yaml"
+  while [[ "$($yq 'map(.. | select(length == 0)) | any' "$file_yaml")" == "true" ]]
+  do
+    # remove empty nodes recursively
+    $yq -i 'del( .. | select(length == 0))' "$file_yaml"
+  done
+
+  # Output Prettify File
+  $yq -i -P "$file_yaml"
+}
+
+# yaml_prettify(file_yaml)
+yaml_prettify() {
+  local file_yaml=${1:-}
+
+  # shellcheck disable=SC2016
+  local re='2,$s/^\([^[:space:]]\)/\n\1/g'
+  # Prettify yaml and add empty line before 1st-level keys
+  if [[ -z $file_yaml ]]; then
+    $yq -P | \
+    $sed "$re"
+  else
+    $yq -P -i "$file_yaml"
+    $sed "$re" -i "$file_yaml"
+  fi
+}
+
+# yaml_full_prettify(file_yaml)
+yaml_full_clean_prettify() {
+  local file_yaml=${1:-}
+
+  yaml_full_clean "$file_yaml"
+  yaml_prettify "$file_yaml"
+}
+
+# yaml_squeeze_empty_lines(file_yaml)
+yaml_squeeze_empty_lines() {
+  local file_yaml=${1:-}
+
+  local re='s/^[ ]*$//g'
+  if [[ -z $file_yaml ]]; then
+    $sed "$re"
+  else
+    $sed "$re" -i "$file_yaml"
+  fi
+}
+
+# yq_filter(filter_by, value)
+yq_filter() {
+  local filter_by="$1"
+  local value="${2:-}"
+
+  echo "$value" | $yq -r "$filter_by"
+}
+
+# Jq_filter(filter_by, value)
+jq_filter() {
+  local filter_by="$1"
+  local value="${2:-}"
+
+  echo "$value" | jq -r "$filter_by"
+}
+
+# read_yaml_var(txt, selector, default)
+read_yaml_var() {
+  local txt="$1"; shift
+  local selector="$1"; shift
+  (($# > 0)) && selector="$selector // \"$1\""
+  echo "$txt" | $yq -r "$selector"
+}
+
+# read_json_var(txt, selector, default)
+read_json_var() {
+  local txt="$1"; shift
+  local selector="$2"; shift
+  local default
+
+  (($# > 0)) && default=" // \"$1\""
+  echo "$txt" | jq -r "$selector${default:-}"
+}
+
+set -v
+cat $1 | sed -re 's/^\s*#.*$//g' | yaml_squeeze_empty_lines

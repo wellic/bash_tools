@@ -1,0 +1,31 @@
+#source <(kubectl completion bash)
+#source <(kubectl completion bash | sed -e 's/kubectl/k/g')
+#source <(minikube completion bash)
+
+#alias k=kubectl
+#alias kcd='kubectl config set-context $(kubectl config current-context) --namespace '
+
+alias k=kubectl
+complete -o default -F __start_kubectl k
+
+function _chk_k8s_key() {
+  local cfg=$1
+  local name=${2:-default}
+  local key=${3:-client-certificate-data}
+
+  local cmd_key="yq -e '.users[] | select(.name == \"${name}\") | .user.$key' $cfg"
+  local cmd_decode="$cmd_key | base64 -d | openssl x509 -text -noout"
+  echo -e "\n # Decode key:"
+  echo -e "$cmd_decode\n"
+  eval "$cmd_decode"
+
+  echo -e " \n # Get Names:"
+  cmd_names="yq -e '.users[] | .name' $cfg"
+  echo -e "$cmd_names\n"
+  eval "$cmd_names"
+
+  echo -e "\n # Get key only:"
+  echo -e "$cmd_key\n"
+}
+
+kubectl config unset current-context >/dev/null

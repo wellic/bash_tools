@@ -14,6 +14,7 @@ export PATH=$PATH:$HOME/bin/kbd
 export PATH=$PATH:$HOME/bin/mem
 export PATH=$PATH:$HOME/bin/mnt
 export PATH=$PATH:$HOME/bin/net
+export PATH=$PATH:$HOME/bin/other
 export PATH=$PATH:$HOME/bin/prg
 export PATH=$PATH:$HOME/bin/rc
 export PATH=$PATH:$HOME/bin/sites

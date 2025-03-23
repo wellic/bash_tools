@@ -8,8 +8,8 @@ set -u;
 
 version=${1:-"."}
 
-tool_name=bat
-repo=sharkdp/hexyl
+tool_name=dive
+repo=wagoodman/dive
 mask=$def_mask_amd64_deb
 
 _main

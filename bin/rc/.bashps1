@@ -1,8 +1,33 @@
+
 #http://ezprompt.net/
 [ -f /etc/bash_completion.d/git-prompt ] && source /etc/bash_completion.d/git-prompt
 [ -f /etc/bash_completion.d/git ]        && source /etc/bash_completion.d/git
 
-alias c='clear'
+#set -x
+if [[ -e ~/.bashps1_kube ]]; then
+  # https://github.com/jonmosco/kube-ps1/blob/master/README.md
+  # https://github.com/gawin/bash-colors-256
+
+
+#  KUBE_PS1_SYMBOL_USE_IMG=true
+#  KUBE_PS1_SYMBOL_PADDING=true
+
+
+  KUBE_PS1_PREFIX=""
+  KUBE_PS1_SUFFIX=""
+  KUBE_PS1_DIVIDER="|"
+
+  KUBE_PS1_SYMBOL_USE_IMG=false
+  KUBE_PS1_SYMBOL_PADDING=false
+
+  KUBE_PS1_SYMBOL_COLOR=172
+  KUBE_PS1_CTX_COLOR=68
+  KUBE_PS1_NS_COLOR=30
+
+  source ~/.bashps1_kube
+fi
+
+#set +x
 
 _ADD_PROMT_COMMAND_ERROR_INFO_=1
 _ADD_PROMT_COMMAND_JOBS_INFO_=1
@@ -133,6 +158,7 @@ __prompt_command() {
   local   BICyan='\e[1;96m'     # Cyan
   local  BIWhite='\e[1;97m'     # White
 
+
   echo $'\e[?2004l'
 
   #python Virtual Env
@@ -154,16 +180,21 @@ __prompt_command() {
   local mess_prefix
   [ "$CUSTOM_MESSAGE" != '' ] && mess_prefix="${CUSTOM_MESSAGE} "
 
+  local vcs_info="$(__hg_ps1)$(__git_ps1 "[%s]")"
+  local kube_info=""
+  [[ -n ${KUBE_PS1_CONTEXT:-} && $KUBE_PS1_CONTEXT != "N/A" ]] && kube_info="$(kube_ps1)"
+
   PS1=''
   if [ "$color_prompt" = yes ]; then
+    [[ -n $kube_info ]]  && PS1+="${kube_info}\n"
     [ "$_ADD_PROMT_COMMAND_ERROR_INFO_" == '1' ] && PS1+='$(err=$?;cmd=$((\!-1));[ $err != '0' ] && echo "'${IRed}'$cmd: Exit code=$err. View command: (history | grep -P \"^\\s*$cmd\\s\")'"\n${__CReset}"'")'
     [ "$_ADD_PROMT_COMMAND_JOBS_INFO_" == '1'  ] && PS1+='$([ \j -ne 0 ] && echo "'"${IPurple}"'Some jobs (\j) in background: $(jobscount).'"\n${__CReset}"'")'
     PS1+="${venv_color}${venv}${__CReset}"
     PS1+="${IYellow}${mess_prefix}${__CReset}"
     [ "$_ADD_PROMT_COMMAND_CMDNUM_INFO_" == '1' ] && PS1+="${Yellow}\!:${__CReset} "
-    PS1+="${Cyan}\t${__CReset} ${IBlue}\u@\h${__CReset} ${Green}"'$(pwd)'"${__CReset} "
-    PS1+="${BIYellow}"'$(__hg_ps1)$(__git_ps1 "[%s]")'"${__CReset}\n"
-    PS1+='\$ '
+    PS1+="${Cyan}\t${__CReset} ${IBlue}\u@\h${__CReset} ${Green}"'$(pwd)'"${__CReset}"
+    [[ -n $vcs_info ]] && PS1+=" ${BIYellow}"${vcs_info}"${__CReset}"
+    PS1+="\n\$ "
   else
     [ "$_ADD_PROMT_COMMAND_INFO_" == '1' ] && PS1+='\! \t '
     PS1+='${venv}${mess_prefix}\t ${debian_chroot:+($debian_chroot)}\u@\h:\w\${`pwd`}\n>'
@@ -178,7 +209,6 @@ __prompt_command() {
     ;;
   esac
 #  PS1+=$'\e[?2004l'
-
 # After each command, append to the history file and reread it
 #  history -a
 #  history -c
@@ -187,7 +217,7 @@ __prompt_command() {
 
 #export -f __prompt_command
 #https://www.digitalocean.com/community/tutorials/how-to-use-bash-history-commands-and-expansions-on-a-linux-vps
-export PROMPT_COMMAND="__prompt_command"
+export PROMPT_COMMAND+=";__prompt_command"
 
 #export GIT_PS1_SHOWDIRTYSTATE=1
 #if [ "$color_prompt" = yes ]; then

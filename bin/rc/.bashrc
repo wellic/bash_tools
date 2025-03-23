@@ -20,6 +20,7 @@ shopt -s histappend
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
 export HISTCONTROL=$HISTCONTROL:ignorespace:ignoredups
+export HISTTIMEFORMAT='%F %T '
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=100000

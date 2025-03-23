@@ -33,19 +33,19 @@
 #  MCF main branches names
     l-fix    = _fix
     l-cfg    = _cfg
-    l-master = master
+    l-master = develop
 
 #  Main source 1
     l-src1         = origin
-    l-src1-rmaster = master
+    l-src1-rmaster = develop
 
 #  Additional source 2
     l-src2         = origin
-    l-src2-rmaster = master
+    l-src2-rmaster = develop
 
 #  MCF prev branches names and repo
-    l-prev-master               = master
-    l-prev-src1-rmaster         = master
+    l-prev-master               = develop
+    l-prev-src1-rmaster         = develop
     l-prev-src1                 = origin
     l-prev-fix                  = _fix
     l-prev-cfg                  = _cfg
@@ -315,8 +315,8 @@ merged   = branch --merged
 unmerged = branch --no-merged
 #merged-clear = "! "$(git branch --merged | wc -l)" -gt 1 ] && (git branch --merged | grep -vP '^[*]' | xargs git branch -d) || git branch --merged "
 #merged-clear = "! echo '# git br -d \$(git rev-parse --abbrev-ref HEAD)'; git branch --merged | grep -vP '^[*]' | xargs echo '  git br -d';"
-merged-clear = "! echo ' # git br -d '$(git rev-parse --abbrev-ref HEAD);echo '';git branch --merged | grep -vP '^[*]' | xargs echo '   git br -d';"
-gone-clear = "! for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do echo \" git branch -D $branch\"; done"
+merged-clear = "! echo ' # git br -d '$(git rev-parse --abbrev-ref HEAD);echo '';git branch --merged | grep -vP '^[*]' | xargs -I {} echo \"   git br -d {} \";"
+gone-clear = "! for branch in $(git branch -vv | grep ': gone]' | sed -e 's/^*/ /g'  | awk '{print $1}'); do echo \" git branch -D $branch\"; done"
 
 
 # different list and logs
@@ -511,7 +511,7 @@ l-local-branch-name = "!f(){ \
  branch_name=${1:-} && \
  local_name=${2:-} && \
  if [ \"$master_name\" = '' -o \"$branch_name\" = '' ]; then git l-echo-err \"$CMD\nError!!!\nBranch and local name cannot be empty.\"; exit 1; fi && \
- if [ \"$branch_name\" != 'master' ]; then name=\"_/$branch_name/\" ; else name='' ; fi && \
+ if [ \"$branch_name\" != 'develop' ]; then name=\"_/$branch_name/\" ; else name='' ; fi && \
  echo \"${name}_${local_name}\" \
 ;};f"
 
@@ -1898,6 +1898,14 @@ w-master-pull = "!f(){ \
  git l-echo-l2 \"$CMD 4:\"; git l-echo-l0 \"git rebase $src1/$src1_rbranch \";        git rebase $src1/$src1_rbranch; \
  git l-echo-l2 \"$CMD 5:\"; git l-echo-l0 \"git checkout $cbr \";                     git checkout $cbr; \
  git l-echo-l2 \"$CMD 6:\"; git l-echo-l0 \"git last-short\";                         git last-short \
+;};f"
+
+w-master-checkout = "!f(){ \
+ [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
+ CMD='w-master-checkout' && \
+ quite=$(git l-quite) && \
+ master=${1:-$(git l-mcf-param-get l-master)} && \
+ git l-echo-l2 \"$CMD 1:\"; git l-echo-l0 \"git checkout $master \"; git checkout $master \
 ;};f"
 
 #https://github.com/brauliobo/gitconfig/blob/master/configs/.gitconfig
