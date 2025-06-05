@@ -8,6 +8,18 @@
 alias k=kubectl
 complete -o default -F __start_kubectl k
 
+kdce() {
+  kubectl -n dc-engine $@;
+}
+__kdce() {
+  COMP_LINE="kubectl -n dc-engine ${COMP_LINE#kdce }"
+  COMP_POINT=${#COMP_LINE}
+  COMP_WORDS=(kubectl -n dc-engine "${COMP_WORDS[@]:1}")
+  COMP_CWORD=$((COMP_CWORD + 2))
+  __start_kubectl
+}
+complete -o default -F __kdce kdce
+
 function _chk_k8s_key() {
   local cfg=$1
   local name=${2:-default}
@@ -28,4 +40,4 @@ function _chk_k8s_key() {
   echo -e "$cmd_key\n"
 }
 
-kubectl config unset current-context >/dev/null
+[[ -e $HOME/.kube/config.lock ]] || kubectl config unset current-context >/dev/null

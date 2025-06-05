@@ -183,3 +183,9 @@ CMD_awk=$($WHICH awk)
 PATH=$($CMD_env | $CMD_grep -E '\bPATH=' | $CMD_cut -d '=' -f2 | $CMD_tr ':' '\n' | $CMD_awk '!x[$0]++' | tr '\n' ':')
 
 export PATH="${PATH%%:}"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/home/yournick/Downloads/t2/google-cloud-sdk/path.bash.inc' ]; then . '/home/yournick/Downloads/t2/google-cloud-sdk/path.bash.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/home/yournick/Downloads/t2/google-cloud-sdk/completion.bash.inc' ]; then . '/home/yournick/Downloads/t2/google-cloud-sdk/completion.bash.inc'; fi

@@ -57,7 +57,8 @@
 ################################################################################
 
 [commit]
-#    template = /home/yournick/.gitmessage_template
+	template = /home/yournick/.git-templates/.gitmessage_template
+#    template = /home/yournick/.git-templates/.gitmessage_template
 [color]
     ui = true
     status = true

@@ -1,7 +1,3 @@
-alias cd1="cd /home/yournick/code/src/gitlab.1touch.corp/configuration/1touch-release-rbac/scripts/tools/test_installer"
-alias cd2="cd /home/yournick/code/src/gitlab.1touch.corp/configuration/1touch-release-rbac/scripts/tools/test_installer/tmp2/install/.gitlab-ci"
-alias cd3="cd /home/yournick/code/src/gitlab.1touch.corp/configuration/helm_info"
-
 [ -e ~/.bash_complete_alias ] && source ~/.bash_complete_alias
 [ -e ~/.bash_aliases_git    ] && source ~/.bash_aliases_git
 [ -e ~/.bash_aliases_docker ] && source ~/.bash_aliases_docker

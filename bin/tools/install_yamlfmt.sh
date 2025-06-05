@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR=$(dirname "$0")
+source "$SCRIPT_DIR/_install_gh.sh"
+
+set -u;
+#set -x;
+
+version=${1:-"."}
+
+tool_name=yamlfmt
+repo=google/yamlfmt
+mask=${def_mask_x86_64_tar_gz}
+OPT_VERSION=-version
+
+SRC_BIN_FILE="$tool_name"
+DST_BIN_FILE="/usr/local/bin/$tool_name"
+
+_main

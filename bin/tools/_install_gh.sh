@@ -1,3 +1,7 @@
+#!/usr/bin/env bash
+
+#set -uEeo pipefail
+#set -x
 
 get_url_releases() {
     echo "https://api.github.com/repos/$repo/releases"
@@ -44,11 +48,18 @@ EOF
 
 
 get_main_install_cmd() {
+  local cmd
 # dpkg -i '$downloaded_file'; \\
-  if [[ $downloaded_file =~ .deb$ ]]; then
-    local cmd="sudo dpkg -i '$downloaded_file'"
+  if [[ $downloaded_file =~ .t?gz$ ]]; then
+    cmd="tmpdir=\$(mktemp -d); \\
+ tar xvf \"$downloaded_file\" -C \"\$tmpdir\"; \\
+ sudo mv \"\$tmpdir/$SRC_BIN_FILE\" \"$DST_BIN_FILE\"; \\
+ sudo chmod +x \"$DST_BIN_FILE\"; \\
+ rm -vrf \"\$tmpdir\""
+  elif [[ $downloaded_file =~ .deb$ ]]; then
+    cmd="sudo dpkg -i \"$downloaded_file\""
   else
-    local cmd="sudo apt install '$downloaded_file'"
+    cmd="sudo apt install \"$downloaded_file\""
   fi
 
 cat <<- EOF
@@ -99,6 +110,7 @@ def_mask_deb=${def_mask}.*.deb
 def_mask_amd64_deb=${def_mask}.*amd64.deb
 def_mask_bin=${def_mask}'.*[_-][Ll]inux[_-]amd64"'
 def_mask_amd64_bz2=${def_mask}.*linux_amd64.bz2
+def_mask_x86_64_tar_gz=${def_mask}.*[Ll]inux[_-]x86_64.tar.gz
 
 
 OPT_VERSION=--version

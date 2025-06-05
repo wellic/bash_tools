@@ -1,0 +1,42 @@
+; Conventional Commit Types (<type>):
+; feat:     a new feature
+; fix:      a bug fix
+; docs:     documentation only changes
+; style:    code style changes (formatting, etc.)
+; refactor: code refactoring without behavior change
+; test:     adding or updating tests
+; chore:    routine maintenance, tooling, config
+; build:    changes to the build system or dependencies
+; ci:       changes to CI/CD configuration
+; perf:     performance improvements
+; revert:   reverts a previous commit
+
+; Format:
+; <type>(optional scope): short summary
+;
+; Example:
+; feat(auth): add password visibility toggle
+;
+; ------------------------
+; Optional body starts here (after a blank line)
+; Describe *why* the change was made, or provide more context.
+;
+; Optional footer starts after another blank line:
+; - Reference issues: Closes #123, Related to #456
+; - Breaking changes: BREAKING CHANGE: <description>
+
+<type>(scope): short summary
+
+; Detailed explanation (optional body):
+;
+; - Why is this change needed?
+; - What did you try before?
+; - Any edge cases or caveats?
+
+; Footer (issue refs, breaking changes, etc.):
+;
+; Closes #123
+; BREAKING CHANGE: description of the breaking change
+
+; vim ~/.git-templates/.gitmessage_template
+; git config --global commit.template ~/.git-templates/.gitmessage_template

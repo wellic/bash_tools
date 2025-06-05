@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -uEeo pipefail
+#set -x
 
 original_symlink="$1"
 
@@ -15,9 +18,9 @@ symlink_dir=$(dirname "$original_symlink")
 relative_path=$(realpath --relative-to="$symlink_dir" "$absolute_path")
 
 if [[ -e "$original_symlink" ]]; then 
-  _eval ls -la "$original_symlink"
-  _eval rm "$original_symlink"
+  _eval "ls -la '$original_symlink'"
+  _eval "rm '$original_symlink'"
 fi
 
-_eval ln -s "$relative_path" "$original_symlink"
-_eval ls -la "$original_symlink"
+_eval "ln -s '$relative_path' '$original_symlink'"
+_eval "ls -la '$original_symlink'"
