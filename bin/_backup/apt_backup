@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+#sudo apt install apt-clone
+#https://itsecforu.ru/2018/09/17/резервное-копирование-установленных/
+
+set -ue
+#set -x
+
+SCRIPT=`realpath -s $0`
+SCRIPT_DIR=`dirname $SCRIPT`
+HOSTNAME=$(hostname -s)
+
+OPT="--with-dpkg-status --with-dpkg-repack"
+MODE="f"
+
+if [ $# -gt 0 ]; then
+    mode=$1
+    if [ "$mode" = '-f' ]; then
+        shift
+    elif [ "$mode" = '-s' ]; then 
+        shift
+        OPT=--with-dpkg-status
+        MODE="s"
+    elif [ "$mode" = '-l' ]; then
+        shift
+        OPT=
+        MODE='l'
+    fi
+fi
+
+BACKDIR=${1:-"$SCRIPT_DIR"}
+DT=${2:-`date +%Y%m%d`}
+FN=${3:-""}
+
+cmd="apt-clone clone $OPT '$BACKDIR/${FN}${MODE}.${HOSTNAME}.${DT}'"
+echo "$cmd"
+eval "$cmd"

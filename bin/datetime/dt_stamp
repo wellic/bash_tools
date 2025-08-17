@@ -1,7 +1,0 @@
-#!/bin/bash
-
-sep=${1:-}
-p1=${2:-'%Y%m%d'}
-p2=${3:-'%H%M%S'}
-
-date +"${p1}${sep}${p2}" | sed 's/^ //g' | sed 's/ $//g'

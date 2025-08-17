@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -uEeo pipefail
+#set -x
+
+hostname=$1
+port="${2:-443}"
+openssl s_client -showcerts -servername "$hostname" -connect "$hostname:$port" </dev/null

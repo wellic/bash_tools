@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+if [ "$(whoami)" != "root" ]; then
+  echo "You have to run this script as Superuser!"
+  exit 1
+fi
+
+REPO=$1
+
+#set -x
+
+START_DIR=$PWD
+
+SCRIPT=$(readlink -e "$0")
+SCRIPT_DIR=$(dirname "$SCRIPT")
+
+cd "$SCRIPT_DIR"
+
+source "vars.sh"
+source "funcs.sh"
+
+DIRNAME_CFG=configs
+FN_CFG_DIRS=backup_dirs
+FN_CFG_EXCLUDE=exclude
+FN_CFG_REPO_PATH=repo_path
+FN_CFG_LOG=log_path
+
+RESTIC=./restic
+REPO_KEY=key/key
+
+REPO_DIR="../restic-repo/$REPO"
+[ -d "$REPO_DIR" ] || exit 1
+
+ARCNAME=$(basename $(dirname "$SCRIPT_DIR"))
+REPO_NAME=${ARCNAME}.${REPO}
+CACHE_DIR="/tmp/._restic/${REPO_NAME}"
+OPT_CACHE="--cache-dir '$CACHE_DIR' --cleanup-cache"
+MNT_ROOT=/mnt/._restic
+MNT_DIR="$MNT_ROOT/${REPO_NAME}"
+
+mount | grep "$MNT_DIR" && umount "$MNT_DIR"
+[ -d "$MNT_DIR" ] || mkdir -p "$MNT_DIR"
+
+clean_and_exit() {
+    local exit_code=${1:-1}
+    cd "$START_DIR"
+    [ -d "$MNT_DIR" ] && rm -rf "$MNT_DIR"
+    exit $exit_code
+}
+
+# trap ctrl-c and call ctrl_c()
+trap ctrl_c INT
+ctrl_c() {
+    clean_and_exit 0
+}
+
+cmd="'$RESTIC' -r '$REPO_DIR' -p '$REPO_KEY' mount --allow-other --no-default-permissions $OPT_CACHE $MNT_DIR"
+echo "$cmd"
+eval "$cmd"
+
+clean_and_exit 1

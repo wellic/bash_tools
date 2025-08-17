@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+#set -x
+
+set -u
+
+INTERFACE=${1:-}
+
+[ "$INTERFACE" = '' ] && INTERFACE='\bbrd\b.*dynamic' || INTERFACE="\b$INTERFACE\b"
+
+ip -4 addr | grep -P "$INTERFACE" | grep inet | awk '{print $2}' | sed -re "s/\/.*$//"

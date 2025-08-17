@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+set -u
+#set -x
+
+RET_DIR=$PWD
+
+DEBUG=${1:-1}
+
+types=(
+    root
+#    home
+)
+
+SCRIPT=$(readlink -e "$0")
+SCRIPT_DIR=$(dirname "$SCRIPT")
+
+cd "$SCRIPT_DIR"
+
+source "./vars.sh"
+source "./funcs.sh"
+
+DIRNAME_CFG=configs
+FN_CFG_DIRS=backup_dirs
+FN_CFG_EXCLUDE=exclude
+FN_CFG_REPO_PATH=repo_path
+FN_CFG_LOG=log_path
+
+NICE=(nice -n 19 ionice -c 3)
+
+[ "$DEBUG" != '0' ] && OPT_FORGET+=' --dry-run'
+
+#############################################################
+[ "$DEBUG" = '0' ] && pwd
+
+_find_restic_app
+[ "$DEBUG" = '0' ] && ./restic_umount_all
+
+dt=`date +"%Y%m%d_%H%M%S"`
+dn_log=${LOG_DIR:-"$SCRIPT_DIR/log"}
+[ -d "$dn_log" ] || mkdir -p "$dn_log"
+
+for t in "${types[@]}"; do
+    _backup "$t" | tee -a "$dn_log/${dt}.log"
+done
+
+cd "$RET_DIR"

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -u
+#set -x
+
+set -v
+./restic_umount_all
+./restic_mount root &
+./restic_mount home &
+set +v
+sleep 10
+echo "-------------------------"
+set -v
+mount | grep -P '^restic'
+set +v
+exit 0

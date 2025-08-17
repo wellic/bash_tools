@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+set -u
+#set -x
+
+soft_dir=~/Soft/ksnip_app
+[ ! -d "$soft_dir" ] && mkdir -p "$soft_dir"
+
+ksnip_repo="https://github.com/ksnip/ksnip/releases"
+v=1.10.1
+version=v$v
+last_version=ksnip-$v-continuous.deb
+
+ksnip_fn=${1:-$last_version}
+force_mode=0
+if [ "$ksnip_fn" = '-f' ]; then 
+    shift
+    ksnip_fn=${1:-$last_version}
+    force_mode=1
+fi
+
+ksnip_vpath=${2:-"continuous"}
+
+echo "Try to download file ${ksnip_fn} from $ksnip_repo"
+
+install_file="${soft_dir}/${ksnip_fn}"
+prev_install_file="${soft_dir}/ksnip_prev_install_old.deb"
+
+_clean(){
+    [ -e "$install_file" ] && rm -f "$install_file"
+}
+
+_check_diff() {
+    [ ! -e "$prev_install_file" ] && return 1
+    [ ! -e "$install_file" ] && return 1
+    diff -q "$install_file" "$prev_install_file"  > /dev/null
+    return $?
+}
+
+cmd="wget -O '$install_file' '${ksnip_repo}/download/${ksnip_vpath}/${ksnip_fn}'"
+
+echo "$cmd"
+eval "$cmd"
+if [ "$?" != 0 ]; then
+    echo -e "\nCan't download file: $ksnip_fn"
+    echo -e "\nCheck: $ksnip_repo"
+    _clean
+    exit 1
+fi
+
+if [ ! -e "$install_file" ]; then
+    echo -e "\nFile $install_file does not exists"
+    echo -e "\nCheck: $ksnip_repo"
+    _clean
+    exit 1
+fi
+
+if [ -s "$install_file" ]; then
+    if [ "$force_mode" = '1' ]; then
+        [ -e "$prev_install_file" ] && rm "$prev_install_file"
+    fi
+    _check_diff
+    if [ $? -eq 0 ]; then
+        echo -e "\nFile $install_file was already installed\n"
+        ls -la1 "$install_file" "$prev_install_file"
+        echo -e "\nUse option -f as first parameter for force install"
+        exit 0
+    fi
+    echo -e "\nFile $install_file is new\n"
+    ls -la1 "$install_file" "$prev_install_file"
+    echo -e "\nStart install\n"
+    sudo dpkg -i "$install_file"
+    mv "$install_file" "$prev_install_file"
+    sudo pkill ksnip || echo "Can't close ksnip"
+#    $(which ksnip) &
+else
+    echo -e "\nFile $install_file has zero size"
+    ls -la1 "$install_file" "$prev_install_file"
+    echo -e "\nCheck: $ksnip_repo"
+    _clean
+    exit 1
+fi
+
+_clean

@@ -1,0 +1,11 @@
+
+
+binDir=~/bin
+srcDir=~/Dropbox/github/bash_tools/bin
+
+for f in `find "$srcDir/" -type f`; do
+    fn=`basename $f`
+    echo "$fn"
+    ./make_relative_link "$f" "$binDir/$fn" 
+done
+

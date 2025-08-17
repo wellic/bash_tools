@@ -1,9 +1,0 @@
-#!/bin/sh
-
-USERHOST=$(basename "$0" | sed  's/^_//')
-USERNAME=$USERHOST
-
-SRC=$1
-UPLOAD_DIRNAME=upload
-
-./w_scp "$SRC" "$USERNAME" "$USERHOST" "$UPLOAD_DIRNAME"

@@ -1,3 +1,0 @@
-BORG_REPO=
-BORG_PASSPHRASE=
-sudo -E borg create -s -p ::{hostname}.{user}.{now:%Y%m%d_%H%M%S} 

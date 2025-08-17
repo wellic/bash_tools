@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+
+#set -e
+#set -x
+set -u
+
+sudo clear
+
+SCRIPT_NAME=$(basename "$0")
+
+RETDIR=$PWD
+FOUND_CNT=0
+
+echo -e "Start removing ...\n"
+
+print_help() {
+    echo "Usage:"
+    echo -e "$SCRIPT_NAME path\n"
+}
+
+if [ $# -lt 1 ]; then
+    print_help
+    exit 1
+fi
+
+ROOT_DIR=$1
+
+ROOT_DIR=${ROOT_DIR#$PWD}
+[ "$ROOT_DIR" == ''  ] && ROOT_DIR=.
+[ "$ROOT_DIR" != '/' ] && ROOT_DIR=${ROOT_DIR%/}
+
+_lc() {
+  echo "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+view_bad() {
+  local cnt=$1
+  if [ $cnt -ne 0 ]; then
+    echo -e "\nCheck please:"
+    echo "--------------------------------------------"
+    $cmd
+    echo "--------------------------------------------"
+  fi
+}
+
+_check() {
+  local cnt=0;
+  echo -e "\n${cmd}"
+  cnt=$($cmd | wc -l )
+  echo "Found: $cnt"
+  FOUND_CNT=$cnt
+}
+
+_remove() {
+  eval "$cmd $cmd_remove"
+  _check
+  cnt=$FOUND_CNT
+  view_bad $cnt
+  if [ $cnt -eq 0 ]; then
+    echo -e "All removed!!!"
+  fi
+  FOUND_CNT=$cnt
+}
+
+try_remove() {
+  echo -n -e "\n$cmd $cmd_remove\nWill start removing (Y/N)[N]: "
+  read -n 1 YN
+  YN=$(_lc ${YN:-N})
+  echo
+  if [ "$YN" = 'y' ]; then
+    echo -e 'Start removing'
+    _remove
+  fi
+}
+
+remove() {
+    _check
+    cnt=$FOUND_CNT
+
+    if [ "$cnt" -ne 0 ]; then
+      view_bad $cnt
+      try_remove
+      cnt=$FOUND_CNT
+    fi
+}
+
+REMOVE_DIRS=(
+    .pytest_cache
+    .mypy_cache
+    __pycache__
+    .ipynb_checkpoints
+)
+
+for d in "${REMOVE_DIRS[@]}"; do
+    YN=
+    echo -e "\n$d\n"
+    cmd="sudo find $ROOT_DIR -type d -name $d"
+    cmd_remove='-exec rm -rf {} \;'
+    remove
+done
+
+#[ "$YN" != 'y' ] && print_finish_message $cnt
+
+cd "$RETDIR"
+
+#export -f _clear__pycache__dir
+#sudo find . -type d -name __pycache__ -exec rm -rf "{}"  \;
+
+#cd "$RETDIR"
+
+exit $cnt

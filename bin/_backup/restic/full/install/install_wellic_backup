@@ -1,0 +1,34 @@
+#!/bin/sh
+
+set -e
+#set -x
+
+SCRIPT=$(realpath -s "$0")
+SCRIPT_DIR=$(dirname "$SCRIPT")
+CRON_SCRIPT_NAME=wellic_backup
+
+DN_BACKUP_SCRIPTS=backup_workpc
+
+BACKUP_SCRIPTS_DIR=$(realpath -s "$SCRIPT_DIR/../$DN_BACKUP_SCRIPTS")
+
+DST_DIR=$(realpath -s "/etc/cron.daily")
+
+SRC="$SCRIPT_DIR/$CRON_SCRIPT_NAME"
+DST="$DST_DIR/$CRON_SCRIPT_NAME"
+
+user=wellic
+app="$BACKUP_SCRIPTS_DIR/all_backup"
+
+sudo cp "$SRC" "$DST"
+sudo chown root:root "$DST"
+sudo sed -i"" -e "s#{{user}}#$user#g" -e "s#{{app}}#$app#" "$DST"
+sudo chmod +x "$DST"
+
+echo " sudo rm /var/spool/anacron/cron.daily"
+echo " sudo systemctl restart anacron"
+echo " sudo tail -f /var/log/syslog | grep -i cron"
+echo " sudo cat /tmp/_backup_wellic_.log"
+
+exit 0
+
+#systemctl restart anacron 

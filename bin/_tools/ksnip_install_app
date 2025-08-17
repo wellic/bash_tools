@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+set -u
+#set -x
+
+soft_dir=~/Soft/ksnip_app
+[ ! -d "$soft_dir" ] && mkdir -p "$soft_dir"
+
+ksnip_repo="https://github.com/ksnip/ksnip/releases"
+last_version=ksnip-1.10.0-continuous-x86_64.AppImage
+
+ksnip_fn=${1:-$last_version}
+force_mode=0
+if [ "$ksnip_fn" = '-f' ]; then 
+    shift
+    ksnip_fn=${1:-$last_version}
+    force_mode=1
+fi
+
+ksnip_vpath=${2:-continuous}
+
+echo "Try to download file ${ksnip_fn} from $ksnip_repo"
+
+install_file="${soft_dir}/${ksnip_fn}"
+prev_install_file="${soft_dir}/ksnip_prev_install.AppImage"
+
+_clean(){
+    [ -e "$install_file" ] && rm -f "$install_file"
+}
+
+_check_diff() {
+    [ ! -e "$prev_install_file" ] && return 1
+    [ ! -e "$install_file" ] && return 1
+    diff -q "$install_file" "$prev_install_file"  > /dev/null
+    return $?
+}
+
+cmd="wget -O '$install_file' '${ksnip_repo}/download/${ksnip_vpath}/${ksnip_fn}'"
+
+echo "$cmd"
+eval "$cmd"
+if [ "$?" != 0 ]; then
+    echo -e "\nCan't download file: $ksnip_fn"
+    echo -e "\nCheck: $ksnip_repo"
+    _clean
+    exit 1
+fi
+
+if [ ! -e "$install_file" ]; then
+    echo -e "\nFile $install_file does not exists"
+    echo -e "\nCheck: $ksnip_repo"
+    _clean
+    exit 1
+fi
+
+if [ -s "$install_file" ]; then
+    if [ "$force_mode" = '1' ]; then
+        [ -e "$prev_install_file" ] && rm "$prev_install_file"
+    fi
+    _check_diff
+    if [ $? -eq 0 ]; then
+        echo -e "\nFile $install_file was already installed\n"
+        ls -la1 "$install_file" "$prev_install_file"
+        echo -e "\nUse option -f as first parameter for force install"
+        exit 0
+    fi
+    echo -e "\nFile $install_file is new\n"
+#    ls -la1 "$install_file" "$prev_install_file"
+    ls -la1 "$install_file"
+    echo -e "\nStart install\n"
+
+    [ -e /usr/bin/ksnip -o -L /usr/bin/ksnip ] && sudo rm /usr/bin/ksnip 
+
+    cp -u "$install_file" "$prev_install_file"
+    sudo chmod +x "$prev_install_file"
+    sudo ln -s "$prev_install_file" /usr/bin/ksnip
+    ls -la1 /usr/bin/ksnip
+
+    sudo pkill ksnip -xf && echo "ksnip was closed"
+else
+    echo -e "\nFile $install_file has zero size"
+    ls -la1 "$install_file" "$prev_install_file"
+    echo -e "\nCheck: $ksnip_repo"
+    _clean
+    exit 1
+fi
+
+_clean

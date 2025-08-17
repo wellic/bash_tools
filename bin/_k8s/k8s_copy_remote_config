@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -uEeo pipefail
+#set -x
+
+EXT_LOCAL_CFG=".kubeconf"
+EXT_ORIG_BAK=".orig.bak"
+
+SERVER_NAME="$1"
+SERVER_USER="${2:-admin}"
+SERVER_CFG_PATH="${3:-.kube/config}"
+
+LOCAL_CFG="${PWD}/${SERVER_NAME}${EXT_LOCAL_CFG}"
+
+if [[ -e $LOCAL_CFG ]]; then
+    cat "$LOCAL_CFG"
+else
+    scp -q "${SERVER_USER}@${SERVER_NAME}:${SERVER_CFG_PATH}" "${LOCAL_CFG}"
+    IP="$(dig +short ${SERVER_NAME} | tail -n 1)"
+    sed -i"${EXT_ORIG_BAK}" "s#127.0.0.1#${IP}#" "${LOCAL_CFG}"
+fi
+
+echo
+echo "export KUBECONFIG=${LOCAL_CFG}"

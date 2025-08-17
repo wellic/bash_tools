@@ -1,0 +1,51 @@
+#!/bin/bash
+
+set -u
+
+my_ip() {
+    INTERFACE=${1:-}
+    [ "$INTERFACE" = '' ] && INTERFACE='\bbrd\b.*dynamic' || INTERFACE="\b$INTERFACE\b"
+    ip -4 addr | grep -P "$INTERFACE" | grep inet | awk '{print $2}' | sed -re "s/\/.*$//"
+}
+
+NS1_1=$(my_ip lo)
+NS2_1=$(my_ip)
+
+print_help() {
+    SCRIPT_NAME=$(basename "$0")
+    cat <<EOF
+Usage:
+
+${SCRIPT_NAME} service_name [OUT_PORT]
+
+Start in browser:
+ http://$NS1_1:OUT_PORT
+ http://$NS2_1:OUT_PORT
+
+EOF
+    echo 'Available services:'
+    minikube service list | grep -P 'http|URL|----'
+}
+
+if [ $# = 0 ]; then
+    print_help
+    exit 1
+fi
+
+SVC_NAME=$1
+SVC_PORT=$(minikube service --format="{{.Port}}" $SVC_NAME)
+SVC_IP=$(minikube service --format="{{.IP}}" $SVC_NAME)
+OUT_PORT=${2:-$SVC_PORT}
+
+cmd="sudo ssh -N -L 0.0.0.0:${OUT_PORT}:${SVC_IP}:${SVC_PORT} ${USER}@${NS1_1}"
+cat <<EOF
+------------------------------
+${cmd}
+
+Start in browser:
+ http://$NS1_1:$OUT_PORT
+ http://$NS2_1:$OUT_PORT
+------------------------------
+
+EOF
+eval "$cmd"

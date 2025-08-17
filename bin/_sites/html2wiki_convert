@@ -1,0 +1,1 @@
+html2wiki --dialect=DokuWiki --no-escape-entities --normalize --strip-empty-tags $*
