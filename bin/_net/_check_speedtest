@@ -1,0 +1,144 @@
+#!/bin/bash
+
+set -uEeo pipefail
+#set -x
+
+SCRIPT_NAME="$(basename "$0")"
+
+_set_var_bool() {
+  local -n varname="$1"
+  [[ ${varname:-} =~ ^(1|true) ]] && varname=true || varname=false
+}
+
+_set_var_bool APP_DRY_RUN
+_set_var_bool APP_DEBUG
+$APP_DEBUG && set -x
+
+OPT=--precision=0
+
+################################################################################
+
+_eval() {
+  local cmd=("$@")
+  echo "${cmd[*]}"
+  "$APP_DRY_RUN" || eval "${cmd[@]}"
+}
+
+_sep() {
+  echo -e "\n#################################################################################\n"
+}
+
+get_interfaces() {
+  while IFS= read -r line; do
+    interfaces+=("$line")
+  done < <(nmcli -t device status 2> /dev/null)
+}
+
+_speedtest() {
+  local interface="$1"
+  [[ -z $interface ]] && return 1
+  _eval speedtest -I $i ${OPT}
+}
+
+print_interfaces() {
+  _sep
+  if [[ -n ${interfaces[*]} ]]; then
+    printf "%s\n\n" "Available (${#interfaces[@]}) interfaces"
+    printf "%s\n" "${interfaces[@]}"
+  else
+    echo "No interfaces found!"
+    return 1
+  fi
+}
+
+print_connected() {
+  _sep
+  if [[ ${#connected[@]} -gt 0 ]]; then
+    printf "%s\n\n" "Available (${#connected[@]}) interfaces"
+    for ((i=0; i<${#connected[@]}; i++)); do
+      printf "%d) %s\n" "$((i+1))" "${connected[$i]}"
+    done
+  else
+    echo "No connected interfaces found!"
+    return 1
+  fi
+}
+
+usage() {
+  print_interfaces
+  print_connected
+  _sep
+  cat << EOF
+Usage: ${SCRIPT_NAME} [-h|--help] interface1 ... intefaceN
+
+Arguments:
+  -h|--help   Show this help and interfaces
+  intefaces   Interface names
+
+Example:
+  ${SCRIPT_NAME} enp0s3
+
+EOF
+}
+
+process_input() {
+#  [[ $# -gt 0 ]] && echo "Process Input Parameters"
+  while [[ $# -gt 0 ]]; do
+    local input_param="$1"
+    shift
+    case $input_param in
+      -h | --help)
+        usage
+        exit 1
+        ;;
+      *)
+        connected+=("$input_param")
+        continue
+        ;;
+    esac
+  done
+  return 0
+}
+
+################################################################################
+interfaces=() connected=()
+
+status=0
+
+get_interfaces
+process_input "$@"
+
+if [[ ${#connected[@]} -gt 0 ]]; then
+  for i in "${connected[@]}"; do
+    _sep
+    _speedtest "$i" || status=1
+  done
+else
+  if [[ -z ${interfaces[*]} ]]; then
+    usage
+    exit 1
+  fi
+
+  print_interfaces
+
+  for i in "${interfaces[@]}"; do
+    i="$(echo "$i" | grep ":connected:" | grep -wE 'ethernet|wifi' | cut -d ":" -f1 || :)"
+    [[ -z ${i:-} ]] && continue
+    connected+=("$i")
+  done
+  [[ ${#connected[@]} -gt 0 ]] || exit 1
+
+  PS3="Select the interface: "
+  while true; do
+    _sep
+    select i in "${connected[@]}"; do
+      if [[ -z $i ]]; then
+        echo "Invalid selection. Please try again."
+        continue
+      fi
+      echo
+      _speedtest "$i"
+      break
+    done
+  done
+fi

@@ -33,6 +33,11 @@ _ADD_PROMT_COMMAND_ERROR_INFO_=1
 _ADD_PROMT_COMMAND_JOBS_INFO_=1
 _ADD_PROMT_COMMAND_CMDNUM_INFO_=0
 
+_PROMT_HIDE_ALL=0
+_PROMT_SHOW_TIME=1
+_PROMT_SHOW_HOST=1
+_PROMT_SHOW_PATH=1
+
 #Add custom message
 _m() {
     CUSTOM_MESSAGE="$*"
@@ -184,17 +189,30 @@ __prompt_command() {
   local kube_info=""
   [[ -n ${KUBE_PS1_CONTEXT:-} && $KUBE_PS1_CONTEXT != "N/A" ]] && kube_info="$(kube_ps1)"
 
+  local _path=""
+  if [[ ${_PROMT_SHOW_PATH} =~ ^(1|true)$ ]]; then
+     _path="${Green}$(pwd)${__CReset}"
+  fi
+
+  local _time="" _host="" _path=""
+  local _venv="" _mess="" _vcs=""
+  if ! [[ ${_PROMT_HIDE_ALL} =~ ^(1|true)$ ]]; then
+    [[ ${_PROMT_SHOW_TIME} =~ ^(1|true)$ ]] && _time="${Cyan}\t${__CReset} "
+    [[ ${_PROMT_SHOW_HOST} =~ ^(1|true)$ ]] && _host="${IBlue}\u@\h${__CReset} "
+    [[ ${_PROMT_SHOW_PATH} =~ ^(1|true)$ ]] && _path="${Green}$(pwd)${__CReset}"
+    _venv="${venv_color}${venv}${__CReset}"
+    _mess="${IYellow}${mess_prefix}${__CReset}"
+    [[ -n $vcs_info ]] && _=" ${BIYellow}"${vcs_info}"${__CReset}"
+  fi
+
   PS1=''
   if [ "$color_prompt" = yes ]; then
     [[ -n $kube_info ]]  && PS1+="${kube_info}\n"
     [ "$_ADD_PROMT_COMMAND_ERROR_INFO_" == '1' ] && PS1+='$(err=$?;cmd=$((\!-1));[ $err != '0' ] && echo "'${IRed}'$cmd: Exit code=$err. View command: (history | grep -P \"^\\s*$cmd\\s\")'"\n${__CReset}"'")'
     [ "$_ADD_PROMT_COMMAND_JOBS_INFO_" == '1'  ] && PS1+='$([ \j -ne 0 ] && echo "'"${IPurple}"'Some jobs (\j) in background: $(jobscount).'"\n${__CReset}"'")'
-    PS1+="${venv_color}${venv}${__CReset}"
-    PS1+="${IYellow}${mess_prefix}${__CReset}"
+    PS1+="${_venv}${_mess}"
     [ "$_ADD_PROMT_COMMAND_CMDNUM_INFO_" == '1' ] && PS1+="${Yellow}\!:${__CReset} "
-    PS1+="${Cyan}\t${__CReset} ${IBlue}\u@\h${__CReset} ${Green}"'$(pwd)'"${__CReset}"
-    [[ -n $vcs_info ]] && PS1+=" ${BIYellow}"${vcs_info}"${__CReset}"
-    PS1+="\n\$ "
+    PS1+="${_time}${_host}${_path}${_vcs}\n\$ "
   else
     [ "$_ADD_PROMT_COMMAND_INFO_" == '1' ] && PS1+='\! \t '
     PS1+='${venv}${mess_prefix}\t ${debian_chroot:+($debian_chroot)}\u@\h:\w\${`pwd`}\n>'
@@ -213,6 +231,7 @@ __prompt_command() {
 #  history -a
 #  history -c
 #  history -r
+ history -w
 }
 
 #export -f __prompt_command

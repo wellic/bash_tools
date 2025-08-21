@@ -15,6 +15,8 @@ source ~/.bashps1
 #see https://sanctum.geek.nz/arabesque/better-bash-history/
 # append to the history file, don't overwrite it
 shopt -s histappend
+shopt -s cmdhist
+shopt -s lithist
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
@@ -177,9 +179,9 @@ PATH=$($CMD_env | $CMD_grep -E '\bPATH=' | $CMD_cut -d '=' -f2 | $CMD_tr ':' '\n
 
 export PATH="${PATH%%:}"
 
+
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/home/yournick/Downloads/t2/google-cloud-sdk/path.bash.inc' ]; then . '/home/yournick/Downloads/t2/google-cloud-sdk/path.bash.inc'; fi
+if [ -f '/home/yournick/google-cloud-sdk/google-cloud-sdk/path.bash.inc' ]; then . '/home/yournick/google-cloud-sdk/google-cloud-sdk/path.bash.inc'; fi
 
 # The next line enables shell command completion for gcloud.
-if [ -f '/home/yournick/Downloads/t2/google-cloud-sdk/completion.bash.inc' ]; then . '/home/yournick/Downloads/t2/google-cloud-sdk/completion.bash.inc'; fi
-
+if [ -f '/home/yournick/google-cloud-sdk/google-cloud-sdk/completion.bash.inc' ]; then . '/home/yournick/google-cloud-sdk/google-cloud-sdk/completion.bash.inc'; fi
