@@ -128,12 +128,13 @@ else
   done
   [[ ${#connected[@]} -gt 0 ]] || exit 1
 
-  PS3="Select the interface: "
+  PS3="Select the interface or type 'q' to quit: "
   while true; do
     _sep
     select i in "${connected[@]}"; do
+      [[ "$REPLY" =~ ^[qQ] ]] && exit 0
       if [[ -z $i ]]; then
-        echo "Invalid selection. Please try again."
+        echo "Invalid selection. Please try again or type 'q' to quit."
         continue
       fi
       echo
@@ -142,3 +143,4 @@ else
     done
   done
 fi
+
