@@ -34,6 +34,14 @@ get_interfaces() {
   done < <(nmcli -t device status 2> /dev/null)
 }
 
+get_connected_interfaces() {
+  for i in "${interfaces[@]}"; do
+    i="$(echo "$i" | grep ":connected:" | grep -wE 'ethernet|wifi' | cut -d ":" -f1 || :)"
+    [[ -z ${i:-} ]] && continue
+    connected+=("$i")
+  done
+}
+
 _speedtest() {
   local interface="$1"
   [[ -z $interface ]] && return 1
@@ -69,14 +77,15 @@ usage() {
   print_connected
   _sep
   cat << EOF
-Usage: ${SCRIPT_NAME} [-h|--help] interface1 ... intefaceN
+Usage: ${SCRIPT_NAME} [-h|--help] [-a|--all] [interface1 ... intefaceN]
 
 Arguments:
-  -h|--help   Show this help and interfaces
-  intefaces   Interface names
+  -h|--help      Show this help and interfaces
+  -a|all         All connected interfaces
+  [intefaces]    Interface names
 
 Example:
-  ${SCRIPT_NAME} enp0s3
+  ${SCRIPT_NAME} enp0s3 -all
 
 EOF
 }
@@ -87,18 +96,21 @@ process_input() {
     local input_param="$1"
     shift
     case $input_param in
-      -h | --help)
+      -h|--help)
         usage
         exit 1
         ;;
+     -a|--all)
+        get_connected_interfaces
+        ;;
       *)
         connected+=("$input_param")
-        continue
         ;;
     esac
   done
   return 0
 }
+
 
 ################################################################################
 interfaces=() connected=()
@@ -109,6 +121,7 @@ get_interfaces
 process_input "$@"
 
 if [[ ${#connected[@]} -gt 0 ]]; then
+  print_connected
   for i in "${connected[@]}"; do
     _sep
     _speedtest "$i" || status=1
@@ -121,11 +134,8 @@ else
 
   print_interfaces
 
-  for i in "${interfaces[@]}"; do
-    i="$(echo "$i" | grep ":connected:" | grep -wE 'ethernet|wifi' | cut -d ":" -f1 || :)"
-    [[ -z ${i:-} ]] && continue
-    connected+=("$i")
-  done
+  get_connected_interfaces
+  connected=($(printf "%s\n" "${connected[@]}" | sort -u))  
   [[ ${#connected[@]} -gt 0 ]] || exit 1
 
   PS3="Select the interface or type 'q' to quit: "
