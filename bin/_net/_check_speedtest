@@ -62,7 +62,7 @@ print_interfaces() {
 print_connected() {
   _sep
   if [[ ${#connected[@]} -gt 0 ]]; then
-    printf "%s\n\n" "Available (${#connected[@]}) interfaces"
+    printf "%s\n" "Selected ${#connected[@]} interfaces"
     for ((i=0; i<${#connected[@]}; i++)); do
       printf "%d) %s\n" "$((i+1))" "${connected[$i]}"
     done
@@ -85,7 +85,7 @@ Arguments:
   [intefaces]    Interface names
 
 Example:
-  ${SCRIPT_NAME} enp0s3 -all
+  ${SCRIPT_NAME} --all
 
 EOF
 }
@@ -96,11 +96,12 @@ process_input() {
     local input_param="$1"
     shift
     case $input_param in
-      -h|--help)
+      -h | --help)
+	get_connected_interfaces
         usage
         exit 1
         ;;
-     -a|--all)
+     -a | --all)
         get_connected_interfaces
         ;;
       *)
@@ -111,17 +112,33 @@ process_input() {
   return 0
 }
 
+remove_duplicates() {
+    local -n arr_ref=$1  # Используем namereference для Bash 4.3+
+    declare -A seen
+    local -a unique_array=()
+    for item in "${arr_ref[@]}"; do
+        if [[ ! -v seen[$item] ]]; then
+            unique_array+=("$item")
+            seen["$item"]=1
+        fi
+    done
+    arr_ref=("${unique_array[@]}")
+}
 
 ################################################################################
 interfaces=() connected=()
-
 status=0
 
 get_interfaces
+print_interfaces
+
 process_input "$@"
 
 if [[ ${#connected[@]} -gt 0 ]]; then
+
+  remove_duplicates connected
   print_connected
+
   for i in "${connected[@]}"; do
     _sep
     _speedtest "$i" || status=1
@@ -132,9 +149,9 @@ else
     exit 1
   fi
 
-  print_interfaces
-
   get_connected_interfaces
+  print_connected
+
   connected=($(printf "%s\n" "${connected[@]}" | sort -u))  
   [[ ${#connected[@]} -gt 0 ]] || exit 1
 
@@ -154,3 +171,4 @@ else
   done
 fi
 
+exit $status
