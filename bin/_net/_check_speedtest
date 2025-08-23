@@ -45,7 +45,8 @@ get_connected_interfaces() {
 _speedtest() {
   local interface="$1"
   [[ -z $interface ]] && return 1
-  _eval speedtest -I $i ${OPT}
+  _sep
+  _eval speedtest -I $interface ${OPT}
 }
 
 print_interfaces() {
@@ -139,9 +140,8 @@ if [[ ${#connected[@]} -gt 0 ]]; then
   remove_duplicates connected
   print_connected
 
-  for i in "${connected[@]}"; do
-    _sep
-    _speedtest "$i" || status=1
+  for name in "${connected[@]}"; do
+    _speedtest "$name" || status=1
   done
 else
   if [[ -z ${interfaces[*]} ]]; then
@@ -155,17 +155,21 @@ else
   connected=($(printf "%s\n" "${connected[@]}" | sort -u))  
   [[ ${#connected[@]} -gt 0 ]] || exit 1
 
+  if [[ ${#connected[@]} -eq 1 ]]; then
+    _speedtest "${connected[0]}"
+    exit 0
+  fi
+
   PS3="Select the interface or type 'q' to quit: "
   while true; do
     _sep
-    select i in "${connected[@]}"; do
+    select name in "${connected[@]}"; do
       [[ "$REPLY" =~ ^[qQ] ]] && exit 0
       if [[ -z $i ]]; then
         echo "Invalid selection. Please try again or type 'q' to quit."
         continue
       fi
-      echo
-      _speedtest "$i"
+      _speedtest "$name"
       break
     done
   done

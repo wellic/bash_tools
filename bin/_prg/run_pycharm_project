@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -uEeo pipefail
+#set -x
+
+bash run_idea_project.sh "pycharm" "$@"
