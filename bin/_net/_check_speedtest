@@ -36,7 +36,7 @@ get_interfaces() {
 
 get_connected_interfaces() {
   for i in "${interfaces[@]}"; do
-    i="$(echo "$i" | grep ":connected:" | grep -wE 'ethernet|wifi' | cut -d ":" -f1 || :)"
+    i="$(echo "$i" | grep ":connected:" | grep -wE 'ethernet|wifi' | cut -d ":" -f1 | sort || :)"
     [[ -z ${i:-} ]] && continue
     connected+=("$i")
   done

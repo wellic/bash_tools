@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+#set -x
+
+if [ "$(whoami)" != "root" ]
+then
+  echo "You have to run this script as Superuser!"
+  exit 1
+fi
+
+mask='^(enp|wlp)'
+NETPLAN_DIR="/etc/netplan"
+BAK_DIR="$NETPLAN_DIR/bak"
+mkdir -p "$BAK_DIR"
+
+status=false
+for file in "$NETPLAN_DIR"/*.yaml "$NETPLAN_DIR"/*.yml; do
+    yq eval '.network.ethernets.*.match.name' "$file" 2>/dev/null | grep -Eq "$mask" || continue
+    echo -e "\nProcessing: $file\n"
+
+    file_bak="$BAK_DIR/$(basename "$file")"
+    rm -f "$file_bak"
+    cp "$file" "$file_bak"
+
+    yq eval 'del(
+        .network.ethernets.*.nameservers,
+        .network.ethernets.*.networkmanager.passthrough."ipv4.dns-search",
+        .network.ethernets.*.networkmanager.passthrough."ipv4.ignore-auto-dns",
+        .network.ethernets.*.networkmanager.passthrough."ipv6.ignore-auto-dns"
+    )' -i "$file" 2>/dev/null
+
+    if diff -q "$file_bak" "$file"; then
+      echo "No changes in $file\n"
+      cat "$file"
+    else
+      status=true
+      diff -y "$file_bak" "$file"
+    fi
+done
+
+if "$status"; then
+  systemctl restart systemd-networkd
+  # netplan apply
+fi
