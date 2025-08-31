@@ -6,9 +6,9 @@ set -uEeo pipefail
 ide="$1"
 shift
 
-START_DIR="$(realpath "$(pwd)")"
-dir="$START_DIR"
-[[ $dir =~ "$HOME" ]] || exit 111
+START_DIR="$(pwd)"
+dir="$(realpath "$START_DIR")"
+[[ $dir =~ $HOME ]] || exit 123
 
 params=( "$@" )
 files=()
@@ -17,9 +17,13 @@ for f in "${params[@]}"; do
 done
 
 while [[ "$dir" != "$HOME" ]] && [[ "$dir" != "/" ]]; do
+  dir="$(realpath "$dir")"
   if [[ -d "$dir/.idea" ]]; then
     echo "Opening project in: $dir"
-    nohup $ide "$(realpath "$dir")" ${files[@]} >/dev/null 2>&1 &
+    # shellcheck disable=SC2145
+    echo "$ide $dir ${files[@]} >/dev/null 2>&1"
+    # shellcheck disable=SC2068
+    nohup "$ide" "$dir" ${files[@]} >/dev/null 2>&1 &
     exit 0
   fi
   dir=$(dirname "$dir")
@@ -35,21 +39,27 @@ done
 menu=(
   "Only open $ide"
   "Create project"
+  "Quit"
 )
 
 echo "No $ide project (.idea) found in: $START_DIR"
 PS3="Enter number or type 'q' to quit: "
 
 select opt in "${menu[@]}"; do
-  [[ "$REPLY" =~ ^[qQ] ]] && exit 0
+  [[ "$REPLY" == 3 || $opt =~ ^[qQ]$ ]] && exit 0
   case $REPLY in
     1)
-#      nohup $ide --temp-project "$START_DIR" ${files[@]} >/dev/null 2>&1 &
-      nohup $ide ${files[@]} >/dev/null 2>&1 &
+    # shellcheck disable=SC2145
+      echo "$ide ${files[@]} >/dev/null 2>&1"
+      # shellcheck disable=SC2068
+      nohup "$ide" ${files[@]} >/dev/null 2>&1 &
       exit 0
       ;;
     2)
-      nohup $ide "$START_DIR" ${files[@]} >/dev/null 2>&1 &
+    # shellcheck disable=SC2145
+      echo "$ide $START_DIR ${files[@]} >/dev/null 2>&1"
+      # shellcheck disable=SC2068
+      nohup "$ide" "$START_DIR" ${files[@]} >/dev/null 2>&1 &
       exit 0
       ;;
     *) 
