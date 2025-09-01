@@ -49,7 +49,6 @@ if "$status"; then
   echo
   echo "$SUDO" nmcli connection reload
        "$SUDO" nmcli connection reload || :
-
   #echo
   #echo "$SUDO" systemctl restart systemd-networkd
   #     "$SUDO" systemctl restart systemd-networkd
