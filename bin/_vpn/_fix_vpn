@@ -7,6 +7,7 @@ SUDO=sudo
 [[ "$(whoami)" == "root" ]] && SUDO=""
 
 mask='^(enp|wlp)'
+mask_vpn='^(fctvpn)'
 NETPLAN_DIR="/etc/netplan"
 BAK_DIR="$NETPLAN_DIR/bak"
 "$SUDO" mkdir -p "$BAK_DIR"
@@ -28,7 +29,7 @@ for file in "$NETPLAN_DIR"/*.yaml "$NETPLAN_DIR"/*.yml; do
     )' -i "$file" 2>/dev/null
 
     if "$SUDO" diff -q "$file_bak" "$file"; then
-      echo "No changes in '$file'\n"
+      echo -e "No changes in $file\n"
       "$SUDO" cat "$file"
     else
       status=true
@@ -36,7 +37,23 @@ for file in "$NETPLAN_DIR"/*.yaml "$NETPLAN_DIR"/*.yml; do
     fi
 done
 
-if "$status"; then
-  "$SUDO" systemctl restart systemd-networkd
+mapfile -t vpn_connections < <(nmcli -t connection show | grep -E $mask_vpn | cut -d: -f1)
+
+for c in "${vpn_connections[@]}"; do
+  echo "$SUDO" nmcli connection delete "$c"
+       "$SUDO" nmcli connection delete "$c"
+done
+
+echo "$SUDO" nmcli connection reload
+     "$SUDO" nmcli connection reload
+
+echo "$SUDO" systemctl restart systemd-networkd
+     "$SUDO" systemctl restart systemd-networkd
+
+#if "$status"; then
+#  echo "$SUDO" systemctl restart systemd-networkd
+#       "$SUDO" systemctl restart systemd-networkd
   # netplan apply
-fi
+#fi
+
+exit 0

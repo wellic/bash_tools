@@ -43,7 +43,8 @@ f=`which $name_cmd`
 if [ $? = '0' ]; then
     cat "$f"
     _print_separator '-'
-    echo "# Full: '$f'"
-    echo "# Path: '$(dirname "$f")'"
     echo "# Name: '$name_cmd'"
+    echo "# Full: '$f'"
+    echo -e "# Path:\n  cd '$(dirname "$f")'"
+    echo -e "# Edit:\n  mcedit '$f'\n"
 fi
