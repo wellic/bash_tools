@@ -33,27 +33,29 @@ for file in "$NETPLAN_DIR"/*.yaml "$NETPLAN_DIR"/*.yml; do
       "$SUDO" cat "$file"
     else
       status=true
-      "$SUDO" diff -y "$file_bak" "$file"
+      "$SUDO" diff -y "$file_bak" "$file" || :
     fi
 done
 
 mapfile -t vpn_connections < <(nmcli -t connection show | grep -E $mask_vpn | cut -d: -f1)
-
 for c in "${vpn_connections[@]}"; do
+  status=true
+  echo
   echo "$SUDO" nmcli connection delete "$c"
-       "$SUDO" nmcli connection delete "$c"
+       "$SUDO" nmcli connection delete "$c" || :
 done
 
-echo "$SUDO" nmcli connection reload
-     "$SUDO" nmcli connection reload
+if "$status"; then
+  echo
+  echo "$SUDO" nmcli connection reload
+       "$SUDO" nmcli connection reload || :
 
-echo "$SUDO" systemctl restart systemd-networkd
-     "$SUDO" systemctl restart systemd-networkd
-
-#if "$status"; then
-#  echo "$SUDO" systemctl restart systemd-networkd
-#       "$SUDO" systemctl restart systemd-networkd
-  # netplan apply
-#fi
+  #echo
+  #echo "$SUDO" systemctl restart systemd-networkd
+  #     "$SUDO" systemctl restart systemd-networkd
+  #echo
+  #echo "$SUDO" netplan apply
+  #     "$SUDO" netplan apply
+fi
 
 exit 0
