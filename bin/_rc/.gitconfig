@@ -445,6 +445,14 @@ l-last-short = "!f(){ \
  [ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '--- Please check ---' 5 && git last-short) || : \
 ;};f"
 
+l-hist-short = "!f(){ \
+ [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
+ CMD='l-hist-short' && \
+ showlog=${1:-on} && \
+ [ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '--- Please check ---' 5 && git hist ) || : \
+;};f"
+
+[ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '--- Please check ---' 5 && git last-short) || : \
 ##############
 # E:  l-echo-*
 ##############
@@ -745,13 +753,11 @@ mcf-copy2tmp = "!f(){ \
  src1_rbranch=_${nick}_${cbr}_tmp && \
  CURDATE=$(date +%y%m%d_%H%M%S) && \
  MESS=$(echo \"Tmp commit of branch '${cbr}'. Date: ${CURDATE}.\") && \
- TMPFILE='~__REMOVE_THIS_TMP_FILE__' && \
- touch \"$TMPFILE\" && \
  git l-echo-l1 \"$CMD $src1 $showlog\" && \
- git l-echo-lc \"$CMD 1:\" \"git add --all\"                        && git add --all && \
- git l-echo-lc \"$CMD 2:\" \"git commit -am '$MESS'\"               && git commit -m \"${MESS}\" && \
+ git l-echo-lc \"$CMD 1:\" \"git add --all\"                                    && git add --all && \
+ git l-echo-lc \"$CMD 2:\" \"git commit -am '$MESS' --allow-empty\"             && git commit -m \"${MESS}\"  --allow-empty && \
  git l-echo-lc \"$CMD 3:\" \"git push -f --no-verify $src1 $cbr:$src1_rbranch\" && git push $quite -f --no-verify $src1 $cbr:$src1_rbranch && \
- git l-echo-lc \"$CMD 4:\" \"git reset HEAD~1\"                                && git reset HEAD~1 && \
+ git l-echo-lc \"$CMD 4:\" \"git reset HEAD~1\"                                 && git reset HEAD~1 && \
  rm -f \"$TMPFILE\" && \
  git l-showlog $showlog \
 ;};f"
@@ -1881,7 +1887,8 @@ w-sync-tags = "!f(){ \
  showlog=${2:-on} && \
  git l-echo-l2 \"$CMD 1:\"; git l-echo-l0 \"git tag -l | xargs git tag -d\"; git tag -l | xargs git tag -d; \
  git l-echo-l2 \"$CMD 2:\"; git l-echo-l0 \"git fetch -t $src1 \";           git fetch -t $src1 && \
- git l-last-short $showlog \
+ git l-last-short $showlog; \
+ git l-hist-short $showlog \
 ;};f"
 
 w-master-pull = "!f(){ \
@@ -1897,7 +1904,8 @@ w-master-pull = "!f(){ \
  git l-echo-l2 \"$CMD 3:\"; git l-echo-l0 \"git fetch -pt $src1 \";                   git fetch -pt $src1; \
  git l-echo-l2 \"$CMD 4:\"; git l-echo-l0 \"git rebase $src1/$src1_rbranch \";        git rebase $src1/$src1_rbranch; \
  git l-echo-l2 \"$CMD 5:\"; git l-echo-l0 \"git checkout $cbr \";                     git checkout $cbr; \
- git l-echo-l2 \"$CMD 6:\"; git l-echo-l0 \"git last-short\";                         git last-short \
+ git l-echo-l2 \"$CMD 6:\"; git l-echo-l0 \"git l-last-short\";                       git l-last-short; \
+ git l-echo-l2 \"$CMD 6:\"; git l-echo-l0 \"git l-hist-short\";                       git l-hist-short \
 ;};f"
 
 w-master-checkout = "!f(){ \

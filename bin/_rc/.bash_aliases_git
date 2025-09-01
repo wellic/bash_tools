@@ -35,3 +35,4 @@ alias w_MSG=_w_MSG
 
 #alias gti='git '
 
+alias gitg='GTK_THEME=Yaru-dark gitg'

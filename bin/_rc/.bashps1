@@ -12,6 +12,7 @@ if [[ -e ~/.bashps1_kube ]]; then
 #  KUBE_PS1_SYMBOL_USE_IMG=true
 #  KUBE_PS1_SYMBOL_PADDING=true
 
+#GIT_PS1_SHOWCONFLICTSTATE
 
   KUBE_PS1_PREFIX=""
   KUBE_PS1_SUFFIX=""
@@ -202,7 +203,7 @@ __prompt_command() {
     [[ ${_PROMT_SHOW_PATH} =~ ^(1|true)$ ]] && _path="${Green}$(pwd)${__CReset}"
     _venv="${venv_color}${venv}${__CReset}"
     _mess="${IYellow}${mess_prefix}${__CReset}"
-    [[ -n $vcs_info ]] && _=" ${BIYellow}"${vcs_info}"${__CReset}"
+    [[ -n $vcs_info ]] && _vcs=" ${BIYellow}"${vcs_info}"${__CReset}"
   fi
 
   PS1=''
