@@ -94,6 +94,7 @@
     pager = less -FXRS
     whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
     excludesFile = ~/.gitignore_global
+	autocrlf = input
 #    editor = mcedit
 # FOR LINUX
 #    autocrlf = input
@@ -441,18 +442,17 @@ l-showlog = "!f(){ \
 l-last-short = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
  CMD='l-last-short' && \
- showlog=${1:-on} && \
- [ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '--- Please check ---' 5 && git last-short) || : \
+ showlog=${1:-on} && [ $# -gt 0 ] && shift; \
+ [ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '--- Please check ---' 5 && git last-short "$@") || : \
 ;};f"
 
-l-hist-short = "!f(){ \
+l-hist = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
- CMD='l-hist-short' && \
- showlog=${1:-on} && \
- [ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '--- Please check ---' 5 && git hist ) || : \
+ CMD='l-last-short' && \
+ showlog=${1:-on} && [ $# -gt 0 ] && shift; \
+ [ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '--- Please check ---' 5 && git last "$@") || : \
 ;};f"
 
-[ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '--- Please check ---' 5 && git last-short) || : \
 ##############
 # E:  l-echo-*
 ##############
@@ -774,9 +774,8 @@ mcf-fakecommit = "!f(){ \
  quite=$(git l-quite) && \
  mess=${1:-} && \
  showlog=${2:-on} && \
- a=_fakefile_.$(basename $PWD).$(date +%Y%m%d_%H%M%S) && \
- if [ -z \"$mess\" ]; then mess=\"Added $a\"; fi && \
- sleep 1 && touch \"$a\" && git add \"$a\" -- && git commit $quite -m \"Fake: $mess\" && \
+ if [ -z \"$mess\" ]; then mess=\"Fake commit: $(date +%Y%m%d_%H%M%S)\"; fi && \
+ git commit $quite --allow-empty -m \"$mess\" && \
  git l-showlog $showlog \
 ;};f"
 
@@ -1881,15 +1880,14 @@ l-flow-setup-feature = "!f(){ \
 
 w-sync-tags = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
- CMD='w-master-pull' && \
+ CMD='w-sync-tags' && \
  quite=$(git l-quite) && \
  src1=${1:-$(git l-mcf-param-get l-src1)} && \
  showlog=${2:-on} && \
  git l-echo-l2 \"$CMD 1:\"; git l-echo-l0 \"git tag -l | xargs git tag -d\"; git tag -l | xargs git tag -d; \
- git l-echo-l2 \"$CMD 2:\"; git l-echo-l0 \"git fetch -t $src1 \";           git fetch -t $src1 && \
- git l-last-short $showlog; \
- git l-hist-short $showlog \
-;};f"
+ git l-echo-l2 \"$CMD 2:\"; git l-echo-l0 \"git fetch -t $src1 \";           git fetch -t $src1; \
+ git l-last-short; \
+};f"
 
 w-master-pull = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
@@ -1900,13 +1898,21 @@ w-master-pull = "!f(){ \
  src1_rbranch=${3:-$(git l-mcf-param-get l-src1-rmaster)} && \
  cbr=$(git cbr); \
  git l-echo-l2 \"$CMD 1:\"; git l-echo-l0 \"git checkout $master \";                  git checkout $master; \
+ r=0; \
+ if [ _$cbr != _$src1_rbranch  ]; then \
+ if git branch $quite -d $cbr 2>/dev/null; then r=1; else r=0; fi; \
+ fi; \
  git l-echo-l2 \"$CMD 2:\"; git l-echo-l0 \"git remote prune $src1 \";                git remote prune $src1; \
  git l-echo-l2 \"$CMD 3:\"; git l-echo-l0 \"git fetch -pt $src1 \";                   git fetch -pt $src1; \
  git l-echo-l2 \"$CMD 4:\"; git l-echo-l0 \"git rebase $src1/$src1_rbranch \";        git rebase $src1/$src1_rbranch; \
- git l-echo-l2 \"$CMD 5:\"; git l-echo-l0 \"git checkout $cbr \";                     git checkout $cbr; \
- git l-echo-l2 \"$CMD 6:\"; git l-echo-l0 \"git l-last-short\";                       git l-last-short; \
- git l-echo-l2 \"$CMD 6:\"; git l-echo-l0 \"git l-hist-short\";                       git l-hist-short \
-;};f"
+ if [ $r = 0 ]; then \
+   git l-echo-l2 \"$CMD 5.1:\"; git l-echo-l0 \"git checkout $cbr \";                   git checkout $cbr; \
+ else \
+   git l-echo-l2 \"$CMD 5.1:\"; git l-echo-l0 \"git checkout -b $cbr \";              git checkout -b $cbr; \
+ fi; \
+ git l-echo-l2 \"$CMD 5.2:\"; git l-echo-l0 \"git rebase $src1/$src1_rbranch \";    git rebase $src1/$src1_rbranch; \
+ git l-last-short; \
+};f"
 
 w-master-checkout = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
