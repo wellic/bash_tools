@@ -5,4 +5,5 @@ set -uEeo pipefail
 
 hostname=$1
 port="${2:-443}"
+set -x
 openssl s_client -showcerts -servername "$hostname" -connect "$hostname:$port" </dev/null

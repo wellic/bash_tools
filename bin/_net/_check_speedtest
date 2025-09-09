@@ -165,7 +165,7 @@ else
     _sep
     select name in "${connected[@]}"; do
       [[ "$REPLY" =~ ^[qQ] ]] && exit 0
-      if [[ -z $i ]]; then
+      if [[ -z $name ]]; then
         echo "Invalid selection. Please try again or type 'q' to quit."
         continue
       fi
