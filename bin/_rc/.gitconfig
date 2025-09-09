@@ -3,9 +3,9 @@
 #   user.email
 #   mcf.nickname
 [user]
-	name = your_name
-	email = your@mail
-	email = your@mail
+    name = your_name
+    email = your@mail
+    email = your@mail
 
 #for private repos
 #~/.git-credentials
@@ -90,18 +90,18 @@
     changed = cyan
     untracked = yellow
 [core]
-    commentchar = ";"
+#    editor = mcedit
+#    commentchar = ";"
     pager = less -FXRS
     whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
     excludesFile = ~/.gitignore_global
-	autocrlf = input
-#    editor = mcedit
+    autocrlf = input
 # FOR LINUX
 #    autocrlf = input
-#	autocrlf = input
+#    autocrlf = input
 #    autocrlf = false
 #    safecrlf = true
-#	safecrlf = true
+#    safecrlf = true
 #    eol = lf
 #    eol = native
 # FOR WIN
@@ -112,7 +112,7 @@
     data = short
 [gui]
     spellingdictionary = en_GB
-	encoding = utf-8
+    encoding = utf-8
 [merge]
     tool = kdiff3
     guitool = kdiff3
@@ -355,7 +355,7 @@ fsckclear = "!f(){ \
 
 # Показать сообщение нужным цветом и оттенком
 # COLOR={0..7}
-#  0-Black(Grey), 1-Red, 2-Green, 3-Brown/Orange(Yellow), 4-Blue,  5-Purple, 6-Cyan, 7-Light Gray(White)
+#  0-Black(Grey), 1-Red, 2-Green, 3-Brown/Orange(Yellow), 4-Blue, 5-Purple, 6-Cyan, 7-Light Gray(White)
 # BRIGHT={0|1|2|4|7|9}
 #  0(normal), 1(light), 2(dark), 4(underline), 7(invert) 9(cross)
 l-echo-l0 = "! git l-echo"
@@ -436,21 +436,21 @@ l-showlog = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
  CMD='l-show-log' && \
  showlog=${1:-on} && \
- [ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '--- Please check ---' 5 && git last) || : \
+ [ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '----- Please check -----' 5 && git last) || : \
 ;};f"
 
 l-last-short = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
  CMD='l-last-short' && \
  showlog=${1:-on} && [ $# -gt 0 ] && shift; \
- [ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '--- Please check ---' 5 && git last-short "$@") || : \
+ [ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '----- Please check -----' 5 && git last-short "$@") || : \
 ;};f"
 
 l-hist = "!f(){ \
  [ \"$(git config --global mcf.l-debug-level)\" = '99' ] && set -x; \
  CMD='l-last-short' && \
  showlog=${1:-on} && [ $# -gt 0 ] && shift; \
- [ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '--- Please check ---' 5 && git last "$@") || : \
+ [ $(git l-check-is-on $showlog) = 'on' ] && (git l-echo '----- Please check -----' 5 && git last "$@") || : \
 ;};f"
 
 ##############
@@ -775,7 +775,7 @@ mcf-fakecommit = "!f(){ \
  mess=${1:-} && \
  showlog=${2:-on} && \
  if [ -z \"$mess\" ]; then mess=\"Fake commit: $(date +%Y%m%d_%H%M%S)\"; fi && \
- git commit $quite --allow-empty -m \"$mess\" && \
+ git commit $quite --allow-empty -am \"$mess\" && \
  git l-showlog $showlog \
 ;};f"
 
@@ -1898,19 +1898,19 @@ w-master-pull = "!f(){ \
  src1_rbranch=${3:-$(git l-mcf-param-get l-src1-rmaster)} && \
  cbr=$(git cbr); \
  git l-echo-l2 \"$CMD 1:\"; git l-echo-l0 \"git checkout $master \";                  git checkout $master; \
- r=0; \
- if [ _$cbr != _$src1_rbranch  ]; then \
- if git branch $quite -d $cbr 2>/dev/null; then r=1; else r=0; fi; \
- fi; \
  git l-echo-l2 \"$CMD 2:\"; git l-echo-l0 \"git remote prune $src1 \";                git remote prune $src1; \
  git l-echo-l2 \"$CMD 3:\"; git l-echo-l0 \"git fetch -pt $src1 \";                   git fetch -pt $src1; \
  git l-echo-l2 \"$CMD 4:\"; git l-echo-l0 \"git rebase $src1/$src1_rbranch \";        git rebase $src1/$src1_rbranch; \
- if [ $r = 0 ]; then \
-   git l-echo-l2 \"$CMD 5.1:\"; git l-echo-l0 \"git checkout $cbr \";                   git checkout $cbr; \
+ git l-echo '----- Rebase: OK -------' 6;\
+ git l-echo-l2 \"$CMD 5.1:\"; git l-echo-l0 \"git checkout $cbr \";                   git checkout $cbr; \
+ s=0;\
+ git l-echo-l2 \"$CMD 5.2:\"; git l-echo-l0 \"git rebase $src1/$src1_rbranch \";      git rebase $src1/$src1_rbranch || s=1; \
+ if [ $s = \"1\" ]; then \
+ git l-echo '----- Rebase: FAIL -----' 1;\
+ git l-echo-l2 \"$CMD 5.3:\"; git l-echo-l0 'git rebase --abort';                    git rebase --abort ; \
  else \
-   git l-echo-l2 \"$CMD 5.1:\"; git l-echo-l0 \"git checkout -b $cbr \";              git checkout -b $cbr; \
+ git l-echo '----- Rebase: OK -------' 6;\
  fi; \
- git l-echo-l2 \"$CMD 5.2:\"; git l-echo-l0 \"git rebase $src1/$src1_rbranch \";    git rebase $src1/$src1_rbranch; \
  git l-last-short; \
 };f"
 
@@ -1949,15 +1949,15 @@ w-shortlog = shortlog -sne
 ### End ALIASES ###
 ###################
 [github]
-	accesstoken = your_access_token     
+    accesstoken = your_access_token     
 [url "https://"]
-	insteadOf = git://
+    insteadOf = git://
 [url "https://github.com/"]
-	insteadOf = git@github.com:
+    insteadOf = git@github.com:
 [init]
-	templatedir = ~/.git-templates
+    templatedir = ~/.git-templates
 #[url "https://your_token:x-oauth-basic@github.com/"]
-#	insteadOf = https://github.com/
+#    insteadOf = https://github.com/
 
 [include]
     path = ~/projects/.gitconfig
