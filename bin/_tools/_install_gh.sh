@@ -113,7 +113,7 @@ show_completion() {
  $(_completion_cmd)
 
  # Add completion
- $( echo "$(_completion_cmd) | sudo tee /etc/bash_completion.d/$tool_name")
+ source <( $( echo "$(_completion_cmd) | sudo tee /etc/bash_completion.d/$tool_name") )
 EOF
   fi
 }
@@ -127,7 +127,7 @@ def_mask_amd64_deb=${def_mask}.*amd64.deb
 def_mask_bin=${def_mask}'.*[_-][Ll]inux[_-]amd64"'
 def_mask_amd64_bz2=${def_mask}.*linux_amd64.bz2
 def_mask_x86_64_tar_gz=${def_mask}.*[Ll]inux[_-]x86_64.tar.gz
-
+def_mask_amd64_tar_gz=${def_mask}.*[Ll]inux[_-]amd64.tar.gz
 
 OPT_VERSION=--version
 
