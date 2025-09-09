@@ -11,11 +11,29 @@ mask_vpn='^(fctvpn)'
 NETPLAN_DIR="/etc/netplan"
 BAK_DIR="$NETPLAN_DIR/bak"
 "$SUDO" mkdir -p "$BAK_DIR"
+TIMEOUT=3
 
+unique_array() {
+  declare -A seen
+  local item
+  local -a out=()
+  for item in "$@"; do
+    if [[ -z "${seen[$item]:-}" ]]; then
+      out+=("$item")
+      seen[$item]=1
+    fi
+  done
+  printf '%s\n' "${out[@]}"
+}
+
+devices=()
 status=false
+#set -x
 for file in "$NETPLAN_DIR"/*.yaml "$NETPLAN_DIR"/*.yml; do
-    "$SUDO" yq eval '.network.ethernets.*.match.name' "$file" 2>/dev/null | grep -Eq "$mask" || continue
-    echo -e "\nProcessing: $file\n"
+    device="$("$SUDO" yq eval '.network.ethernets.*.match.name, .network.wifis.*.match.name' "$file" 2>/dev/null | grep -E "$mask" | head -1 || :)"
+    [[ -z "$device" ]] && continue
+    devices+=("$device")
+    echo -e "\nProcessing: device $device from $file"
 
     file_bak="$BAK_DIR/$(basename "$file")"
     "$SUDO" rm -f "$file_bak"
@@ -29,15 +47,22 @@ for file in "$NETPLAN_DIR"/*.yaml "$NETPLAN_DIR"/*.yml; do
     )' -i "$file" 2>/dev/null
 
     if "$SUDO" diff -q "$file_bak" "$file"; then
-      echo -e "No changes in $file\n"
-      "$SUDO" cat "$file"
+      echo -e "No changes in $file"
+#      "$SUDO" cat "$file"
     else
       status=true
+      echo
       "$SUDO" diff -y "$file_bak" "$file" || :
     fi
 done
+devices=($(unique_array "${devices[@]}"))
 
+echo -e "\n###########"
 mapfile -t vpn_connections < <(nmcli -t connection show | grep -E $mask_vpn | cut -d: -f1)
+
+#####
+$status && sleep $TIMEOUT
+status=false
 for c in "${vpn_connections[@]}"; do
   status=true
   echo
@@ -45,16 +70,24 @@ for c in "${vpn_connections[@]}"; do
        "$SUDO" nmcli connection delete "$c" || :
 done
 
-if "$status"; then
+#####
+$status && sleep $TIMEOUT
+status=false
+for device in "${devices[@]}"; do
+  status=true
   echo
-  echo "$SUDO" nmcli connection reload
-       "$SUDO" nmcli connection reload || :
-  #echo
-  #echo "$SUDO" systemctl restart systemd-networkd
-  #     "$SUDO" systemctl restart systemd-networkd
-  #echo
-  #echo "$SUDO" netplan apply
-  #     "$SUDO" netplan apply
-fi
+  echo "$SUDO" nmcli device reapply "$device"
+       "$SUDO" nmcli device reapply "$device" || :
+done
 
-exit 0
+#####
+$status && sleep $TIMEOUT
+status=true
+echo
+echo "$SUDO" nmcli connection reload
+     "$SUDO" nmcli connection reload || :
+
+#####
+$status && sleep $TIMEOUT
+echo "$SUDO" systemctl restart systemd-networkd
+     "$SUDO" systemctl restart systemd-networkd
