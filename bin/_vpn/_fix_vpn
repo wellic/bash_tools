@@ -26,13 +26,20 @@ unique_array() {
   printf '%s\n' "${out[@]}"
 }
 
+declare -a active_devices
+mapfile active_devices < <($SUDO nmcli -f device,uuid connection show --active | tail -n+2)
 devices=()
+uuids=()
 status=false
 #set -x
 for file in "$NETPLAN_DIR"/*.yaml "$NETPLAN_DIR"/*.yml; do
     device="$("$SUDO" yq eval '.network.ethernets.*.match.name, .network.wifis.*.match.name' "$file" 2>/dev/null | grep -E "$mask" | head -1 || :)"
     [[ -z "$device" ]] && continue
+    uuid="$(printf "%s\n" "${active_devices[@]}" | grep -Po "^${device}\s+\K(.*)$")"
+    [[ -z $uuid ]] && continue
+
     devices+=("$device")
+    uuids+=("$uuid")
     echo -e "\nProcessing: device $device from $file"
 
     file_bak="$BAK_DIR/$(basename "$file")"
@@ -55,14 +62,16 @@ for file in "$NETPLAN_DIR"/*.yaml "$NETPLAN_DIR"/*.yml; do
       "$SUDO" diff -y "$file_bak" "$file" || :
     fi
 done
+
 devices=($(unique_array "${devices[@]}"))
+uuids=($(unique_array "${uuids[@]}"))
 
 echo -e "\n###########"
-mapfile -t vpn_connections < <(nmcli -t connection show | grep -E $mask_vpn | cut -d: -f1)
 
 #####
 $status && sleep $TIMEOUT
 status=false
+mapfile -t vpn_connections < <(nmcli -t connection show | grep -E $mask_vpn | cut -d: -f1)
 for c in "${vpn_connections[@]}"; do
   status=true
   echo
@@ -73,7 +82,25 @@ done
 #####
 $status && sleep $TIMEOUT
 status=false
+for uuid in "${uuids[@]}"; do
+  status=true
+  echo
+  echo "$SUDO" nmcli connection down "$uuid"
+       "$SUDO" nmcli connection down "$uuid" || :
+  sleep $TIMEOUT
+  echo "$SUDO" nmcli connection up "$uuid"
+       "$SUDO" nmcli connection up "$uuid" || :
+done
+
+exit 0
+
+
+#####
+$status && sleep $TIMEOUT
+status=false
+active=
 for device in "${devices[@]}"; do
+  uuid="$()"
   status=true
   echo
   echo "$SUDO" nmcli device reapply "$device"
