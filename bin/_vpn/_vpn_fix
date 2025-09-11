@@ -53,6 +53,13 @@ for file in "$NETPLAN_DIR"/*.yaml "$NETPLAN_DIR"/*.yml; do
         .network.ethernets.*.networkmanager.passthrough."ipv6.ignore-auto-dns"
     )' -i "$file" 2>/dev/null
 
+    "$SUDO" yq eval 'del(
+        .network.wifis.*.nameservers,
+        .network.wifis.*.networkmanager.passthrough."ipv4.dns-search",
+        .network.wifis.*.networkmanager.passthrough."ipv4.ignore-auto-dns",
+        .network.wifis.*.networkmanager.passthrough."ipv6.ignore-auto-dns"
+    )' -i "$file" 2>/dev/null
+
     if "$SUDO" diff -q "$file_bak" "$file"; then
       echo -e "No changes in $file"
 #      "$SUDO" cat "$file"

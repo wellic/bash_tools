@@ -1,6 +1,17 @@
-/.idea/
+.idea/*
 
+*__wellic__*
+*__dev__*
+*__debug__*
+*__tmp__*
+
+### Python ###
+.pytest_cache
+__pycache__/
+.venv/
+venv/
+.coveragerc
+
+###################3
 !.gitignore
 !.gitkeep
-
-/__*
