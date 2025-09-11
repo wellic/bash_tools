@@ -15,3 +15,5 @@ venv/
 ###################3
 !.gitignore
 !.gitkeep
+
+_update/
