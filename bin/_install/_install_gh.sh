@@ -38,11 +38,19 @@ prepare_cmd_str() {
 }
 
 _install_bin() {
-local DST=$1
-cat <<EOF
- wget --show-progress -q '$release_link' -O '$downloaded_file'; \\
- sudo mv '$downloaded_file' "$DST"; \\
- sudo chmod +x "$DST";
+  local DST=$1
+
+  local cmd
+  if [[ ${DOWNLOADER:-curl} == "wget" ]]; then
+    cmd="wget --show-progress -q '$release_link' -O '$downloaded_file'"
+  else
+    cmd="curl -L --progress-bar '$release_link' -o '$downloaded_file'"
+  fi
+
+  cat <<EOF
+  $cmd; \\
+  sudo mv '$downloaded_file' "$DST"; \\
+  sudo chmod +x "$DST";
 EOF
 }
 
@@ -62,11 +70,25 @@ get_main_install_cmd() {
     cmd="sudo apt install \"$downloaded_file\""
   fi
 
-cat <<- EOF
- wget --show-progress -q '$release_link' -O '$downloaded_file'; \\
- $cmd; \\
- rm -v '$downloaded_file'
+#cat <<- EOF
+# wget --show-progress -q '$release_link' -O '$downloaded_file'; \\
+# $cmd; \\
+# rm -v '$downloaded_file'
+#EOF
+
+  local cmd2
+  if [[ ${DOWNLOADER:-curl} == "wget" ]]; then
+    cmd2="wget --show-progress -q '$release_link' -O '$downloaded_file'"
+  else
+    cmd2="curl -L --progress-bar '$release_link' -o '$downloaded_file'"
+  fi
+
+  cat <<-EOF
+  $cmd2; \\
+  $cmd; \\
+  rm -v '$downloaded_file'
 EOF
+
 }
 
 _main() {
@@ -119,6 +141,8 @@ EOF
 }
 
 ########################
+# curl | wget
+DOWNLOADER=curl
 
 tmp_dir=/tmp
 def_mask=browser_download_url

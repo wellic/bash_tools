@@ -8,18 +8,18 @@ export PATH=$PATH:$HOME/bin/_device
 export PATH=$PATH:$HOME/bin/_docker
 export PATH=$PATH:$HOME/bin/_dropbox
 export PATH=$PATH:$HOME/bin/_fs
-export PATH=$PATH:$HOME/bin/_git_tools
+export PATH=$PATH:$HOME/bin/_git
+export PATH=$PATH:$HOME/bin/_install
 export PATH=$PATH:$HOME/bin/_k8s
 export PATH=$PATH:$HOME/bin/_kbd
 export PATH=$PATH:$HOME/bin/_mem
 export PATH=$PATH:$HOME/bin/_mnt
 export PATH=$PATH:$HOME/bin/_net
+export PATH=$PATH:$HOME/bin/_other
 export PATH=$PATH:$HOME/bin/_prg
 export PATH=$PATH:$HOME/bin/_rc
 export PATH=$PATH:$HOME/bin/_sites
 export PATH=$PATH:$HOME/bin/_ssh
+export PATH=$PATH:$HOME/bin/_tmp
 export PATH=$PATH:$HOME/bin/_tools
 export PATH=$PATH:$HOME/bin/_vpn
-export PATH=$PATH:$HOME/bin/_other
-
-

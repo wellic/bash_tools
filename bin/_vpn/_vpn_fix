@@ -114,7 +114,6 @@ for device in "${devices[@]}"; do
        "$SUDO" nmcli device reapply "$device" || :
 done
 
-#####
 $status && sleep $TIMEOUT
 status=true
 echo
