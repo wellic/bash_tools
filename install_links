@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -uEeo pipefail
+set -ueo pipefail
 #set -x
 
 bin_dir="${1:-$HOME/bin}"
@@ -8,10 +8,21 @@ bin_dir="${1:-$HOME/bin}"
 src_dir="$PWD/bin"
 mapfile -t dirs < <(ls -1d "${src_dir}/_"*)
 
+status=false
 for d in "${dirs[@]}"; do
   dn="$(basename "$d")"
-  [[ $dn == _test ]] || continue
+  dst_dir="$bin_dir/$dn"
+
+  if [[ -e $dst_dir ]]; then
+    echo "Skipped Creating: $dst_dir"
+    continue
+  fi
+
   rel_path="$(realpath --relative-to="$bin_dir" "$src_dir")"
-  echo ln -s "$rel_path/$dn" "$HOME/bin/$dn"
-       ln -s "$rel_path/$dn" "$HOME/bin/$dn"
+  echo ln -s "$rel_path/$dn" "$dst_dir"
+       ln -s "$rel_path/$dn" "$dst_dir"
+  status=true
+
 done
+
+$status || cp -f "sample.bash_bin" "$HOME/.bash_bin"
