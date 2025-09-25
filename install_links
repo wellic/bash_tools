@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -uEeo pipefail
+#set -x
+
+bin_dir="${1:-$HOME/bin}"
+
+src_dir="$PWD/bin"
+mapfile -t dirs < <(ls -1d "${src_dir}/_"*)
+
+for d in "${dirs[@]}"; do
+  dn="$(basename "$d")"
+  [[ $dn == _test ]] || continue
+  rel_path="$(realpath --relative-to="$bin_dir" "$src_dir")"
+  echo ln -s "$rel_path/$dn" "$HOME/bin/$dn"
+       ln -s "$rel_path/$dn" "$HOME/bin/$dn"
+done
