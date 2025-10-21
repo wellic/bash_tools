@@ -185,3 +185,5 @@ if [ -f '/home/yournick/google-cloud-sdk/google-cloud-sdk/path.bash.inc' ]; then
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/home/yournick/google-cloud-sdk/google-cloud-sdk/completion.bash.inc' ]; then . '/home/yournick/google-cloud-sdk/google-cloud-sdk/completion.bash.inc'; fi
+
+complete -C /usr/bin/terraform terraform
