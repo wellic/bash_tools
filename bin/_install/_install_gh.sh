@@ -20,7 +20,10 @@ _normalize_version() {
 }
 
 get_current_version() {
-    "$tool_name" $OPT_VERSION | head -n1 | _normalize_version
+    if ! command -v "$tool_name" 2>/dev/null; then echo "0.0.0"; return 0;fi
+    local v
+    v="$("$tool_name" $OPT_VERSION || echo "0.0.0")"
+    echo "$v" | head -n1 | _normalize_version
 #    "$tool_name" $OPT_VERSION | head -n1 | cut -d ' ' -f 2 | _normalize_version
 }
 
@@ -60,7 +63,7 @@ get_main_install_cmd() {
 # dpkg -i '$downloaded_file'; \\
   if [[ $downloaded_file =~ .t?gz$ ]]; then
     cmd="tmpdir=\$(mktemp -d); \\
- tar xvf \"$downloaded_file\" -C \"\$tmpdir\"; \\
+ tar xvf \"$downloaded_file\" --strip-components=1 -C \"\$tmpdir\"; \\
  sudo mv \"\$tmpdir/$SRC_BIN_FILE\" \"$DST_BIN_FILE\"; \\
  sudo chmod +x \"$DST_BIN_FILE\"; \\
  rm -vrf \"\$tmpdir\""
@@ -95,7 +98,7 @@ _main() {
     url_releases=$(get_url_releases)
     releases=$(fetch_releases)
     release_link=$(get_release_link)
-    version_current=$(get_current_version)
+    version_current=$(get_current_version || :)
 
  cat <<- EOF
  # Existed releases:
@@ -125,7 +128,7 @@ EOF
 }
 
 _completion_cmd() {
-  echo "$tool_name completion bash"
+  echo "$tool_name $COMPLETION_OPT bash"
 }
 
 show_completion() {
@@ -154,7 +157,7 @@ def_mask_x86_64_tar_gz=${def_mask}.*[Ll]inux[_-]x86_64.tar.gz
 def_mask_amd64_tar_gz=${def_mask}.*[Ll]inux[_-]amd64.tar.gz
 
 OPT_VERSION=--version
-
+COMPLETION_OPT=completion
 last_releases=10
 
 before_install_cmd=()
