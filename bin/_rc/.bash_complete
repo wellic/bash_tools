@@ -1,4 +1,3 @@
-
 complete -W "$(echo `cat ~/.ssh/config | grep -iE '^(Host|HostName) ' | awk '{print $2}'`)" ssh
 #HEADS=$(echo `cdadm; __git_heads | awk '{print $1}'`)
 HEADS=$(echo ` __git_heads | awk '{print $1}'`)
@@ -23,3 +22,5 @@ complete -W "$HEADS" go gst gb makepatch gl
 #complete -o default -F _rg rgn
 #complete -D -F _rg -o bashdefault -o rgn
 #complete -o default -F _rg rgn
+
+complete -C /usr/bin/terraform terraform

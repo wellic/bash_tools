@@ -5,6 +5,7 @@
 *__dev__*
 *__debug__*
 *__tmp__*
+*__dev__*/*
 
 ### Python ###
 __pycache__/

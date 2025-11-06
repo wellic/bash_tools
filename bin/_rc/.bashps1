@@ -1,18 +1,53 @@
+#!/bin/bash
+# http://ezprompt.net/
 
-#http://ezprompt.net/
-[ -f /etc/bash_completion.d/git-prompt ] && source /etc/bash_completion.d/git-prompt
-[ -f /etc/bash_completion.d/git ]        && source /etc/bash_completion.d/git
 
-#set -x
+################################################################################
+
+if [[ -e /usr/share/bash-completion/completions/git ]]; then
+  source "/usr/share/bash-completion/completions/git"
+else
+  echo "No found /usr/share/bash-completion/completions/git"
+  [[ -e /etc/bash_completion.d/git ]] && source "/etc/bash_completion.d/git" || echo "No found /etc/bash_completion.d/git"
+fi
+
+#if [[ -e /usr/lib/git-core/git-sh-prompt ]]; then
+#  source "/usr/lib/git-core/git-sh-prompt"
+#else
+#  echo "No found /usr/lib/git-core/git-sh-prompt"
+  [[ -e /etc/bash_completion.d/git-prompt ]] && source /etc/bash_completion.d/git-prompt || echo "No found /etc/bash_completion.d/git-prompt"
+#fi
+# https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
+# http://ithaca.arpinum.org/2013/01/02/git-prompt.html
+
+export GIT_PS1_SHOWDIRTYSTATE=1
+export GIT_PS1_SHOWSTASHSTATE=1
+export GIT_PS1_SHOWUNTRACKEDFILES=1
+# Explicitly unset color (default anyhow). Use 1 to set it.
+export GIT_PS1_SHOWCOLORHINTS=1
+export GIT_PS1_SHOWCOLORHINTS=""
+#      contains      relative to newer annotated tag (v1.6.3.2~35)
+##     branch        relative to newer tag or branch (master~4)
+##     describe      relative to older annotated tag (v1.6.3.1-13-gdd42c2f)
+##     tag           relative to any older tag (v1.6.3.1-13-gdd42c2f)
+##     default       exactly matching tag
+export GIT_PS1_DESCRIBE_STYLE="branch"
+#export GIT_PS1_SHOWUPSTREAM="auto verbose name git legacy"
+export GIT_PS1_SHOWUPSTREAM="auto verbose name git"
+#export GIT_PS1_HIDE_IF_PWD_IGNORED=
+export GIT_PS1_COMPRESSSPARSESTATE=1
+#export GIT_PS1_SHOWUPSTREAM
+
+################################################################################
+
 if [[ -e ~/.bashps1_kube ]]; then
   # https://github.com/jonmosco/kube-ps1/blob/master/README.md
   # https://github.com/gawin/bash-colors-256
 
+  #  KUBE_PS1_SYMBOL_USE_IMG=true
+  #  KUBE_PS1_SYMBOL_PADDING=true
 
-#  KUBE_PS1_SYMBOL_USE_IMG=true
-#  KUBE_PS1_SYMBOL_PADDING=true
-
-#GIT_PS1_SHOWCONFLICTSTATE
+  #GIT_PS1_SHOWCONFLICTSTATE
 
   KUBE_PS1_PREFIX=""
   KUBE_PS1_SUFFIX=""
@@ -28,32 +63,8 @@ if [[ -e ~/.bashps1_kube ]]; then
   source ~/.bashps1_kube
 fi
 
-#set +x
-
-_ADD_PROMT_COMMAND_ERROR_INFO_=1
-_ADD_PROMT_COMMAND_JOBS_INFO_=1
-_ADD_PROMT_COMMAND_CMDNUM_INFO_=0
-
-_PROMT_HIDE_ALL=0
-_PROMT_SHOW_TIME=1
-_PROMT_SHOW_HOST=1
-_PROMT_SHOW_PATH=1
-
-#Add custom message
-_m() {
-    CUSTOM_MESSAGE="$*"
-    CUSTOM_MESSAGE="${CUSTOM_MESSAGE#"${CUSTOM_MESSAGE%%[![:space:]]*}"}"
-    CUSTOM_MESSAGE="${CUSTOM_MESSAGE%"${CUSTOM_MESSAGE##*[![:space:]]}"}"
-}
-
-#toggle display count cmd
-_toggle_cmd_num() {
- [ "$_ADD_PROMT_COMMAND_CMDNUM_INFO_" = '1' ] && _ADD_PROMT_COMMAND_CMDNUM_INFO_=0 || _ADD_PROMT_COMMAND_CMDNUM_INFO_=1
-}
-
-#debian_chroot=
-#color_prompt=
-#force_color_prompt=
+_ADD_PROMPT_COMMAND_ERROR_INFO_=1
+_ADD_PROMPT_COMMAND_JOBS_INFO_=1
 
 # set variable identifying the chroot you work in (used in the prompt below)
 if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
@@ -63,7 +74,7 @@ fi
 # set a fancy prompt (non-color, unless we know we "want" color)
 color_prompt=yes
 case "$TERM" in
-  xterm-color) color_prompt=yes;;
+  xterm*) color_prompt=yes ;;
 esac
 
 # uncomment for a colored prompt, if the terminal has the capability; turned
@@ -73,171 +84,213 @@ esac
 
 if [ -n "$force_color_prompt" ]; then
   if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-  # We have color support; assume it's compliant with Ecma-48
-  # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-  # a case would tend to support setf rather than setaf.)
+    # We have color support; assume it's compliant with Ecma-48
+    # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+    # a case would tend to support setf rather than setaf.)
     color_prompt=yes
   else
     color_prompt=
   fi
 fi
 
-# https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
-# http://ithaca.arpinum.org/2013/01/02/git-prompt.html
 
-export GIT_PS1_SHOWDIRTYSTATE=1
-export GIT_PS1_SHOWSTASHSTATE=1
-export GIT_PS1_SHOWUNTRACKEDFILES=1
-# Explicitly unset color (default anyhow). Use 1 to set it.
-export GIT_PS1_SHOWCOLORHINTS=1
-export GIT_PS1_DESCRIBE_STYLE="branch"
-export GIT_PS1_SHOWUPSTREAM="auto verbose name git"
-export GIT_PS1_HIDE_IF_PWD_IGNORED=
+################################################################################
 
-jobscount() {
-   local stopped=$(jobs -sp | wc -l)
-   local running=$(jobs -rp | wc -l)
-   ((running+stopped)) && echo -n "${running} running, ${stopped} stopped"
-# || echo -n "0r/0s"
+__job_count_ps1() {
+  local stopped=$(jobs -sp | wc -l)
+  local running=$(jobs -rp | wc -l)
+  ((running + stopped)) && echo -n "${running} running, ${stopped} stopped"
+  ((running + stopped)) && echo -n "${running} running, ${stopped} stopped"
+}
+
+__PROMPT_PS1_HIDE_ALL=0
+__PROMPT_PS1_SHOW_VENV=1
+__PROMPT_PS1_SHOW_CMD_NUM=0
+__PROMPT_PS1_SHOW_TIME=1
+__PROMPT_PS1_SHOW_HOST=1
+__PROMPT_PS1_SHOW_PATH=1
+__PROMPT_PS1_SHOW_VCS=1
+__PROMPT_PS1_SHOW_K8S=1
+__PROMPT_PS1_SHOW_MESS=1
+
+# toggle display
+__toggle_ps1_hide_all() { [[ $__PROMPT_PS1_HIDE_ALL == "1" ]] && __PROMPT_PS1_HIDE_ALL=0 || __PROMPT_PS1_HIDE_ALL=1; }
+__toggle_ps1_show_venv() { [[ $__PROMPT_PS1_SHOW_VENV == "1" ]] && __PROMPT_PS1_SHOW_VENV=0 || __PROMPT_PS1_SHOW_VENV=1; }
+__toggle_ps1_show_cmd_num() { [[ $__PROMPT_PS1_SHOW_CMD_NUM == "1" ]] && __PROMPT_PS1_SHOW_CMD_NUM=0 || __PROMPT_PS1_SHOW_CMD_NUM=1; }
+__toggle_ps1_show_time() { [[ $__PROMPT_PS1_SHOW_TIME == "1" ]] && __PROMPT_PS1_SHOW_TIME=0 || __PROMPT_PS1_SHOW_TIME=1; }
+__toggle_ps1_show_host() { [[ $__PROMPT_PS1_SHOW_HOST == "1" ]] && __PROMPT_PS1_SHOW_HOST=0 || __PROMPT_PS1_SHOW_HOST=1; }
+__toggle_ps1_show_path() { [[ $__PROMPT_PS1_SHOW_PATH == "1" ]] && __PROMPT_PS1_SHOW_PATH=0 || __PROMPT_PS1_SHOW_PATH=1; }
+__toggle_ps1_show_vcs() { [[ $__PROMPT_PS1_SHOW_VCS == "1" ]] && __PROMPT_PS1_SHOW_VCS=0 || __PROMPT_PS1_SHOW_VCS=1; }
+__toggle_ps1_show_k8s() { [[ $__PROMPT_PS1_SHOW_K8S == "1" ]] && __PROMPT_PS1_SHOW_K8S=0 || __PROMPT_PS1_SHOW_K8S=1; }
+__toggle_ps1_show_msg() { [[ $__PROMPT_PS1_SHOW_MESS == "1" ]] && __PROMPT_PS1_SHOW_MESS=0 || __PROMPT_PS1_SHOW_MESS=1; }
+
+#Add custom message
+__CUSTOM_MESSAGE_PS1=""
+__set_ps1_custom_msg() {
+  __CUSTOM_MESSAGE_PS1="$(echo "$*")"
 }
 
 __hg_ps1() {
-    local INFO
-    local status
-    INFO=$(hg branch 2> /dev/null)
-    if [ $? -eq 0 ]; then
-        INFO="hg: ${INFO//[[:blank:]]}"
-        status=$(hg status | cut -b 1 | uniq | sort | tr -d '\n')
-        status=${status//[[:blank:]]}
-        [ ! -z "$status" ] && status=' '$status
-        echo -e "($INFO$status)"
-        return 0
-    fi
-    return 1
+  local INFO
+  local status
+  INFO=$(hg branch 2> /dev/null)
+  if [ $? -eq 0 ]; then
+    INFO="hg: ${INFO//[[:blank:]]/}"
+    status=$(hg status | cut -b 1 | uniq | sort | tr -d '\n')
+    status=${status//[[:blank:]]/}
+    [ ! -z "$status" ] && status=' '$status
+    echo -e "($INFO$status)"
+    return 0
+  fi
+  return 1
+}
+
+__rtrim_ps1() {
+  local str="$*"
+  # убрать все пробелы и табы в конце
+  str="${str%"${str##*[![:space:]]}"}"
+  printf '%s' "$str"
 }
 
 __prompt_command() {
+  # fix ubuntu issue and MacOS
+  # https://askubuntu.com/questions/662222/why-bracketed-paste-mode-is-enabled-sporadically-in-my-terminal-screen
+  # https://stackoverflow.com/questions/42212099/how-do-i-disable-the-weird-characters-from-bracketed-paste-mode-on-the-mac-os
+  # echo $'\e[?2004l'
+  # https://askubuntu.com/questions/662222/why-bracketed-paste-mode-is-enabled-sporadically-in-my-terminal-screen
+  # https://askubuntu.com/a/1333170
+  # https://stackoverflow.com/questions/42212099/how-do-i-disable-the-weird-characters-from-bracketed-paste-mode-on-the-mac-os
+  # https://cirw.in/blog/bracketed-paste
+  printf '\e[?2004l'
+  # if [[ $- == *i* ]]; then bind 'set enable-bracketed-paste off'; fi
+
   local __CReset='\e[0m' # Text Reset
-# Обычные цвета
-  local  Black='\e[0;30m'       # Black
-  local    Red='\e[0;31m'       # Red
-  local  Green='\e[0;32m'       # Green
-  local Yellow='\e[0;33m'       # Yellow
-  local   Blue='\e[0;34m'       # Blue
-  local Purple='\e[0;35m'       # Purple
-  local   Cyan='\e[0;36m'       # Cyan
-  local  White='\e[0;37m'       # White
-# Жирные
-  local  BBlack='\e[1;30m'      # Black
-  local    BRed='\e[1;31m'      # Red
-  local  BGreen='\e[1;32m'      # Green
-  local BYellow='\e[1;33m'      # Yellow
-  local   BBlue='\e[1;34m'      # Blue
-  local BPurple='\e[1;35m'      # Purple
-  local   BCyan='\e[1;36m'      # Cyan
-  local  BWhite='\e[1;37m'      # White
-# Темные
-  local  DBlack='\e[2;30m'      # Black
-  local    DRed='\e[2;31m'      # Red
-  local  DGreen='\e[2;32m'      # Green
-  local DYellow='\e[2;33m'      # Yellow
-  local   DBlue='\e[2;34m'      # Blue
-  local DPurple='\e[2;35m'      # Purple
-  local   DCyan='\e[2;36m'      # Cyan
-  local  DWhite='\e[2;37m'      # White
-# Высоко Интенсивные
-  local  IBlack='\e[0;90m'      # Black
-  local    IRed='\e[0;91m'      # Red
-  local  IGreen='\e[0;92m'      # Green
-  local IYellow='\e[0;93m'      # Yellow
-  local   IBlue='\e[0;94m'      # Blue
-  local IPurple='\e[0;95m'      # Purple
-  local   ICyan='\e[0;96m'      # Cyan
-  local  IWhite='\e[0;97m'      # White
-# Жирные Высоко Интенсивные
-  local  BIBlack='\e[1;90m'     # Black
-  local    BIRed='\e[1;91m'     # Red
-  local  BIGreen='\e[1;92m'     # Green
-  local BIYellow='\e[1;93m'     # Yellow
-  local   BIBlue='\e[1;94m'     # Blue
-  local BIPurple='\e[1;95m'     # Purple
-  local   BICyan='\e[1;96m'     # Cyan
-  local  BIWhite='\e[1;97m'     # White
+  # Обычные цвета
+  local Black='\e[0;30m'  # Black
+  local Red='\e[0;31m'    # Red
+  local Green='\e[0;32m'  # Green
+  local Yellow='\e[0;33m' # Yellow
+  local Blue='\e[0;34m'   # Blue
+  local Purple='\e[0;35m' # Purple
+  local Cyan='\e[0;36m'   # Cyan
+  local White='\e[0;37m'  # White
+  # Жирные
+  local BBlack='\e[1;30m'  # Black
+  local BRed='\e[1;31m'    # Red
+  local BGreen='\e[1;32m'  # Green
+  local BYellow='\e[1;33m' # Yellow
+  local BBlue='\e[1;34m'   # Blue
+  local BPurple='\e[1;35m' # Purple
+  local BCyan='\e[1;36m'   # Cyan
+  local BWhite='\e[1;37m'  # White
+  # Темные
+  local DBlack='\e[2;30m'  # Black
+  local DRed='\e[2;31m'    # Red
+  local DGreen='\e[2;32m'  # Green
+  local DYellow='\e[2;33m' # Yellow
+  local DBlue='\e[2;34m'   # Blue
+  local DPurple='\e[2;35m' # Purple
+  local DCyan='\e[2;36m'   # Cyan
+  local DWhite='\e[2;37m'  # White
+  # Высоко Интенсивные
+  local IBlack='\e[0;90m'  # Black
+  local IRed='\e[0;91m'    # Red
+  local IGreen='\e[0;92m'  # Green
+  local IYellow='\e[0;93m' # Yellow
+  local IBlue='\e[0;94m'   # Blue
+  local IPurple='\e[0;95m' # Purple
+  local ICyan='\e[0;96m'   # Cyan
+  local IWhite='\e[0;97m'  # White
+  # Жирные Высоко Интенсивные
+  local BIBlack='\e[1;90m'  # Black
+  local BIRed='\e[1;91m'    # Red
+  local BIGreen='\e[1;92m'  # Green
+  local BIYellow='\e[1;93m' # Yellow${_custom_mess}
+  local BIBlue='\e[1;94m'   # Blue
+  local BIPurple='\e[1;95m' # Purple
+  local BICyan='\e[1;96m'   # Cyan
+  local BIWhite='\e[1;97m'  # White
 
+  local _k8s="" _time="" _host="" _path="" _venv="" _mess="" _vcs=""
 
-  echo $'\e[?2004l'
-
-  #python Virtual Env
-  local venv=''
-  local cnt=0
-  if [ "$VIRTUAL_ENV" != '' -a "$(basename \"$VIRTUAL_ENV\")" != '""' ]; then 
-    venv+=" `basename \"$VIRTUAL_ENV\"`"
-    cnt=$((cnt + 1))
-  fi
-  if [ "$CONDA_PREFIX" != '' -a "$(basename \"$CONDA_PREFIX\")" != '""' ]; then
-    venv+=" `basename \"$CONDA_PREFIX\"`"
-    cnt=$((cnt + 1))
-  fi
-  [ $cnt -le 1 ] && venv_color="$DGreen" || venv_color="$BIRed"
-  venv="${venv#"${venv%%[![:space:]]*}"}"
-  venv="${venv%"${venv##*[![:space:]]}"}"
-  [ -n "$venv" ] && venv="[${venv}] "
-
-  local mess_prefix
-  [ "$CUSTOM_MESSAGE" != '' ] && mess_prefix="${CUSTOM_MESSAGE} "
-
-  local vcs_info="$(__hg_ps1)$(__git_ps1 "[%s]")"
-  local kube_info=""
-  [[ -n ${KUBE_PS1_CONTEXT:-} && $KUBE_PS1_CONTEXT != "N/A" ]] && kube_info="$(kube_ps1)"
-
-  local _path=""
-  if [[ ${_PROMT_SHOW_PATH} =~ ^(1|true)$ ]]; then
-     _path="${Green}$(pwd)${__CReset}"
-  fi
-
-  local _time="" _host="" _path=""
-  local _venv="" _mess="" _vcs=""
-  if ! [[ ${_PROMT_HIDE_ALL} =~ ^(1|true)$ ]]; then
-    [[ ${_PROMT_SHOW_TIME} =~ ^(1|true)$ ]] && _time="${Cyan}\t${__CReset} "
-    [[ ${_PROMT_SHOW_HOST} =~ ^(1|true)$ ]] && _host="${IBlue}\u@\h${__CReset} "
-    [[ ${_PROMT_SHOW_PATH} =~ ^(1|true)$ ]] && _path="${Green}$(pwd)${__CReset}"
-    _venv="${venv_color}${venv}${__CReset}"
-    _mess="${IYellow}${mess_prefix}${__CReset}"
-    [[ -n $vcs_info ]] && _vcs=" ${BIYellow}"${vcs_info}"${__CReset}"
+  local venv_color="$DGreen"
+  local venv_color="$IGreen"
+  if ! [[ ${__PROMPT_PS1_HIDE_ALL} == "1" ]]; then
+    # _time
+    if [[ ${__PROMPT_PS1_SHOW_TIME} == "1" ]]; then _time='\t'; fi
+    # _host
+    if [[ ${__PROMPT_PS1_SHOW_HOST} == "1" ]]; then _host='\u@\h'; fi
+    # _path
+    if [[ ${__PROMPT_PS1_SHOW_PATH} == "1" ]]; then
+      _path="$(pwd)"
+      _path="${_path//$HOME/\~}"
+    fi
+    # _venv
+    if [[ ${__PROMPT_PS1_SHOW_VENV} == "1" ]]; then
+      local venv=''
+      local -i cnt=0
+      if [[ -n $(basename "$VIRTUAL_ENV") ]]; then
+        venv+="$(basename "$VIRTUAL_ENV")"
+        cnt=$((cnt + 1))
+      fi
+      if [[ -n $(basename "$CONDA_PREFIX") ]]; then
+        venv+=" $(basename "$CONDA_PREFIX")"
+        cnt=$((cnt + 1))
+      fi
+      [[ $cnt -gt 1 ]] && venv_color="$BIRed"
+      [[ -n $(__rtrim_ps1 "${venv}") ]] && _venv="$(__rtrim_ps1 "${venv}")"
+      [[ -n $venv ]] && _venv="[${venv}]"
+    fi
+    # _mess
+    if [[ ${__PROMPT_PS1_SHOW_MESS} == "1" ]]; then
+      [[ -n $__CUSTOM_MESSAGE_PS1 ]] && _mess="${__CUSTOM_MESSAGE_PS1}"
+    fi
+    # _vcs
+    if [[ ${__PROMPT_PS1_SHOW_VCS} == "1" ]]; then
+      _vcs="$(__hg_ps1 || :)$(__git_ps1 "[%s]" || :)"
+    fi
+    # _kube_info
+    if [[ ${__PROMPT_PS1_SHOW_K8S} == "1" ]]; then
+      [[ -n ${KUBE_PS1_CONTEXT:-} && $KUBE_PS1_CONTEXT != "N/A" ]] && _k8s="$(kube_ps1)${__CReset}"
+    fi
   fi
 
   PS1=''
+  # err_info\njob_info\n_k8s\n
+  # {_mess}{_venv} {cmd_num}: {_time} {_host} {_path} {_vcs}
   if [ "$color_prompt" = yes ]; then
-    [[ -n $kube_info ]]  && PS1+="${kube_info}\n"
-    [ "$_ADD_PROMT_COMMAND_ERROR_INFO_" == '1' ] && PS1+='$(err=$?;cmd=$((\!-1));[ $err != '0' ] && echo "'${IRed}'$cmd: Exit code=$err. View command: (history | grep -P \"^\\s*$cmd\\s\")'"\n${__CReset}"'")'
-    [ "$_ADD_PROMT_COMMAND_JOBS_INFO_" == '1'  ] && PS1+='$([ \j -ne 0 ] && echo "'"${IPurple}"'Some jobs (\j) in background: $(jobscount).'"\n${__CReset}"'")'
-    PS1+="${_venv}${_mess}"
-    [ "$_ADD_PROMT_COMMAND_CMDNUM_INFO_" == '1' ] && PS1+="${Yellow}\!:${__CReset} "
-    PS1+="${_time}${_host}${_path}${_vcs}\n\$ "
+    [[ $_ADD_PROMPT_COMMAND_ERROR_INFO_ == '1' ]] && PS1+='$(err=$?;cmd=$((\!-1));[ $err != '0' ] && echo "'${IRed}'$cmd: Exit code=$err. View command: (history | grep -P \"^\\s*$cmd\\s\")'"\n${__CReset}"'")'
+    [[ $_ADD_PROMPT_COMMAND_JOBS_INFO_ == '1' ]] && PS1+='$([ \j -ne 0 ] && echo "'"${IPurple}"'Some jobs (\j) in background: $(__job_count_ps1).'"\n${__CReset}"'")'
+    [[ -n $_k8s ]] && PS1+="${_k8s}\n"
+    [[ -n $_time ]] && PS1+="${Cyan}${_time}${__CReset} "
+    [[ -n $_mess ]] && PS1+="${IPurple}${_mess}${__CReset}"
+    [[ -n $_venv ]] && PS1+="${venv_color}${_venv}${__CReset} "
+    [[ $__PROMPT_PS1_SHOW_CMD_NUM == '1' ]] && PS1+="${Yellow}\!:${__CReset} "
+    [[ -n $_host ]] && PS1+="${IBlue}${_host}:${__CReset} "
+    [[ -n $_path ]] && PS1+="${Green}${_path}${__CReset} "
+    [[ -n $_vcs ]] && PS1+="${IYellow}${_vcs}${__CReset} "
+    PS1="$(__rtrim_ps1 "${__CReset}${PS1}")\n\$ "
   else
-    [ "$_ADD_PROMT_COMMAND_INFO_" == '1' ] && PS1+='\! \t '
-    PS1+='${venv}${mess_prefix}\t ${debian_chroot:+($debian_chroot)}\u@\h:\w\${`pwd`}\n>'
+    [ "$_ADD_PROMPT_COMMAND_INFO_" == '1' ] && PS1+='\! \t '
+    PS1+="${_venv}${_mess}\t ${debian_chroot:+($debian_chroot)}\u@\h:\w\$(pwd)\n$"
   fi
-
   # If this is an xterm set the title to user@host:dir
-  case "$TERM" in
-    xterm*|rxvt*)
-      PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
-    ;;
-    *)
-    ;;
-  esac
-#  PS1+=$'\e[?2004l'
-# After each command, append to the history file and reread it
-#  history -a
-#  history -c
-#  history -r
- history -w
+  #  case "$TERM" in
+  #    xterm*|rxvt*) PS1="\[\e]0;${__CReset}${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1" ;;
+  #               *) ;;
+  #  esac
+
+  # After each command, append to the history file and reread it
+  #  history -a
+  #  history -w
+  #  history -c
+  #  history -r
 }
 
-#export -f __prompt_command
 #https://www.digitalocean.com/community/tutorials/how-to-use-bash-history-commands-and-expansions-on-a-linux-vps
-export PROMPT_COMMAND+=";__prompt_command"
+unset PROMPT_COMMAND
+PROMPT_COMMAND="history -a; history -c; history -r; __prompt_command"
+export PROMPT_COMMAND
 
 #export GIT_PS1_SHOWDIRTYSTATE=1
 #if [ "$color_prompt" = yes ]; then
@@ -246,7 +299,6 @@ export PROMPT_COMMAND+=";__prompt_command"
 #    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\${`pwd`}\n>'
 #fi
 #unset color_prompt force_color_prompt
-
 
 ############################
 

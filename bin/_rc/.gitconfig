@@ -752,7 +752,7 @@ mcf-copy2tmp = "!f(){ \
  cbr=$(git current-branch-name) && \
  src1_rbranch=_${nick}_${cbr}_tmp && \
  CURDATE=$(date +%y%m%d_%H%M%S) && \
- MESS=$(echo \"Tmp commit of branch '${cbr}'. Date: ${CURDATE}.\") && \
+ MESS=$(echo \"Tmp commit of branch '${cbr}'. Date: ${CURDATE}. [skip ci]\") && \
  git l-echo-l1 \"$CMD $src1 $showlog\" && \
  git l-echo-lc \"$CMD 1:\" \"git add --all\"                                    && git add --all && \
  git l-echo-lc \"$CMD 2:\" \"git commit -am '$MESS' --allow-empty\"             && git commit -m \"${MESS}\"  --allow-empty && \
@@ -1897,7 +1897,7 @@ w-master-pull = "!f(){ \
  src1=${2:-$(git l-mcf-param-get l-src1)} && \
  src1_rbranch=${3:-$(git l-mcf-param-get l-src1-rmaster)} && \
  cbr=$(git cbr); \
- git l-echo \">>> $master <<<\" 6;\
+ git l-echo \"\n===== $master =====\" 6;\
  git l-echo-l2 \"$CMD 1:\"; git l-echo-l0 \"git checkout $master \";              git checkout $master; \
  git l-echo-l2 \"$CMD 2:\"; git l-echo-l0 \"git remote prune $src1 \";            git remote prune $src1; \
  git l-echo-l2 \"$CMD 3:\"; git l-echo-l0 \"git fetch -pt $src1 \";               git fetch -pt $src1; \
@@ -1906,23 +1906,23 @@ w-master-pull = "!f(){ \
  if [ $s = \"1\" ]; then \
  git l-echo '!!!!!!!!!!!!!!!!!!!!!!!!' 1;\
  git l-echo '!!!!! Rebase: FAIL !!!!!' 1;\
- git l-echo '!!!!!!!!!!!!!!!!!!!!!!!!' 1;\
+ git l-echo '!!!!!!!!!!!!!!!!!!!!!!!!\n' 1;\
  git l-echo-l2 \"$CMD 4.2:\"; git l-echo-l0 'git rebase --abort';                 git rebase --abort ; \
  else \
- git l-echo '----- Rebase: OK -------' 2;\
+ git l-echo '----- Rebase: OK -------\n' 2;\
  fi; \
  if [ \"$master\" != \"$cbr\" ]; then \
- git l-echo \">>> $cbr <<<\" 6;\
+ git l-echo \"===== $cbr =====\" 6;\
  git l-echo-l2 \"$CMD 5.1:\"; git l-echo-l0 \"git checkout $cbr \";               git checkout $cbr; \
  s=0;\
  git l-echo-l2 \"$CMD 5.2:\"; git l-echo-l0 \"git rebase $src1/$src1_rbranch \";  git rebase $src1/$src1_rbranch || s=1; \
  if [ $s = \"1\" ]; then \
  git l-echo '!!!!!!!!!!!!!!!!!!!!!!!!' 1;\
  git l-echo '!!!!! Rebase: FAIL !!!!!' 1;\
- git l-echo '!!!!!!!!!!!!!!!!!!!!!!!!' 1;\
+ git l-echo '!!!!!!!!!!!!!!!!!!!!!!!!\n' 1;\
  git l-echo-l2 \"$CMD 5.3:\"; git l-echo-l0 'git rebase --abort';                 git rebase --abort ; \
  else \
- git l-echo '----- Rebase: OK -------' 2;\
+ git l-echo '----- Rebase: OK -------\n' 2;\
  fi; \
  fi; \
  git l-last-short; \
