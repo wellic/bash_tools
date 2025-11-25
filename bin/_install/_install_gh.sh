@@ -12,19 +12,23 @@ fetch_releases() {
 }
 
 get_release_link() {
+#set -x
     echo "$releases" | grep "$version" | head -1 | sed -e 's/^ *//' -e 's/ *$//'
+#set +x
 }
 
 _normalize_version() {
-  sed -re 's/^(.*?(\bv|\s)([0-9]+(\.[0-9]+)+).*)$/\3/'
+  sed -re 's/^(.*?(\bv|\s|-)([0-9]+(\.[0-9]+)+).*)$/\3/'
 }
 
 get_current_version() {
+#set -x
     if ! command -v "$tool_name" 2>/dev/null; then echo "0.0.0"; return 0;fi
     local v
     v="$("$tool_name" $OPT_VERSION || echo "0.0.0")"
     echo "$v" | head -n1 | _normalize_version
 #    "$tool_name" $OPT_VERSION | head -n1 | cut -d ' ' -f 2 | _normalize_version
+#set +x
 }
 
 get_download_version() {
@@ -95,10 +99,12 @@ EOF
 }
 
 _main() {
+#set -x
     url_releases=$(get_url_releases)
     releases=$(fetch_releases)
     release_link=$(get_release_link)
     version_current=$(get_current_version || :)
+#set +x
 
  cat <<- EOF
  # Existed releases:
@@ -128,7 +134,7 @@ EOF
 }
 
 _completion_cmd() {
-  echo "$tool_name $COMPLETION_OPT bash"
+  echo "$tool_name $COMPLETION_OPT $COMPLETION_LNG"
 }
 
 show_completion() {
@@ -158,6 +164,8 @@ def_mask_amd64_tar_gz=${def_mask}.*[Ll]inux[_-]amd64.tar.gz
 
 OPT_VERSION=--version
 COMPLETION_OPT=completion
+COMPLETION_LNG=bash
+
 last_releases=10
 
 before_install_cmd=()

@@ -12,4 +12,7 @@ tool_name=rg
 repo=BurntSushi/ripgrep
 mask=$def_mask_amd64_deb
 
+COMPLETION_OPT="--generate=complete-bash"
+COMPLETION_LNG=""
+
 _main
