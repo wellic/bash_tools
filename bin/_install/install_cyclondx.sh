@@ -8,15 +8,16 @@ set -u;
 
 version=${1:-"."}
 
-tool_name=jq
-#OPT_VERSION=version
-repo=jqlang/jq
-mask="$def_mask_bin"
+
+tool_name=cyclonedx
+OPT_VERSION=--version
+repo=CycloneDX/cyclonedx-cli
+mask=$def_mask_bin_x64
+
 dst_file=/usr/local/bin/${tool_name}
-show_completion=0
 
 get_current_version() {
-    "$tool_name" $OPT_VERSION | head -n1 | grep -Po 'jq-\K(\d+.*)$'
+  "$tool_name" $OPT_VERSION | grep -Po '^(.*)(?=\+)' | _normalize_version
 }
 
 get_main_install_cmd() {
