@@ -8,7 +8,7 @@ get_url_releases() {
 }
 
 fetch_releases() {
-    curl -s "$url_releases" |  grep "$mask" | head -n$last_releases | cut -d : -f 2,3 | tr -d \"
+    curl -s "$url_releases" |  grep -E "$mask" | head -n$last_releases | cut -d : -f 2,3 | tr -d \"
 }
 
 get_release_link() {
@@ -18,15 +18,25 @@ get_release_link() {
 }
 
 _normalize_version() {
-  sed -re 's/^(.*?(\bv|\s|-)([0-9]+(\.[0-9]+)+).*)$/\3/'
+  strip_colors | trim_spaces | sed -re 's/^(.*?(\bv|\s|-)([0-9]+(\.[0-9]+)+).*)$/\3/'
+}
+
+strip_colors() {
+  sed 's/\x1B\[[0-9;]*[mGKHF]//g'
+}
+
+trim_spaces() {
+  sed 's/^[[:space:]]*//; s/[[:space:]]*$//'
 }
 
 get_current_version() {
 #set -x
-    if ! command -v "$tool_name" 2>/dev/null; then echo "0.0.0"; return 0;fi
-    local v
-    v="$("$tool_name" $OPT_VERSION || echo "0.0.0")"
-    echo "$v" | head -n1 | _normalize_version
+    if command -v "$tool_name" 1>/dev/null 2>&1; then
+      "$tool_name" $OPT_VERSION | _normalize_version
+    fi
+#    local v
+#    v=$("$tool_name" $OPT_VERSION || :)
+#    echo "$v" | head -n1 | _normalize_version
 #    "$tool_name" $OPT_VERSION | head -n1 | cut -d ' ' -f 2 | _normalize_version
 #set +x
 }
@@ -99,12 +109,14 @@ EOF
 }
 
 _main() {
+  local version_current
 #set -x
     url_releases=$(get_url_releases)
     releases=$(fetch_releases)
     release_link=$(get_release_link)
-    version_current=$(get_current_version || :)
+    version_current="$(get_current_version || :)"
 #set +x
+
 
  cat <<- EOF
  # Existed releases:

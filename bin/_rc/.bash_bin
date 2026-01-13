@@ -1,6 +1,6 @@
 export PATH=$PATH:$HOME/bin
 
-#Add necessary tools sets
+#Add necessary tools dirs
 export PATH=$PATH:$HOME/bin/_backup
 export PATH=$PATH:$HOME/bin/_datetime
 export PATH=$PATH:$HOME/bin/_db
@@ -10,6 +10,7 @@ export PATH=$PATH:$HOME/bin/_dropbox
 export PATH=$PATH:$HOME/bin/_fs
 export PATH=$PATH:$HOME/bin/_git
 export PATH=$PATH:$HOME/bin/_install
+export PATH=$PATH:$HOME/bin/_install/add
 export PATH=$PATH:$HOME/bin/_k8s
 export PATH=$PATH:$HOME/bin/_kbd
 export PATH=$PATH:$HOME/bin/_mem

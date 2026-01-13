@@ -14,7 +14,7 @@ esac
 
 [ -z "$PS1" ] && return
 # shellcheck source=./.bashps1
-source ~/.bashps1 || echo "Issue in ~/.bashps1"
+source ~/.bashps1
 
 #see https://sanctum.geek.nz/arabesque/better-bash-history/
 # append to the history file, don't overwrite it

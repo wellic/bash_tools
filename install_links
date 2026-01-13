@@ -26,3 +26,4 @@ for d in "${dirs[@]}"; do
 done
 
 $status || cp -f "sample.bash_bin" "$HOME/.bash_bin"
+source "$HOME/.bash_bin"

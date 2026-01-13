@@ -1,22 +1,8 @@
 #!/bin/bash
 # http://ezprompt.net/
 
-
 ################################################################################
 
-if [[ -e /usr/share/bash-completion/completions/git ]]; then
-  source "/usr/share/bash-completion/completions/git"
-else
-  echo "No found /usr/share/bash-completion/completions/git"
-  [[ -e /etc/bash_completion.d/git ]] && source "/etc/bash_completion.d/git" || echo "No found /etc/bash_completion.d/git"
-fi
-
-#if [[ -e /usr/lib/git-core/git-sh-prompt ]]; then
-#  source "/usr/lib/git-core/git-sh-prompt"
-#else
-#  echo "No found /usr/lib/git-core/git-sh-prompt"
-  [[ -e /etc/bash_completion.d/git-prompt ]] && source /etc/bash_completion.d/git-prompt || echo "No found /etc/bash_completion.d/git-prompt"
-#fi
 # https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
 # http://ithaca.arpinum.org/2013/01/02/git-prompt.html
 
@@ -39,29 +25,6 @@ export GIT_PS1_COMPRESSSPARSESTATE=1
 #export GIT_PS1_SHOWUPSTREAM
 
 ################################################################################
-
-if [[ -e ~/.bashps1_kube ]]; then
-  # https://github.com/jonmosco/kube-ps1/blob/master/README.md
-  # https://github.com/gawin/bash-colors-256
-
-  #  KUBE_PS1_SYMBOL_USE_IMG=true
-  #  KUBE_PS1_SYMBOL_PADDING=true
-
-  #GIT_PS1_SHOWCONFLICTSTATE
-
-  KUBE_PS1_PREFIX=""
-  KUBE_PS1_SUFFIX=""
-  KUBE_PS1_DIVIDER="|"
-
-  KUBE_PS1_SYMBOL_USE_IMG=false
-  KUBE_PS1_SYMBOL_PADDING=false
-
-  KUBE_PS1_SYMBOL_COLOR=172
-  KUBE_PS1_CTX_COLOR=68
-  KUBE_PS1_NS_COLOR=30
-
-  source ~/.bashps1_kube
-fi
 
 _ADD_PROMPT_COMMAND_ERROR_INFO_=1
 _ADD_PROMPT_COMMAND_JOBS_INFO_=1
@@ -114,15 +77,15 @@ __PROMPT_PS1_SHOW_K8S=1
 __PROMPT_PS1_SHOW_MESS=1
 
 # toggle display
-__toggle_ps1_hide_all() { [[ $__PROMPT_PS1_HIDE_ALL == "1" ]] && __PROMPT_PS1_HIDE_ALL=0 || __PROMPT_PS1_HIDE_ALL=1; }
-__toggle_ps1_show_venv() { [[ $__PROMPT_PS1_SHOW_VENV == "1" ]] && __PROMPT_PS1_SHOW_VENV=0 || __PROMPT_PS1_SHOW_VENV=1; }
+__toggle_ps1_hide_all()     { [[ $__PROMPT_PS1_HIDE_ALL     == "1" ]] && __PROMPT_PS1_HIDE_ALL=0     || __PROMPT_PS1_HIDE_ALL=1; }
+__toggle_ps1_show_venv()    { [[ $__PROMPT_PS1_SHOW_VENV    == "1" ]] && __PROMPT_PS1_SHOW_VENV=0    || __PROMPT_PS1_SHOW_VENV=1; }
 __toggle_ps1_show_cmd_num() { [[ $__PROMPT_PS1_SHOW_CMD_NUM == "1" ]] && __PROMPT_PS1_SHOW_CMD_NUM=0 || __PROMPT_PS1_SHOW_CMD_NUM=1; }
-__toggle_ps1_show_time() { [[ $__PROMPT_PS1_SHOW_TIME == "1" ]] && __PROMPT_PS1_SHOW_TIME=0 || __PROMPT_PS1_SHOW_TIME=1; }
-__toggle_ps1_show_host() { [[ $__PROMPT_PS1_SHOW_HOST == "1" ]] && __PROMPT_PS1_SHOW_HOST=0 || __PROMPT_PS1_SHOW_HOST=1; }
-__toggle_ps1_show_path() { [[ $__PROMPT_PS1_SHOW_PATH == "1" ]] && __PROMPT_PS1_SHOW_PATH=0 || __PROMPT_PS1_SHOW_PATH=1; }
-__toggle_ps1_show_vcs() { [[ $__PROMPT_PS1_SHOW_VCS == "1" ]] && __PROMPT_PS1_SHOW_VCS=0 || __PROMPT_PS1_SHOW_VCS=1; }
-__toggle_ps1_show_k8s() { [[ $__PROMPT_PS1_SHOW_K8S == "1" ]] && __PROMPT_PS1_SHOW_K8S=0 || __PROMPT_PS1_SHOW_K8S=1; }
-__toggle_ps1_show_msg() { [[ $__PROMPT_PS1_SHOW_MESS == "1" ]] && __PROMPT_PS1_SHOW_MESS=0 || __PROMPT_PS1_SHOW_MESS=1; }
+__toggle_ps1_show_time()    { [[ $__PROMPT_PS1_SHOW_TIME    == "1" ]] && __PROMPT_PS1_SHOW_TIME=0    || __PROMPT_PS1_SHOW_TIME=1; }
+__toggle_ps1_show_host()    { [[ $__PROMPT_PS1_SHOW_HOST    == "1" ]] && __PROMPT_PS1_SHOW_HOST=0    || __PROMPT_PS1_SHOW_HOST=1; }
+__toggle_ps1_show_path()    { [[ $__PROMPT_PS1_SHOW_PATH    == "1" ]] && __PROMPT_PS1_SHOW_PATH=0    || __PROMPT_PS1_SHOW_PATH=1; }
+__toggle_ps1_show_vcs()     { [[ $__PROMPT_PS1_SHOW_VCS     == "1" ]] && __PROMPT_PS1_SHOW_VCS=0     || __PROMPT_PS1_SHOW_VCS=1; }
+__toggle_ps1_show_k8s()     { [[ $__PROMPT_PS1_SHOW_K8S     == "1" ]] && __PROMPT_PS1_SHOW_K8S=0     || __PROMPT_PS1_SHOW_K8S=1; }
+__toggle_ps1_show_msg()     { [[ $__PROMPT_PS1_SHOW_MESS    == "1" ]] && __PROMPT_PS1_SHOW_MESS=0    || __PROMPT_PS1_SHOW_MESS=1; }
 
 #Add custom message
 __CUSTOM_MESSAGE_PS1=""
@@ -251,7 +214,8 @@ __prompt_command() {
     fi
     # _kube_info
     if [[ ${__PROMPT_PS1_SHOW_K8S} == "1" ]]; then
-      [[ -n ${KUBE_PS1_CONTEXT:-} && $KUBE_PS1_CONTEXT != "N/A" ]] && _k8s="$(kube_ps1)${__CReset}"
+#      [[ -n ${KUBE_PS1_CONTEXT:-} && $KUBE_PS1_CONTEXT != "N/A" ]] &&
+      _k8s="$(kube_ps1)"
     fi
   fi
 
@@ -394,3 +358,36 @@ export PROMPT_COMMAND
 
 #  local FancyX='\342\234\227'
 #  local Checkmark='\342\234\223'
+
+if [[ -e /usr/share/bash-completion/completions/git ]]; then
+  source "/usr/share/bash-completion/completions/git"
+else
+  echo "No found /usr/share/bash-completion/completions/git"
+  [[ -e /etc/bash_completion.d/git ]] && source "/etc/bash_completion.d/git" || echo "No found /etc/bash_completion.d/git"
+fi
+[[ -e /etc/bash_completion.d/git-prompt ]] && source /etc/bash_completion.d/git-prompt || echo "No found /etc/bash_completion.d/git-prompt"
+
+# shellcheck source=./.bashps1_kube
+if [[ -e ~/.bashps1_kube ]]; then
+  # https://github.com/jonmosco/kube-ps1/blob/master/README.md
+  # https://github.com/gawin/bash-colors-256
+
+  #  KUBE_PS1_SYMBOL_USE_IMG=true
+  #  KUBE_PS1_SYMBOL_PADDING=true
+
+  #GIT_PS1_SHOWCONFLICTSTATE
+
+  KUBE_PS1_PREFIX=""
+  KUBE_PS1_SUFFIX=""
+  KUBE_PS1_DIVIDER="|"
+
+  KUBE_PS1_SYMBOL_USE_IMG=false
+  KUBE_PS1_SYMBOL_PADDING=false
+
+  KUBE_PS1_SYMBOL_COLOR=172
+  KUBE_PS1_CTX_COLOR=68
+  KUBE_PS1_NS_COLOR=30
+
+  # shellcheck source=.bashps1_kube
+  source ~/.bashps1_kube
+fi
