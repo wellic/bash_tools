@@ -226,9 +226,9 @@ __prompt_command() {
     [[ $_ADD_PROMPT_COMMAND_ERROR_INFO_ == '1' ]] && PS1+='$(err=$?;cmd=$((\!-1));[ $err != '0' ] && echo "'${IRed}'$cmd: Exit code=$err. View command: (history | grep -P \"^\\s*$cmd\\s\")'"\n${__CReset}"'")'
     [[ $_ADD_PROMPT_COMMAND_JOBS_INFO_ == '1' ]] && PS1+='$([ \j -ne 0 ] && echo "'"${IPurple}"'Some jobs (\j) in background: $(__job_count_ps1).'"\n${__CReset}"'")'
     [[ -n $_k8s ]] && PS1+="${_k8s}\n"
+    [[ -n $_venv ]] && PS1+="${venv_color}${_venv}${__CReset} "
     [[ -n $_time ]] && PS1+="${Cyan}${_time}${__CReset} "
     [[ -n $_mess ]] && PS1+="${IPurple}${_mess}${__CReset}"
-    [[ -n $_venv ]] && PS1+="${venv_color}${_venv}${__CReset} "
     [[ $__PROMPT_PS1_SHOW_CMD_NUM == '1' ]] && PS1+="${Yellow}\!:${__CReset} "
     [[ -n $_host ]] && PS1+="${IBlue}${_host}:${__CReset} "
     [[ -n $_path ]] && PS1+="${Green}${_path}${__CReset} "

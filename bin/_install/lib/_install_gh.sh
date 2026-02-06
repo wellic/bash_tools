@@ -8,7 +8,8 @@ get_url_releases() {
 }
 
 fetch_releases() {
-    curl -s "$url_releases" |  grep -E "$mask" | head -n$last_releases | cut -d : -f 2,3 | tr -d \"
+#    curl -s "$url_releases" |  grep -E "$mask" | head -n$last_releases | cut -d : -f 2,3 | tr -d \"
+    curl -s "$url_releases" | jq -r '.[].assets[].browser_download_url' |  grep -E "$mask" | head -n$last_releases
 }
 
 get_release_link() {
@@ -77,7 +78,7 @@ get_main_install_cmd() {
 # dpkg -i '$downloaded_file'; \\
   if [[ $downloaded_file =~ .t?gz$ ]]; then
     cmd="tmpdir=\$(mktemp -d); \\
- tar xvf \"$downloaded_file\" --strip-components=1 -C \"\$tmpdir\"; \\
+ tar xvf \"$downloaded_file\" --strip-components=${tar_strip_components} -C \"\$tmpdir\"; \\
  sudo mv \"\$tmpdir/$SRC_BIN_FILE\" \"$DST_BIN_FILE\"; \\
  sudo chmod +x \"$DST_BIN_FILE\"; \\
  rm -vrf \"\$tmpdir\""
@@ -166,11 +167,16 @@ EOF
 DOWNLOADER=curl
 
 tmp_dir=/tmp
+DST_BIN_DIR=/usr/local/bin
+
 def_mask=browser_download_url
+def_mask=\/download\/
 def_mask_deb=${def_mask}.*.deb
 def_mask_amd64_deb=${def_mask}.*amd64.deb
-def_mask_bin=${def_mask}'.*[_-][Ll]inux[_-]amd64"'
-def_mask_bin_x64=${def_mask}'.*[_-][Ll]inux[_-]x64"'
+#def_mask_bin=${def_mask}'.*[_-][Ll]inux[_-]amd64"'
+#def_mask_bin_x64=${def_mask}'.*[_-][Ll]inux[_-]x64"'
+def_mask_bin=${def_mask}'.*[_-][Ll]inux[_-]amd64'
+def_mask_bin_x64=${def_mask}'.*[_-][Ll]inux[_-]x64'
 def_mask_amd64_bz2=${def_mask}.*linux_amd64.bz2
 def_mask_x86_64_tar_gz=${def_mask}.*[Ll]inux[_-]x86_64.tar.gz
 def_mask_amd64_tar_gz=${def_mask}.*[Ll]inux[_-]amd64.tar.gz
@@ -185,3 +191,5 @@ before_install_cmd=()
 after_install_cmd=()
 
 show_completion=1
+
+tar_strip_components=1

@@ -113,3 +113,8 @@ alias _cd_f=_cd_by_filename
 alias venv_activate='[ -d venv ] && source venv/bin/activate || source'
 alias lint_bash='rg "\[\s+[^]]+\S[!=]{0,1}[=]{1,2}[~]{0,1}\S.*\s+\]"'
 alias cd_real='cd $(realpath `pwd`)'
+
+run_fzf() {
+ source <(fzf --bash)
+}
+alias _fzf=run_fzf

@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR=$(dirname "$0")
+source "$SCRIPT_DIR/lib/_install_gh.sh"
+
+set -u;
+#set -x;
+
+version=${1:-"."}
+
+tool_name=fzf
+OPT_VERSION=--version
+repo=junegunn/fzf
+mask="$def_mask_amd64_tar_gz"
+tar_strip_components=0
+
+SRC_BIN_FILE="$tool_name"
+DST_BIN_FILE="${DST_BIN_DIR}/${tool_name}"
+
+show_completion=1
+
+show_completion() {
+  echo "eval \"\$(fzf --bash)\""
+}
+
+get_current_version() {
+  cat <<- EOF
+ # Add completion
+ "$tool_name" $OPT_VERSION | head -n1 | grep -Eo '^(\S+)'
+
+EOF
+}
+
+_main

@@ -292,7 +292,13 @@ myreport = "!f(){ \
 # see gitignore rules
 gi-list="! git gi list"
 # get rules for gitignore: git gi netbeans
-gi = "! gi() { curl -L -s https://www.gitignore.io/api/$@ ;}; gi"
+gi = "! gi() { \
+  echo ;\
+  echo \"#################################################################################\"; \
+  echo \"# https://www.gitignore.io/api/$@\"; \
+  echo \"#################################################################################\"; \
+  curl -L -s https://www.gitignore.io/api/$@; \
+}; gi"
 
 # get rules for gitattributes
 ga = "! ga() { [ $# -ne 0 ] && curl -L -s https://gitattributes.io/api/$@ || curl -L -s https://gitattributes.io/api/list ;}; ga"
