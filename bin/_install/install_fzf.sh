@@ -20,15 +20,14 @@ DST_BIN_FILE="${DST_BIN_DIR}/${tool_name}"
 show_completion=1
 
 show_completion() {
+  cat <<- EOF
+ # Add completion
   echo "eval \"\$(fzf --bash)\""
+EOF
 }
 
 get_current_version() {
-  cat <<- EOF
- # Add completion
  "$tool_name" $OPT_VERSION | head -n1 | grep -Eo '^(\S+)'
-
-EOF
 }
 
 _main
