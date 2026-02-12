@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
 SCRIPT_DIR=$(dirname "$0")
-source "$SCRIPT_DIR/lib/_install_gh.sh"
+source "$SCRIPT_DIR/_lib.sh"
 
-set -u
-#set -x
+version=${1:-"."}
+################################################################################
+
 
 _tmp() {
 echo "

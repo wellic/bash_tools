@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 
 SCRIPT_DIR=$(dirname "$0")
-source "$SCRIPT_DIR/../_install/lib/_install_gh.sh"
-
-set -u;
-#set -x;
+source "$SCRIPT_DIR/_lib.sh"
 
 version=${1:-"."}
+################################################################################
+
 
 tool_name=cdx-verify
 OPT_VERSION=--version

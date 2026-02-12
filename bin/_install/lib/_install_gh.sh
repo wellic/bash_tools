@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+#set -ueo pipefail
+set -u
+
 #set -uEeo pipefail
 #set -x
 

@@ -129,6 +129,10 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+# mcat: https://github.com/Skardyy/mcat
+#source "$HOME/.cargo/env"
+PATH="${PATH}:$HOME/.cargo/bin"
+
 #remove dublicated paths
 WHICH=/usr/bin/which
 CMD_env=$($WHICH env)
@@ -146,3 +150,4 @@ if [ -f '/home/yournick/google-cloud-sdk/google-cloud-sdk/path.bash.inc' ]; then
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/home/yournick/google-cloud-sdk/google-cloud-sdk/completion.bash.inc' ]; then . '/home/yournick/google-cloud-sdk/google-cloud-sdk/completion.bash.inc'; fi
+

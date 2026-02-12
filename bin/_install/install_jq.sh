@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 
 SCRIPT_DIR=$(dirname "$0")
-source "$SCRIPT_DIR/lib/_install_gh.sh"
-
-set -u;
-#set -x;
+source "$SCRIPT_DIR/_lib.sh"
 
 version=${1:-"."}
+################################################################################
 
 tool_name=jq
 #OPT_VERSION=version
