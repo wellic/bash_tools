@@ -12,8 +12,16 @@ get_url_releases() {
 }
 
 fetch_releases() {
-#    curl -s "$url_releases" |  grep -E "$mask" | head -n$last_releases | cut -d : -f 2,3 | tr -d \"
-    curl -s ${GITHUB_TOKEN:+-H "Authorization: Bearer $GITHUB_TOKEN"} "$url_releases" | jq -r '.[]?.assets[]?.browser_download_url' | grep -E "$mask" | head -n$last_releases
+  local response
+  response=$(curl -s ${GITHUB_TOKEN:+-H "Authorization: Bearer $GITHUB_TOKEN"} "$url_releases")
+  local api_error
+  api_error=$(echo "$response" | jq -r '.message? // empty' 2>/dev/null)
+  if [[ -n "$api_error" ]]; then
+    echo "# GitHub API error: $api_error" >&2
+    [[ -z "${GITHUB_TOKEN:-}" ]] && echo "# Tip: export GITHUB_TOKEN=<token> to avoid rate limiting" >&2
+    return 1
+  fi
+  echo "$response" | jq -r '.[]?.assets[]?.browser_download_url' | grep -E "$mask" | head -n$last_releases
 }
 
 get_release_link() {
@@ -95,9 +103,19 @@ get_main_install_cmd() {
 EOF
 }
 
+_get_rate_limit() {
+  local response remaining limit reset_time
+  response=$(curl -s ${GITHUB_TOKEN:+-H "Authorization: Bearer $GITHUB_TOKEN"} "https://api.github.com/rate_limit")
+  remaining=$(echo "$response" | jq -r '.rate.remaining')
+  limit=$(echo "$response" | jq -r '.rate.limit')
+  reset_time=$(date -d "@$(echo "$response" | jq -r '.rate.reset')" "+%H:%M:%S" 2>/dev/null)
+  echo "$remaining/$limit (resets at $reset_time)"
+}
+
 _main() {
-  echo "Repo: https://github.com/$repo/"
-  echo "Tool: $tool_name"
+  echo "Tool Name:  $tool_name"
+  echo "Repo Path:  https://github.com/$repo/"
+  echo "Rate limit: $(_get_rate_limit)"
   echo
   local version_current
 #set -x

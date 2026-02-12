@@ -158,7 +158,15 @@ EOF
 
 ## GitHub API Rate Limiting
 
-Set `GITHUB_TOKEN` to avoid rate limit errors (60 req/hour unauthenticated → 5000 with token):
+Scripts work **without** `GITHUB_TOKEN` but are limited to **60 requests/hour** per IP.
+When the limit is exceeded, the script shows an error and exits:
+
+```
+# GitHub API error: API rate limit exceeded for 1.2.3.4. ...
+# Tip: export GITHUB_TOKEN=<token> to avoid rate limiting
+```
+
+To increase the limit to **5000 requests/hour**, set `GITHUB_TOKEN`:
 
 ```bash
 export GITHUB_TOKEN=ghp_...
