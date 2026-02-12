@@ -9,9 +9,7 @@ version=${1:-"."}
 tool_name=cdxgen
 OPT_VERSION=--version
 repo=cdxgen/cdxgen
-mask=$def_mask_bin
-
-mask='browser_download_url.*'${tool_name}'[_-][Ll]inux[_-]amd64"'
+mask="${def_mask}.*${tool_name}[_-][Ll]inux[_-]amd64$"
 
 dst_file=/usr/local/bin/${tool_name}
 

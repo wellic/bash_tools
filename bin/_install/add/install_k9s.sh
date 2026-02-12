@@ -18,6 +18,7 @@ repo=derailed/k9s
 #mask=$def_mask_amd64_deb
 
 mask=$def_mask_amd64_tar_gz
+tar_strip_components=0
 SRC_BIN_FILE="$tool_name"
 DST_BIN_FILE="/usr/local/bin/$tool_name"
 

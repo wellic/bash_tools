@@ -13,7 +13,7 @@ get_url_releases() {
 
 fetch_releases() {
 #    curl -s "$url_releases" |  grep -E "$mask" | head -n$last_releases | cut -d : -f 2,3 | tr -d \"
-    curl -s "$url_releases" | jq -r '.[].assets[].browser_download_url' |  grep -E "$mask" | head -n$last_releases
+    curl -s ${GITHUB_TOKEN:+-H "Authorization: Bearer $GITHUB_TOKEN"} "$url_releases" | jq -r '.[]?.assets[]?.browser_download_url' | grep -E "$mask" | head -n$last_releases
 }
 
 get_release_link() {
@@ -65,10 +65,10 @@ _get_download_cmd() {
 _install_bin() {
   local DST=$1
 
-  cat <<EOF
-  $(_get_download_cmd); \\
-  sudo mv '$downloaded_file' "$DST"; \\
-  sudo chmod +x "$DST";
+  cat <<-EOF
+ $(_get_download_cmd); \\
+ sudo mv '$downloaded_file' "$DST"; \\
+ sudo chmod +x "$DST";
 EOF
 }
 
@@ -88,9 +88,10 @@ get_main_install_cmd() {
   fi
 
   cat <<-EOF
-  $(_get_download_cmd); \\
-  $cmd; \\
-  rm -v '$downloaded_file'
+ # Install
+ $(_get_download_cmd); \\
+ $cmd; \\
+ rm -v '$downloaded_file'
 EOF
 }
 
@@ -109,7 +110,7 @@ _main() {
 
  cat <<- EOF
  # Existed releases:
-$(printf '%s\n' "${releases[@]}")
+$(echo "$releases" | sed 's/^/ /')
 
  # Current version: $version_current
  # Download link: $release_link

@@ -16,7 +16,7 @@ version=${1:-"."}
 
 tool_name=mdcat
 repo=swsnr/mdcat
-mask='browser_download_url.*[Ll]inux[_-]gnu.tar.gz'
+mask="${def_mask}.*x86_64-unknown-linux-gnu.tar.gz$"
 
 OPT_VERSION=--version
 COMPLETION_OPT=--completions
@@ -25,9 +25,7 @@ SRC_BIN_FILE="$tool_name"
 DST_BIN_FILE="/usr/local/bin/$tool_name"
 
 get_current_version() {
-set -x
   "$tool_name" $OPT_VERSION | grep -Po '^mdcat\s+\K(\d+.*)$' | _normalize_version
-set +x
 }
 
 _main

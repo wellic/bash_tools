@@ -21,7 +21,7 @@ show_completion=1
 show_completion() {
   cat <<- EOF
  # Add completion
-  echo "eval \"\$(fzf --bash)\""
+ echo "eval \"\$(fzf --bash)\""
 EOF
 }
 
