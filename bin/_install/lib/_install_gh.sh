@@ -54,18 +54,19 @@ prepare_cmd_str() {
     [ "${#cmds[@]}" -ne 0 ] && printf "$prefix"'%s; \\\n' "${cmds[@]}"
 }
 
+_get_download_cmd() {
+  if [[ ${DOWNLOADER:-curl} == "wget" ]]; then
+    echo "wget --show-progress -q '$release_link' -O '$downloaded_file'"
+  else
+    echo "curl -L --progress-bar '$release_link' -o '$downloaded_file'"
+  fi
+}
+
 _install_bin() {
   local DST=$1
 
-  local cmd
-  if [[ ${DOWNLOADER:-curl} == "wget" ]]; then
-    cmd="wget --show-progress -q '$release_link' -O '$downloaded_file'"
-  else
-    cmd="curl -L --progress-bar '$release_link' -o '$downloaded_file'"
-  fi
-
   cat <<EOF
-  $cmd; \\
+  $(_get_download_cmd); \\
   sudo mv '$downloaded_file' "$DST"; \\
   sudo chmod +x "$DST";
 EOF
@@ -74,7 +75,6 @@ EOF
 
 get_main_install_cmd() {
   local cmd
-# dpkg -i '$downloaded_file'; \\
   if [[ $downloaded_file =~ .t?[gx]z$ ]]; then
     cmd="tmpdir=\$(mktemp -d); \\
  tar xvf \"$downloaded_file\" --strip-components=${tar_strip_components} -C \"\$tmpdir\"; \\
@@ -87,25 +87,11 @@ get_main_install_cmd() {
     cmd="sudo apt install \"$downloaded_file\""
   fi
 
-#cat <<- EOF
-# wget --show-progress -q '$release_link' -O '$downloaded_file'; \\
-# $cmd; \\
-# rm -v '$downloaded_file'
-#EOF
-
-  local cmd2
-  if [[ ${DOWNLOADER:-curl} == "wget" ]]; then
-    cmd2="wget --show-progress -q '$release_link' -O '$downloaded_file'"
-  else
-    cmd2="curl -L --progress-bar '$release_link' -o '$downloaded_file'"
-  fi
-
   cat <<-EOF
-  $cmd2; \\
+  $(_get_download_cmd); \\
   $cmd; \\
   rm -v '$downloaded_file'
 EOF
-
 }
 
 _main() {
@@ -153,13 +139,13 @@ _completion_cmd() {
 }
 
 show_completion() {
-  if [[ ${show_completion}:-} =~ ^(1|true) ]]; then
+  if [[ ${show_completion:-} =~ ^(1|true) ]]; then
     cat <<- EOF
  # Check completion
  $(_completion_cmd)
 
  # Add completion
- source <( $( echo "$(_completion_cmd) | sudo tee /etc/bash_completion.d/$tool_name") )
+ source <( $(_completion_cmd) | sudo tee /etc/bash_completion.d/$tool_name )
 EOF
   fi
 }
