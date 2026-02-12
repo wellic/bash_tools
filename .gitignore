@@ -17,3 +17,6 @@ venv/
 !.gitkeep
 
 _update/
+
+.claude/
+CLAUDE.md
