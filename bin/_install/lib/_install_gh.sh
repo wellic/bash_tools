@@ -34,15 +34,10 @@ trim_spaces() {
 }
 
 get_current_version() {
-#set -x
     if command -v "$tool_name" 1>/dev/null 2>&1; then
       "$tool_name" $OPT_VERSION | _normalize_version
     fi
-#    local v
-#    v=$("$tool_name" $OPT_VERSION || :)
-#    echo "$v" | head -n1 | _normalize_version
-#    "$tool_name" $OPT_VERSION | head -n1 | cut -d ' ' -f 2 | _normalize_version
-#set +x
+
 }
 
 get_download_version() {
@@ -79,7 +74,7 @@ EOF
 get_main_install_cmd() {
   local cmd
 # dpkg -i '$downloaded_file'; \\
-  if [[ $downloaded_file =~ .t?gz$ ]]; then
+  if [[ $downloaded_file =~ .t?[gx]z$ ]]; then
     cmd="tmpdir=\$(mktemp -d); \\
  tar xvf \"$downloaded_file\" --strip-components=${tar_strip_components} -C \"\$tmpdir\"; \\
  sudo mv \"\$tmpdir/$SRC_BIN_FILE\" \"$DST_BIN_FILE\"; \\
@@ -171,6 +166,7 @@ DOWNLOADER=curl
 
 tmp_dir=/tmp
 DST_BIN_DIR=/usr/local/bin
+tool_name=""
 
 def_mask=browser_download_url
 def_mask=\/download\/
