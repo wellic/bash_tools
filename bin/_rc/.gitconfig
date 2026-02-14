@@ -32,19 +32,19 @@
 #  MCF main branches names
     l-fix    = _fix
     l-cfg    = _cfg
-    l-master = develop
+    l-master = main
 
 #  Main source 1
     l-src1         = origin
-    l-src1-rmaster = develop
+    l-src1-rmaster = main
 
 #  Additional source 2
     l-src2         = origin
-    l-src2-rmaster = develop
+    l-src2-rmaster = main
 
 #  MCF prev branches names and repo
-    l-prev-master               = develop
-    l-prev-src1-rmaster         = develop
+    l-prev-master               = main
+    l-prev-src1-rmaster         = main
     l-prev-src1                 = origin
     l-prev-fix                  = _fix
     l-prev-cfg                  = _cfg
@@ -524,7 +524,7 @@ l-local-branch-name = "!f(){ \
  branch_name=${1:-} && \
  local_name=${2:-} && \
  if [ \"$master_name\" = '' -o \"$branch_name\" = '' ]; then git l-echo-err \"$CMD\nError!!!\nBranch and local name cannot be empty.\"; exit 1; fi && \
- if [ \"$branch_name\" != 'develop' ]; then name=\"_/$branch_name/\" ; else name='' ; fi && \
+ if [ \"$branch_name\" != 'main' ]; then name=\"_/$branch_name/\" ; else name='' ; fi && \
  echo \"${name}_${local_name}\" \
 ;};f"
 
