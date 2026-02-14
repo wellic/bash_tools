@@ -5,7 +5,6 @@
 [user]
     name = your_name
     email = your@mail
-    email = your@mail
 
 #for private repos
 #~/.git-credentials

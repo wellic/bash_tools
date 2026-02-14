@@ -23,7 +23,7 @@ The project is organized as follows:
   - **`_dropbox/`** — Integration scripts for Dropbox file synchronization and cloud operations.
   - **`_fs/`** — File system management tools for searching, organizing, copying, and file operations.
   - **`_git/`** — Git helper utilities including branch management, commit operations, and version control shortcuts.
-  - **`_install/`** — Installation scripts for software packages, environments, and system setup automation.
+  - **`_install/`** — Install helpers for GitHub Releases (scripts print ready-to-run install commands; see `bin/_install/README.md`).
   - **`_k8s/`** — Kubernetes tools for cluster management, deployments, monitoring, and container orchestration.
   - **`_kbd/`** — Keyboard utilities, shortcut management, and input device configuration tools.
   - **`_mem/`** — Memory monitoring, optimization tools, and system performance utilities.
@@ -143,6 +143,7 @@ This project is distributed under the terms specified in the [LICENSE](./LICENSE
 
 - [CONTRIBUTING.md](./CONTRIBUTING.md)
 - [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+- [bin/_install/README.md](./bin/_install/README.md)
 
 ---
 

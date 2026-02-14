@@ -7,19 +7,19 @@ version=${1:-"."}
 ################################################################################
 
 get_current_version() {
-  "$tool_name" $OPT_VERSION -s | grep -P '^Version\s+v(\d+.*)$' | _normalize_version
+  "$TOOL_NAME" $OPT_VERSION -s | grep -P '^Version\s+v(\d+.*)$' | _normalize_version
 }
 
 #https://github.com/derailed/k9s/releases/download/v0.50.9/k9s_Linux_amd64.tar.gz
 
-tool_name=k9s
+TOOL_NAME=k9s
 OPT_VERSION=version
-repo=derailed/k9s
-#mask=$def_mask_amd64_deb
+REPO_PATH=derailed/k9s
+#MASK=$def_mask_amd64_deb
 
-mask=$def_mask_amd64_tar_gz
-tar_strip_components=0
-SRC_BIN_FILE="$tool_name"
-DST_BIN_FILE="/usr/local/bin/$tool_name"
+MASK=$DEF_MASK_AMD64_TAR_GZ
+TAR_STRIP_COMPONENTS=0
+SRC_BIN_FILE="$TOOL_NAME"
+DST_BIN_FILE="/usr/local/bin/$TOOL_NAME"
 
 _main

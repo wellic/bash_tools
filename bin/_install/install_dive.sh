@@ -6,8 +6,8 @@ source "$SCRIPT_DIR/_lib.sh"
 version=${1:-"."}
 ################################################################################
 
-tool_name=dive
-repo=wagoodman/dive
-mask=$def_mask_amd64_deb
+TOOL_NAME=dive
+REPO_PATH=wagoodman/dive
+MASK=$DEF_MASK_AMD64_DEB
 
 _main

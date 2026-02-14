@@ -6,15 +6,15 @@ source "$SCRIPT_DIR/_lib.sh"
 version=${1:-"."}
 ################################################################################
 
-tool_name=cdxgen
+TOOL_NAME=cdxgen
 OPT_VERSION=--version
-repo=cdxgen/cdxgen
-mask="${def_mask}.*${tool_name}[_-][Ll]inux[_-]amd64$"
+REPO_PATH=cdxgen/cdxgen
+MASK="${DEF_MASK}.*${TOOL_NAME}[_-][Ll]inux[_-]amd64$"
 
-dst_file=/usr/local/bin/${tool_name}
+dst_file=/usr/local/bin/${TOOL_NAME}
 
 get_current_version() {
-  "$tool_name" $OPT_VERSION | grep -Po "CycloneDX Generator\s+\K([^\s]+)$" | _normalize_version
+  "$TOOL_NAME" $OPT_VERSION | grep -Po "CycloneDX Generator\s+\K([^\s]+)$" | _normalize_version
 }
 
 get_main_install_cmd() {

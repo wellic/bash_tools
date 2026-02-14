@@ -6,15 +6,15 @@ source "$SCRIPT_DIR/_lib.sh"
 version=${1:-"."}
 ################################################################################
 
-tool_name=cosign
+TOOL_NAME=cosign
 OPT_VERSION=version
-repo=sigstore/cosign
-mask=$def_mask_bin
+REPO_PATH=sigstore/cosign
+MASK=$DEF_MASK_BIN
 
-dst_file=/usr/local/bin/${tool_name}
+dst_file=/usr/local/bin/${TOOL_NAME}
 
 get_current_version() {
-  "$tool_name" $OPT_VERSION | grep -i 'GitVersion:' | grep -iPo 'v(\d+.*)' | _normalize_version
+  "$TOOL_NAME" $OPT_VERSION | grep -i 'GitVersion:' | grep -iPo 'v(\d+.*)' | _normalize_version
 }
 
 get_main_install_cmd() {

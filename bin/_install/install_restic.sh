@@ -7,9 +7,9 @@ version=${1:-"."}
 ################################################################################
 
 
-tool_name=restic
-repo=restic/restic
-mask=${def_mask_amd64_bz2}
+TOOL_NAME=restic
+REPO_PATH=restic/restic
+MASK=${DEF_MASK_AMD64_BZ2}
 OPT_VERSION=version
 
 DST=/usr/local/bin/restic

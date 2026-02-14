@@ -14,18 +14,18 @@ version=${1:-"."}
 
 # https://github.com/swsnr/mdcat/releases/download/mdcat-2.7.1/mdcat-2.7.1-x86_64-unknown-linux-gnu.tar.gz
 
-tool_name=mdcat
-repo=swsnr/mdcat
-mask="${def_mask}.*x86_64-unknown-linux-gnu.tar.gz$"
+TOOL_NAME=mdcat
+REPO_PATH=swsnr/mdcat
+MASK="${DEF_MASK}.*x86_64-unknown-linux-gnu.tar.gz$"
 
 OPT_VERSION=--version
 COMPLETION_OPT=--completions
 
-SRC_BIN_FILE="$tool_name"
-DST_BIN_FILE="/usr/local/bin/$tool_name"
+SRC_BIN_FILE="$TOOL_NAME"
+DST_BIN_FILE="/usr/local/bin/$TOOL_NAME"
 
 get_current_version() {
-  "$tool_name" $OPT_VERSION | grep -Po '^mdcat\s+\K(\d+.*)$' | _normalize_version
+  "$TOOL_NAME" $OPT_VERSION | grep -Po '^mdcat\s+\K(\d+.*)$' | _normalize_version
 }
 
 _main

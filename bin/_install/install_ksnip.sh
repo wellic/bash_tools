@@ -33,10 +33,10 @@ _tmp
 
 version=${1:-continuous}
 
-tool_name=ksnip
-repo=ksnip/ksnip
-mask=$def_mask_deb
+TOOL_NAME=ksnip
+REPO_PATH=ksnip/ksnip
+MASK=$DEF_MASK_DEB
 
-before_install_cmd+=("sudo pkill ksnip")
+BEFORE_INSTALL_CMD+=("sudo pkill ksnip")
 _main
 

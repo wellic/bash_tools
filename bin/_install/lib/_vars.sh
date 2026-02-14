@@ -1,32 +1,35 @@
+#!/usr/bin/env bash
+
 ########################
 # curl | wget
 DOWNLOADER=curl
+GITHUB_TOKEN="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
 
-tmp_dir=/tmp
+TMP_DIR=$(mktemp -d)
 DST_BIN_DIR=/usr/local/bin
-tool_name=""
+TOOL_NAME=""
+REPO_PATH=""
+MASK=""
 
 #def_mask=browser_download_url
-def_mask='/download/'
-def_mask_deb="${def_mask}.*.deb"
-def_mask_amd64_deb="${def_mask}.*amd64.deb"
-#def_mask_bin=${def_mask}'.*[_-][Ll]inux[_-]amd64"'
-#def_mask_bin_x64=${def_mask}'.*[_-][Ll]inux[_-]x64"'
-def_mask_bin="${def_mask}.*[_-][Ll]inux[_-]amd64"
-def_mask_bin_x64="${def_mask}.*[_-][Ll]inux[_-]x64"
-def_mask_amd64_bz2="${def_mask}.*linux_amd64.bz2"
-def_mask_x86_64_tar_gz="${def_mask}.*[Ll]inux[_-]x86_64.tar.gz$"
-def_mask_amd64_tar_gz="${def_mask}.*[Ll]inux[_-]amd64.tar.gz$"
+DEF_MASK='/download/'
+DEF_MASK_DEB="${DEF_MASK}.*.deb"
+DEF_MASK_AMD64_DEB="${DEF_MASK}.*amd64.deb"
+DEF_MASK_BIN="${DEF_MASK}.*[_-][Ll]inux[_-]amd64"
+DEF_MASK_BIN_X64="${DEF_MASK}.*[_-][Ll]inux[_-]x64"
+DEF_MASK_AMD64_BZ2="${DEF_MASK}.*linux_amd64.bz2"
+DEF_MASK_X86_64_TAR_GZ="${DEF_MASK}.*[Ll]inux[_-]x86_64.tar.gz$"
+DEF_MASK_AMD64_TAR_GZ="${DEF_MASK}.*[Ll]inux[_-]amd64.tar.gz$"
 
 OPT_VERSION=--version
+LAST_RELEASES=10
+
+BEFORE_INSTALL_CMD=()
+AFTER_INSTALL_CMD=()
+
+SHOW_COMPLETION=1
 COMPLETION_OPT=completion
 COMPLETION_LNG=bash
 
-last_releases=10
-
-before_install_cmd=()
-after_install_cmd=()
-
-show_completion=1
-
-tar_strip_components=1
+TAR_STRIP_COMPONENTS=1
+APP_SHOW_INFO=0

@@ -6,14 +6,14 @@ source "$SCRIPT_DIR/_lib.sh"
 version=${1:-"."}
 ################################################################################
 
-tool_name=zarf
+TOOL_NAME=zarf
 OPT_VERSION=version
-repo=zarf-dev/zarf
-mask="$def_mask_bin"
-dst_file=/usr/bin/${tool_name}
+REPO_PATH=zarf-dev/zarf
+MASK="$DEF_MASK_BIN"
+dst_file=/usr/bin/${TOOL_NAME}
 
 get_current_version() {
-  "$tool_name" $OPT_VERSION | _normalize_version
+  "$TOOL_NAME" $OPT_VERSION | _normalize_version
 }
 
 get_main_install_cmd() {

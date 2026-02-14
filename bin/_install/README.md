@@ -74,44 +74,45 @@ bin/_install/
 
 Each install script:
 1. Sources `_lib.sh` → loads `lib/_vars.sh` + `lib/_install_gh.sh`
-2. Sets tool variables (`tool_name`, `repo`, `mask`, etc.)
+2. Sets tool variables (`TOOL_NAME`, `REPO_PATH`, `MASK`, etc.)
 3. Optionally overrides functions (`get_current_version`, `get_main_install_cmd`, `show_completion`)
 4. Calls `_main`
 
-`_main` fetches GitHub Releases API → filters by mask → prints download + install commands.
+`_main` fetches GitHub Releases API → filters by MASK → prints download + install commands.
 
 ## Key Variables (`lib/_vars.sh`)
 
 | Variable | Default | Description |
 |---|---|---|
-| `tool_name` | `""` | Binary name (used for version check and completion) |
-| `repo` | — | GitHub repo in `owner/name` format |
-| `mask` | — | `grep -E` pattern to filter release asset URLs |
+| `TOOL_NAME` | `""` | Binary name (used for version check and completion) |
+| `REPO_PATH` | `""` | GitHub repo in `owner/name` format |
+| `MASK` | — | `grep -E` pattern to filter release asset URLs (set in each install script) |
 | `DOWNLOADER` | `curl` | `curl` or `wget` |
 | `DST_BIN_DIR` | `/usr/local/bin` | Installation directory |
-| `tmp_dir` | `/tmp` | Download directory |
-| `last_releases` | `10` | Number of releases to show |
-| `tar_strip_components` | `1` | `--strip-components` for tar extraction |
+| `TMP_DIR` | `$(mktemp -d)` | Temporary download directory |
+| `LAST_RELEASES` | `10` | Number of releases to show |
+| `TAR_STRIP_COMPONENTS` | `1` | `--strip-components` for tar extraction |
 | `SRC_BIN_FILE` | — | Binary name inside the archive |
 | `DST_BIN_FILE` | — | Full destination path |
 | `OPT_VERSION` | `--version` | Version flag |
 | `COMPLETION_OPT` | `completion` | Completion subcommand |
 | `COMPLETION_LNG` | `bash` | Completion language |
-| `show_completion` | `1` | Show completion commands (`0` to disable) |
-| `before_install_cmd` | `()` | Array of commands to run before install |
-| `after_install_cmd` | `()` | Array of commands to run after install |
+| `SHOW_COMPLETION` | `1` | Show completion commands (`0` to disable) |
+| `BEFORE_INSTALL_CMD` | `()` | Array of commands to run before install |
+| `AFTER_INSTALL_CMD` | `()` | Array of commands to run after install |
+| `APP_SHOW_INFO` | `0` | Print extra "how to run tool" info block (`1` to enable) |
 
 ### Predefined masks
 
 ```bash
-def_mask='/download/'                                    # base pattern
-def_mask_bin="${def_mask}.*[_-][Ll]inux[_-]amd64"       # bare binary
-def_mask_bin_x64="${def_mask}.*[_-][Ll]inux[_-]x64"     # bare binary (x64)
-def_mask_deb="${def_mask}.*.deb"                         # any .deb
-def_mask_amd64_deb="${def_mask}.*amd64.deb"              # amd64 .deb
-def_mask_amd64_tar_gz="${def_mask}.*[Ll]inux[_-]amd64.tar.gz$"
-def_mask_x86_64_tar_gz="${def_mask}.*[Ll]inux[_-]x86_64.tar.gz$"
-def_mask_amd64_bz2="${def_mask}.*linux_amd64.bz2"
+DEF_MASK='/download/'                                     # base pattern
+DEF_MASK_BIN="${DEF_MASK}.*[_-][Ll]inux[_-]amd64"        # bare binary
+DEF_MASK_BIN_X64="${DEF_MASK}.*[_-][Ll]inux[_-]x64"      # bare binary (x64)
+DEF_MASK_DEB="${DEF_MASK}.*.deb"                         # any .deb
+DEF_MASK_AMD64_DEB="${DEF_MASK}.*amd64.deb"              # amd64 .deb
+DEF_MASK_AMD64_TAR_GZ="${DEF_MASK}.*[Ll]inux[_-]amd64.tar.gz$"
+DEF_MASK_X86_64_TAR_GZ="${DEF_MASK}.*[Ll]inux[_-]x86_64.tar.gz$"
+DEF_MASK_AMD64_BZ2="${DEF_MASK}.*linux_amd64.bz2"
 ```
 
 ## Override Points
@@ -122,7 +123,7 @@ Override when the default `tool --version | _normalize_version` doesn't work:
 
 ```bash
 get_current_version() {
-  "$tool_name" $OPT_VERSION | grep -Po 'v\K([0-9]+\.[0-9]+\.[0-9]+)'
+  "$TOOL_NAME" $OPT_VERSION | grep -Po 'v\K([0-9]+\.[0-9]+\.[0-9]+)'
 }
 ```
 
@@ -132,7 +133,7 @@ Override for non-standard install (e.g. direct binary without tar):
 
 ```bash
 get_main_install_cmd() {
-  _install_bin "/usr/local/bin/$tool_name"
+  _install_bin "/usr/local/bin/$TOOL_NAME"
 }
 ```
 
@@ -149,7 +150,7 @@ EOF
 }
 ```
 
-## Archive `tar_strip_components`
+## Archive `TAR_STRIP_COMPONENTS`
 
 | Value | When to use | Example |
 |---|---|---|
@@ -184,12 +185,12 @@ source "$SCRIPT_DIR/_lib.sh"
 version=${1:-"."}
 ################################################################################
 
-tool_name=mytool
-repo=owner/mytool
-mask="$def_mask_amd64_tar_gz"
+TOOL_NAME=mytool
+REPO_PATH=owner/mytool
+MASK="$DEF_MASK_AMD64_TAR_GZ"
 
-SRC_BIN_FILE="$tool_name"
-DST_BIN_FILE="${DST_BIN_DIR}/${tool_name}"
+SRC_BIN_FILE="$TOOL_NAME"
+DST_BIN_FILE="${DST_BIN_DIR}/${TOOL_NAME}"
 
 _main
 ```

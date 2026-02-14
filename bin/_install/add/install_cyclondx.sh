@@ -6,15 +6,15 @@ source "$SCRIPT_DIR/_lib.sh"
 version=${1:-"."}
 ################################################################################
 
-tool_name=cyclonedx
+TOOL_NAME=cyclonedx
 OPT_VERSION=--version
-repo=CycloneDX/cyclonedx-cli
-mask=$def_mask_bin_x64
+REPO_PATH=CycloneDX/cyclonedx-cli
+MASK=$DEF_MASK_BIN_X64
 
-dst_file=/usr/local/bin/${tool_name}
+dst_file=/usr/local/bin/${TOOL_NAME}
 
 get_current_version() {
-  "$tool_name" $OPT_VERSION | grep -Po '^(.*)(?=\+)' | _normalize_version
+  "$TOOL_NAME" $OPT_VERSION | grep -Po '^(.*)(?=\+)' | _normalize_version
 }
 
 get_main_install_cmd() {

@@ -8,7 +8,7 @@ set -u
 #set -x
 
 get_url_releases() {
-    echo "https://api.github.com/repos/$repo/releases"
+    echo "https://api.github.com/repos/$REPO_PATH/releases"
 }
 
 fetch_releases() {
@@ -21,7 +21,7 @@ fetch_releases() {
     [[ -z "${GITHUB_TOKEN:-}" ]] && echo "# Tip: export GITHUB_TOKEN=<token> to avoid rate limiting" >&2
     return 1
   fi
-  echo "$response" | jq -r '.[]?.assets[]?.browser_download_url' | grep -E "$mask" | head -n$last_releases
+  echo "$response" | jq -r '.[]?.assets[]?.browser_download_url' | grep -E "$MASK" | head -n$LAST_RELEASES
 }
 
 get_release_link() {
@@ -43,10 +43,9 @@ trim_spaces() {
 }
 
 get_current_version() {
-    if command -v "$tool_name" 1>/dev/null 2>&1; then
-      "$tool_name" $OPT_VERSION | _normalize_version
+    if command -v "$TOOL_NAME" 1>/dev/null 2>&1; then
+      "$TOOL_NAME" $OPT_VERSION | _normalize_version
     fi
-
 }
 
 get_download_version() {
@@ -85,7 +84,7 @@ get_main_install_cmd() {
   local cmd
   if [[ $downloaded_file =~ .t?[gx]z$ ]]; then
     cmd="tmpdir=\$(mktemp -d); \\
- tar xvf \"$downloaded_file\" --strip-components=${tar_strip_components} -C \"\$tmpdir\"; \\
+ tar xvf \"$downloaded_file\" --strip-components=${TAR_STRIP_COMPONENTS} -C \"\$tmpdir\"; \\
  sudo mv \"\$tmpdir/$SRC_BIN_FILE\" \"$DST_BIN_FILE\"; \\
  sudo chmod +x \"$DST_BIN_FILE\"; \\
  rm -vrf \"\$tmpdir\""
@@ -96,7 +95,9 @@ get_main_install_cmd() {
   fi
 
   cat <<-EOF
+$(_sep_line 0 0)
  # Install
+
  $(_get_download_cmd); \\
  $cmd; \\
  rm -v '$downloaded_file'
@@ -112,11 +113,18 @@ _get_rate_limit() {
   echo "$remaining/$limit (resets at $reset_time)"
 }
 
+_sep_line() {
+  local before=${1:-1}
+  local after=${2:-1}
+  [[ $before =~ ^1|true$ ]] && echo
+  echo " ################################################################################"
+  [[ $after =~ ^1|true$ ]] && echo
+}
+
 _main() {
-  echo "Tool Name:  $tool_name"
-  echo "Repo Path:  https://github.com/$repo/"
-  echo "Rate limit: $(_get_rate_limit)"
-  echo
+  echo " Tool Name:  $TOOL_NAME"
+  echo " Repo Path:  https://github.com/$REPO_PATH/"
+  echo " Rate limit: $(_get_rate_limit)"
   local version_current
 #set -x
     url_releases=$(get_url_releases)
@@ -125,46 +133,57 @@ _main() {
     version_current="$(get_current_version || :)"
 #set +x
 
-
  cat <<- EOF
+$(_sep_line)
  # Existed releases:
 $(echo "$releases" | sed 's/^/ /')
-
+$(_sep_line)
  # Current version: $version_current
  # Download link: $release_link
 EOF
 
     [ -z "$release_link" ] && exit 1
     version_download=$(get_download_version "$release_link")
-    downloaded_file="$tmp_dir/$(basename $release_link)"
-    [ "$version_current" != "$version_download" ] && summary="# !!! New version '$version_download' exists !!!" || summary=""
+    downloaded_file="$TMP_DIR/$(basename $release_link)"
+    [ "$version_current" != "$version_download" ] && summary=" # !!! New version '$version_download' exists !!!" || summary=""
 
-    cmd_before=$(prepare_cmd_str " " "${before_install_cmd[@]}")
+    cmd_before=$(prepare_cmd_str " " "${BEFORE_INSTALL_CMD[@]}")
     cmd_main=$(get_main_install_cmd)
-    cmd_after=$(prepare_cmd_str " " "${after_install_cmd[@]}")
+    cmd_after=$(prepare_cmd_str " " "${AFTER_INSTALL_CMD[@]}")
+    print_show_info="$([[ $APP_SHOW_INFO =~ ^1|true$ ]] && show_info || :)"
 cat <<- EOF
  # Updating version: $version_current -> $version_download
 $cmd_before
 $cmd_main
 $cmd_after
+$(_sep_line 0 0)
 $(show_completion)
-
+$print_show_info
+$(_sep_line 0 0)
 $summary
 EOF
 }
 
 _completion_cmd() {
-  echo "$tool_name $COMPLETION_OPT $COMPLETION_LNG"
+  echo "$TOOL_NAME $COMPLETION_OPT $COMPLETION_LNG"
 }
 
 show_completion() {
-  if [[ ${show_completion:-} =~ ^(1|true) ]]; then
+  if [[ ${SHOW_COMPLETION:-} =~ ^(1|true) ]]; then
     cat <<- EOF
  # Check completion
  $(_completion_cmd)
 
  # Add completion
- source <( $(_completion_cmd) | sudo tee /etc/bash_completion.d/$tool_name )
+ source <( $(_completion_cmd) | sudo tee /etc/bash_completion.d/$TOOL_NAME )
 EOF
   fi
+}
+
+show_info() {
+  cat << EOF
+$(_sep_line 1 0)
+ # Command for running tool:
+ $TOOL_NAME
+EOF
 }

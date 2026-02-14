@@ -6,15 +6,15 @@ source "$SCRIPT_DIR/_lib.sh"
 version=${1:-"."}
 ################################################################################
 
-tool_name=jq
+TOOL_NAME=jq
 #OPT_VERSION=version
-repo=jqlang/jq
-mask="$def_mask_bin"
-dst_file=/usr/local/bin/${tool_name}
-show_completion=0
+REPO_PATH=jqlang/jq
+MASK="$DEF_MASK_BIN"
+dst_file=/usr/local/bin/${TOOL_NAME}
+SHOW_COMPLETION=0
 
 get_current_version() {
-    "$tool_name" $OPT_VERSION | head -n1 | grep -Po 'jq-\K(\d+.*)$'
+    "$TOOL_NAME" $OPT_VERSION | head -n1 | grep -Po 'jq-\K(\d+.*)$'
 }
 
 get_main_install_cmd() {

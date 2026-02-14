@@ -6,13 +6,13 @@ source "$SCRIPT_DIR/_lib.sh"
 version=${1:-"."}
 ################################################################################
 
-tool_name=yamlfmt
-repo=google/yamlfmt
-mask=${def_mask_x86_64_tar_gz}
+TOOL_NAME=yamlfmt
+REPO_PATH=google/yamlfmt
+MASK=${DEF_MASK_X86_64_TAR_GZ}
 OPT_VERSION=-version
 
-tar_strip_components=0
-SRC_BIN_FILE="$tool_name"
-DST_BIN_FILE="/usr/local/bin/$tool_name"
+TAR_STRIP_COMPONENTS=0
+SRC_BIN_FILE="$TOOL_NAME"
+DST_BIN_FILE="/usr/local/bin/$TOOL_NAME"
 
 _main

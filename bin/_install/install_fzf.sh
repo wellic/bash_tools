@@ -7,16 +7,16 @@ version=${1:-"."}
 ################################################################################
 
 
-tool_name=fzf
+TOOL_NAME=fzf
 OPT_VERSION=--version
-repo=junegunn/fzf
-mask="$def_mask_amd64_tar_gz"
-tar_strip_components=0
+REPO_PATH=junegunn/fzf
+MASK="$DEF_MASK_AMD64_TAR_GZ"
+TAR_STRIP_COMPONENTS=0
 
-SRC_BIN_FILE="$tool_name"
-DST_BIN_FILE="${DST_BIN_DIR}/${tool_name}"
+SRC_BIN_FILE="$TOOL_NAME"
+DST_BIN_FILE="${DST_BIN_DIR}/${TOOL_NAME}"
 
-show_completion=1
+SHOW_COMPLETION=1
 
 show_completion() {
   cat <<- EOF
@@ -26,7 +26,7 @@ EOF
 }
 
 get_current_version() {
- "$tool_name" $OPT_VERSION | head -n1 | grep -Eo '^(\S+)'
+ "$TOOL_NAME" $OPT_VERSION | head -n1 | grep -Eo '^(\S+)'
 }
 
 _main
