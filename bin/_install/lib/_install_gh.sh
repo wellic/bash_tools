@@ -105,9 +105,9 @@ _get_download_cmd() {
   local cmd_start;
   cmd_start="mkdir -p '$TMP_DIR'; \\"
   if [[ ${DOWNLOADER:-curl} == "wget" ]]; then
-    echo -e "$cmd_start;\n wget --show-progress -q '$release_link' -O '$DOWNLOADED_FILE'"
+    echo -e "$cmd_start\n wget --show-progress -q '$release_link' -O '$DOWNLOADED_FILE'"
   else
-    echo -e "$cmd_start;\n curl -L --progress-bar '$release_link' -o '$DOWNLOADED_FILE'"
+    echo -e "$cmd_start\n curl -L --progress-bar '$release_link' -o '$DOWNLOADED_FILE'"
   fi
 }
 
