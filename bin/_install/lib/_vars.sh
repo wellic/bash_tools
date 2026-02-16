@@ -6,14 +6,15 @@ DOWNLOADER=curl
 GITHUB_TOKEN="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
 
 TMP_DIR=$(mktemp -d)
-DST_BIN_DIR=/usr/local/bin
 TOOL_NAME=""
 REPO_PATH=""
 MASK=""
 DOWNLOADED_FILE=""
 VERSION=""
+SRC_BIN_FILE=""
+DST_BIN_DIR=/usr/bin
+DST_BIN_FILE=""
 
-#def_mask=browser_download_url
 DEF_MASK='/download/'
 DEF_MASK_DEB="${DEF_MASK}.*.deb"
 DEF_MASK_AMD64_DEB="${DEF_MASK}.*amd64.deb"

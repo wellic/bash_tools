@@ -9,7 +9,10 @@ _main() {
   echo " Tool Name:  $TOOL_NAME"
   echo " Repo Path:  https://github.com/$REPO_PATH/"
   echo " Rate limit: $(_get_rate_limit)"
-  local version_current
+
+  local url_releases releases release_link version_current
+  local version_download summary
+  local cmd_before cmd_main cmd_after print_show_info
 
   url_releases=$(get_url_releases)
   releases=$(fetch_releases)
