@@ -30,8 +30,8 @@ Tool: fzf
  curl -L --progress-bar '...' -o '/tmp/fzf-0.67.0-linux_amd64.tar.gz'; \
  tmpdir=$(mktemp -d); \
  tar xvf "/tmp/..." --strip-components=0 -C "$tmpdir"; \
- sudo mv "$tmpdir/fzf" "/usr/local/bin/fzf"; \
- sudo chmod +x "/usr/local/bin/fzf"; \
+ sudo mv "$tmpdir/fzf" "${CURRENT_TOOL_DIR:-$DST_TOOL_DIR}/fzf"; \
+ sudo chmod +x "${CURRENT_TOOL_DIR:-$DST_TOOL_DIR}/fzf"; \
  rm -vrf "$tmpdir"; \
  rm -v '/tmp/fzf-0.67.0-linux_amd64.tar.gz'
 
@@ -88,7 +88,7 @@ Each install script:
 | `REPO_PATH` | `""` | GitHub repo in `owner/name` format |
 | `MASK` | — | `grep -E` pattern to filter release asset URLs (set in each install script) |
 | `DOWNLOADER` | `curl` | `curl` or `wget` |
-| `DST_BIN_DIR` | `/usr/local/bin` | Installation directory |
+| `DST_BIN_DIR` | `${CURRENT_TOOL_DIR:-$DST_TOOL_DIR}` | Installation directory |
 | `TMP_DIR` | `$(mktemp -d)` | Temporary download directory |
 | `LAST_RELEASES` | `10` | Number of releases to show |
 | `TAR_STRIP_COMPONENTS` | `1` | `--strip-components` for tar extraction |
@@ -133,7 +133,7 @@ Override for non-standard install (e.g. direct binary without tar):
 
 ```bash
 get_main_install_cmd() {
-  _install_bin "/usr/local/bin/$TOOL_NAME"
+  _install_bin "${CURRENT_TOOL_DIR:-$DST_TOOL_DIR}/$TOOL_NAME"
 }
 ```
 

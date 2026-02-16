@@ -10,7 +10,7 @@ TOOL_NAME=jq
 #OPT_VERSION=version
 REPO_PATH=jqlang/jq
 MASK="$DEF_MASK_BIN"
-dst_file=/usr/local/bin/${TOOL_NAME}
+DST_FILE="${DST_DIR}/${TOOL_NAME}"
 SHOW_COMPLETION=0
 
 get_current_version() {
@@ -18,7 +18,7 @@ get_current_version() {
 }
 
 get_main_install_cmd() {
-  _install_bin "$dst_file"
+  _install_bin "$DST_FILE"
 }
 
 _main

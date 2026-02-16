@@ -11,14 +11,14 @@ OPT_VERSION="--version"
 REPO_PATH=mvdan/sh
 MASK=$DEF_MASK_BIN
 
-dst_file=/usr/local/bin/${TOOL_NAME}
+DST_FILE=${DST_DIR}/${TOOL_NAME}
 
 get_current_version() {
   "$TOOL_NAME" $OPT_VERSION | grep -iPo 'v(\d+.*)' | _normalize_version
 }
 
 get_main_install_cmd() {
-  _install_bin "$dst_file"
+  _install_bin "$DST_FILE"
 }
 
 _main

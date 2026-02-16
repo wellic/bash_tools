@@ -22,7 +22,7 @@ OPT_VERSION=--version
 COMPLETION_OPT=--completions
 
 SRC_BIN_FILE="$TOOL_NAME"
-DST_BIN_FILE="/usr/local/bin/$TOOL_NAME"
+DST_BIN_FILE="${DST_DIR}/$TOOL_NAME"
 
 get_current_version() {
   "$TOOL_NAME" $OPT_VERSION | grep -Po '^mdcat\s+\K(\d+.*)$' | _normalize_version
