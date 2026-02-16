@@ -3,7 +3,7 @@
 SCRIPT_DIR=$(dirname "$0")
 source "$SCRIPT_DIR/_lib.sh"
 
-version=${1:-"."}
+VERSION=${1:-"."}
 ################################################################################
 
 
@@ -17,10 +17,10 @@ DST=/usr/local/bin/restic
 get_main_install_cmd() {
 # dpkg2 -i '$downloaded_file'; \\
 cat <<- EOF
- wget -q '$release_link' -O '$downloaded_file'; \\
- sudo cp '$downloaded_file' "$DST"; \\
+ wget -q '$release_link' -O '$DOWNLOADED_FILE'; \\
+ sudo cp '$DOWNLOADED_FILE' "$DST"; \\
  sudo chmod +x "$DST"; \\
- rm -v '$downloaded_file'
+ rm -v '$DOWNLOADED_FILE'
 EOF
 }
 

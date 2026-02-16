@@ -3,7 +3,7 @@
 SCRIPT_DIR=$(dirname "$0")
 source "$SCRIPT_DIR/_lib.sh"
 
-version=${1:-"."}
+VERSION=${1:-"."}
 ################################################################################
 
 TOOL_NAME=bat

@@ -10,6 +10,8 @@ DST_BIN_DIR=/usr/local/bin
 TOOL_NAME=""
 REPO_PATH=""
 MASK=""
+DOWNLOADED_FILE=""
+VERSION=""
 
 #def_mask=browser_download_url
 DEF_MASK='/download/'

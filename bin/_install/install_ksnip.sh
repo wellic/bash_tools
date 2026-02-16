@@ -3,7 +3,7 @@
 SCRIPT_DIR=$(dirname "$0")
 source "$SCRIPT_DIR/_lib.sh"
 
-version=${1:-"."}
+VERSION=${1:-"."}
 ################################################################################
 
 
@@ -31,7 +31,7 @@ echo "
 }
 _tmp
 
-version=${1:-continuous}
+VERSION=${1:-continuous}
 
 TOOL_NAME=ksnip
 REPO_PATH=ksnip/ksnip
