@@ -135,9 +135,8 @@ if [ -f '/home/yournick/google-cloud-sdk/google-cloud-sdk/path.bash.inc' ]; then
 if [ -f '/home/yournick/google-cloud-sdk/google-cloud-sdk/completion.bash.inc' ]; then . '/home/yournick/google-cloud-sdk/google-cloud-sdk/completion.bash.inc'; fi
 
 
-#remove dublicated paths
-PATH="$PATH:$HOME/.local/bin:$HOME/bin"
-
+PATH="$HOME/.local/bin:$PATH:$HOME/bin"
+#remove duplicated paths
 WHICH=/usr/bin/which
 CMD_env=$($WHICH env)
 CMD_grep=$($WHICH grep)
