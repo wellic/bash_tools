@@ -63,7 +63,8 @@ print_interfaces() {
 print_connected() {
   _sep
   if [[ ${#connected[@]} -gt 0 ]]; then
-    printf "%s\n" "Selected ${#connected[@]} interfaces"
+    printf "%s\n" "Found ${#connected[@]} interfaces"
+
     for ((i=0; i<${#connected[@]}; i++)); do
       printf "%d) %s\n" "$((i+1))" "${connected[$i]}"
     done
@@ -175,4 +176,4 @@ else
   done
 fi
 
-exit $status
+exit "$status"

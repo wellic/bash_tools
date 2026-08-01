@@ -91,8 +91,6 @@ source ~/.bash_complete || echo "Issue in ~/.bash_complete"
 export EDITOR=/usr/bin/mcedit
 [ -f ~/.bash_bin ]   && source ~/.bash_bin
 [ -f ~/.bash_local ] && source ~/.bash_local
-PATH="$PATH:$HOME/bin:$HOME/.local/bin"
-export PATH
 
 _wttr()
 {
@@ -129,17 +127,6 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-#remove dublicated paths
-WHICH=/usr/bin/which
-CMD_env=$($WHICH env)
-CMD_grep=$($WHICH grep)
-CMD_cut=$($WHICH cut)
-CMD_tr=$($WHICH tr)
-CMD_awk=$($WHICH awk)
-PATH=$($CMD_env | $CMD_grep -E '\bPATH=' | $CMD_cut -d '=' -f2 | $CMD_tr ':' '\n' | $CMD_awk '!x[$0]++' | tr '\n' ':')
-
-export PATH="${PATH%%:}"
-
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/home/yournick/google-cloud-sdk/google-cloud-sdk/path.bash.inc' ]; then . '/home/yournick/google-cloud-sdk/google-cloud-sdk/path.bash.inc'; fi
@@ -147,3 +134,19 @@ if [ -f '/home/yournick/google-cloud-sdk/google-cloud-sdk/path.bash.inc' ]; then
 # The next line enables shell command completion for gcloud.
 if [ -f '/home/yournick/google-cloud-sdk/google-cloud-sdk/completion.bash.inc' ]; then . '/home/yournick/google-cloud-sdk/google-cloud-sdk/completion.bash.inc'; fi
 
+
+#remove dublicated paths
+PATH="$PATH:$HOME/.local/bin:$HOME/bin"
+
+WHICH=/usr/bin/which
+CMD_env=$($WHICH env)
+CMD_grep=$($WHICH grep)
+CMD_cut=$($WHICH cut)
+CMD_tr=$($WHICH tr)
+CMD_awk=$($WHICH awk)
+PATH=$($CMD_env | $CMD_grep -E '\bPATH=' | $CMD_cut -d '=' -f2 | $CMD_tr ':' '\n' | $CMD_awk '!x[$0]++' | tr '\n' ':')
+export PATH="${PATH%%:}"
+
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook bash)"
+fi
