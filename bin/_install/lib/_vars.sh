@@ -24,7 +24,7 @@ DST_FILE=""
 
 DEF_MASK='/download/'
 DEF_MASK_DEB="${DEF_MASK}.*.deb"
-DEF_MASK_AMD64_DEB="${DEF_MASK}.*amd64.deb"
+DEF_MASK_AMD64_DEB="${DEF_MASK}.*amd64.deb$"
 DEF_MASK_BIN="${DEF_MASK}.*[_-][Ll]inux[_-]amd64$"
 DEF_MASK_BIN_X64="${DEF_MASK}.*[_-][Ll]inux[_-]x64"
 DEF_MASK_AMD64_BZ2="${DEF_MASK}.*linux_amd64.bz2"
