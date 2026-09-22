@@ -8,10 +8,8 @@ VERSION=${1:-"."}
 
 OPT_VERSION=--help
 
-_normalize_version() {
-
-echo 0.0.0
-
+get_current_version() {
+ dpkg -s handy | grep Version 
 }
 
 
