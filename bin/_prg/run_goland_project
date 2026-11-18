@@ -3,4 +3,4 @@
 set -uEeo pipefail
 #set -x
 
-bash run_idea_project.sh "golang" "$@"
+bash run_idea_project.sh "goland" "$@"
